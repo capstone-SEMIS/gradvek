@@ -6,6 +6,8 @@ import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 
+import edu.gradvek.entity.Entity;
+
 import static org.neo4j.driver.Values.parameters;
 
 public class Neo4jDriver {
