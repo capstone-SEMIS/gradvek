@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,6 +24,14 @@ public class SpringdbApplication {
 	)
 	{
 		mLogger.info(entity.toString());
+		return new ResponseEntity<Void>(HttpStatus.CREATED);
+	}
+	
+	@PostMapping("init")
+	@ResponseBody
+	public ResponseEntity<Void> init()
+	{
+		mLogger.info("Init");
 		return new ResponseEntity<Void>(HttpStatus.CREATED);
 	}
 
