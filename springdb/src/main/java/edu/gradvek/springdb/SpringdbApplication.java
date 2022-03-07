@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import edu.gradvek.entity.Entity;
 
 @SpringBootApplication
@@ -22,7 +24,7 @@ public class SpringdbApplication {
 	@PostMapping("/upload")
 	@ResponseBody
 	public ResponseEntity<Void> upload(
-			@RequestBody Entity entity
+			@RequestBody JsonNode entity
 	)
 	{
 		mLogger.info(entity.toString());

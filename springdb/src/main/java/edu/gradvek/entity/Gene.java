@@ -14,4 +14,14 @@ public class Gene extends NamedEntity {
 		return ("Gene");
 	}
 
+	@Override
+	public final String toString () {
+		return (
+			"(" + getName()
+			+ ":" + getType()
+			+ " {geneId:\'" + mId
+			+ "\'})"
+		);
+			
+	}
 }

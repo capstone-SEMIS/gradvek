@@ -14,4 +14,14 @@ public class Target extends NamedEntity {
 		return ("Target");
 	}
 
+	@Override
+	public final String toString () {
+		return (
+			"(" + getName()
+			+ ":" + getType()
+			+ " {targetId:\'" + mId
+			+ "\'})"
+		);
+			
+	}
 }
