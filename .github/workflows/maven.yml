@@ -23,9 +23,9 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
-#    - name: Build with Maven
-#      run: mvn -B package --file pom.xml
-    - name: Run end-to-end tests
+    - name: Build with Maven
       run: |
         cd springdb
-        ./mvnw -Dtest="EndToEndTests" test
+        ./mvnw -B package --file pom.xml
+    - name: Run end-to-end tests
+      run: ./mvnw -Dtest="EndToEndTests" test
