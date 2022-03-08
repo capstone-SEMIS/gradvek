@@ -1,4 +1,4 @@
-package edu.gradvek.entity;
+package com.semis.gradvek.entity;
 
 public class AdverseEvent extends NamedEntity {
 	private final String mId;

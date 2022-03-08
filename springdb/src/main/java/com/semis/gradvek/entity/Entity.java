@@ -1,10 +1,11 @@
-package edu.gradvek.entity;
+package com.semis.gradvek.entity;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public abstract class Entity {
 	
-	public static Entity parse (String json) {
+	public static Entity parse (JsonNode json) {
 		return (null);
 	}
 

@@ -1,4 +1,4 @@
-package edu.gradvek.entity;
+package com.semis.gradvek.entity;
 
 public class Target extends NamedEntity {
 	
