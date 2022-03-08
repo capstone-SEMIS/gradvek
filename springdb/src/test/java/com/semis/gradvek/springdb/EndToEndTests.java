@@ -2,6 +2,7 @@ package com.semis.gradvek.springdb;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,7 +36,7 @@ class EndToEndTests {
     }
 
     @Test
-//    @Disabled
+    @Disabled
     void TestsAreFailing() {
         assertThat(1).isEqualTo(2);
     }
@@ -47,7 +48,7 @@ class EndToEndTests {
     }
 
     @Test
-//    @Disabled
+    @Disabled
     void InfoSaysGoodbye() {
         driver.get("http://localhost/info");
         assertThat(driver.getPageSource()).contains("Goodbye Gradvec");
