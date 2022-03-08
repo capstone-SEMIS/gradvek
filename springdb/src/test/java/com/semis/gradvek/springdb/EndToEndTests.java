@@ -1,4 +1,4 @@
-package edu.gradvek.springdb;
+package com.semis.gradvek.springdb;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +35,7 @@ class EndToEndTests {
     }
 
     @Test
+//    @Disabled
     void TestsAreFailing() {
         assertThat(1).isEqualTo(2);
     }
@@ -46,6 +47,7 @@ class EndToEndTests {
     }
 
     @Test
+//    @Disabled
     void InfoSaysGoodbye() {
         driver.get("http://localhost/info");
         assertThat(driver.getPageSource()).contains("Goodbye Gradvec");
