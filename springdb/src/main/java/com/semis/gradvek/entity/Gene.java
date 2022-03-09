@@ -19,7 +19,9 @@ public class Gene extends NamedEntity {
 		return (
 			"(" + getName()
 			+ ":" + getType()
-			+ " {geneId:\'" + mId
+			+ " {"
+			+ super.toString()
+			+ "geneId:\'" + mId
 			+ "\'})"
 		);
 			

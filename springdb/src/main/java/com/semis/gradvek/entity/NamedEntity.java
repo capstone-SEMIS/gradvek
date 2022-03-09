@@ -10,5 +10,10 @@ public abstract class NamedEntity extends Entity {
 	public String getName() {
 		return mName;
 	}
+	
+	@Override
+	public String toString( ) {
+		return ("name:\'" + getName());
+	}
 
 }

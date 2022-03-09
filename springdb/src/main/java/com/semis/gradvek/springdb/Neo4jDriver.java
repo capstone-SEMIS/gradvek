@@ -5,24 +5,28 @@ import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
+import org.springframework.boot.SpringApplication;
 
 import com.semis.gradvek.entity.Entity;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class Neo4jDriver {
-    private final Driver mDriver;
+	private static final Logger mLogger = Logger.getLogger(Neo4jDriver.class.getName());
+    
+	private final Driver mDriver;
 
-    private Neo4jDriver (String NeoURI) {
-    	mDriver = GraphDatabase.driver(NeoURI);
+    private Neo4jDriver (String NeoURI, String user, String password) {
+    	mDriver = GraphDatabase.driver( NeoURI, AuthTokens.basic( user, password ));
     }
 
     private static final Map<String, Neo4jDriver> mInstances = new HashMap<> ();
-    public static Neo4jDriver instance (String uri) {
+    public static Neo4jDriver instance (String uri, String user, String password) {
     	Neo4jDriver ret = mInstances.getOrDefault(uri, null);
     	if (ret == null) {
-    		ret = new Neo4jDriver(uri);
+    		ret = new Neo4jDriver(uri, user, password);
     		mInstances.put(uri, ret);
     	}
     	
@@ -30,10 +34,19 @@ public class Neo4jDriver {
     }
     
     public void add (Entity entity) {
+    	run ("CREATE " + entity.toCommand());
+    }
+    
+    public void clear () {
+    	run ("MATCH (n) DETACH DELETE n");
+    }
+    
+    public void run (String command) {
+    	mLogger.info(command);
     	try (Session session = mDriver.session()) {
     		session.writeTransaction (tx -> {
-    			Result result = tx.run( "CREATE " + entity.toCommand() ) ;
-    			return result.single().get( 0 ).asString();
+    			tx.run(command) ;
+    			return "";
     		});
     	}
     }

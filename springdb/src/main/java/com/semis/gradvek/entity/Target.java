@@ -19,7 +19,9 @@ public class Target extends NamedEntity {
 		return (
 			"(" + getName()
 			+ ":" + getType()
-			+ " {targetId:\'" + mId
+			+ " {"
+			+ super.toString()
+			+ "targetId:\'" + mId
 			+ "\'})"
 		);
 			

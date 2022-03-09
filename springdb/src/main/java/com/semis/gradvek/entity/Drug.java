@@ -19,9 +19,12 @@ public class Drug extends NamedEntity {
 		return (
 			"(" + getName()
 			+ ":" + getType()
-			+ " {drugId:\'" + getName()
+			+ " {"
+			+ super.toString()
+			+ "drugId:\'" + getName()
 			+ "\', chembl_code: \'" + mChemblCode
-			+ "\'})"
+			+ "\'" 
+			+ "})"
 		);
 			
 	}

@@ -19,7 +19,9 @@ public class AdverseEvent extends NamedEntity {
 	public final String toString () {
 		return (
 			"(" + getName() + ":" + getType()  
-			+ " {adverseEventId: \'" + mId
+			+ " {"
+			+ super.toString()
+			+ "adverseEventId: \'" + mId
 			+ "\', meddraCode: \'" + mMeddraCode
 			+ "\'})"
 			
