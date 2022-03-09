@@ -3,9 +3,7 @@ package com.semis.gradvek.springdb;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
-import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
-import org.springframework.boot.SpringApplication;
 
 import com.semis.gradvek.entity.Entity;
 
