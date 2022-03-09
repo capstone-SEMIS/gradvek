@@ -3,8 +3,8 @@ package com.semis.gradvek.entity;
 public class Gene extends NamedEntity {
 	private final String mId;
 
-	public Gene(String name, String id) {
-		super(name);
+	public Gene(String id) {
+		super(id);
 		mId = id;
 	}
 
@@ -21,7 +21,7 @@ public class Gene extends NamedEntity {
 			+ ":" + getType()
 			+ " {"
 			+ super.toString()
-			+ "geneId:\'" + mId
+			+ ", geneId:\'" + mId
 			+ "\'})"
 		);
 			

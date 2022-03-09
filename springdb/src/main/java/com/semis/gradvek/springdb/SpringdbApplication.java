@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -99,11 +100,22 @@ public class SpringdbApplication {
 		return new ResponseEntity<Void>(HttpStatus.OK);
 	}
 
+	@PostMapping("/gene/{id}")
+	public ResponseEntity<Void> gene (@PathVariable(value="id") final String id) {
+		mLogger.info("Init");
+		Neo4jDriver driver = Neo4jDriver.instance(
+				mEnv.getProperty("neo4j.url"),
+				mEnv.getProperty("neo4j.user"),
+				mEnv.getProperty("neo4j.password")
+				);
+		driver.add(new Gene (id));
+		return new ResponseEntity<Void>(HttpStatus.OK);
+	}
+
 	@RequestMapping("/info")
   	public String home() {
     	return "Hello Gradvec";
   	}
-
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(SpringdbApplication.class, args);

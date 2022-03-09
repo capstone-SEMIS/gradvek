@@ -13,7 +13,7 @@ public abstract class NamedEntity extends Entity {
 	
 	@Override
 	public String toString( ) {
-		return ("name:\'" + getName());
+		return ("name:\'" + getName() + "\'");
 	}
 
 }
