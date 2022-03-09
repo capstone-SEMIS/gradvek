@@ -1,4 +1,6 @@
 import cytoscape from 'cytoscape';
+import popper from 'cytoscape-popper';
+
 
 let initialElements = [
     {
@@ -26,12 +28,20 @@ let initialElements = [
         }
     },
     { 
-        data: { id: 'edge_1', source: 'Acetaminophen', target: 'Acute hepatic failure', arrow: "vee" }
-    }
+        group: "edges",
+        data: { 
+            id: 'edge_1', 
+            source: 'Acetaminophen', 
+            target: 'Acute hepatic failure', 
+            arrow: "vee",
+            critval: 123 
+        }
+    },
 ]
 
 function setupCy(){
-    cytoscape({
+    cytoscape.use(popper);
+    let cy = cytoscape({
         container: document.getElementById('CytoScape-canvas'), // container to render in
 
         elements: initialElements,
@@ -64,6 +74,33 @@ function setupCy(){
         }
 
     });
+
+    cy.on("tap","node", function(hoverEvent) {
+        let node = hoverEvent.target;
+        let popup = node.popper({
+            content: () => {
+                let div = document.createElement('div');
+
+                div.innerHTML = "Meddra code: " + node.data("meddraCode");
+
+                document.body.appendChild(div);
+
+                return div;
+            },
+            popper: {} // my popper options here
+        });
+
+        let update = () => {
+            popup.update();
+        };
+
+        node.on('position', update);
+
+        cy.on('pan zoom resize', update);
+    })
+
+    
+    
 }
 
 export default setupCy;
