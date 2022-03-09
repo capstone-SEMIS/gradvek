@@ -1,14 +1,32 @@
 import cytoscape from 'cytoscape';
 
 let initialElements = [
-    { // node a
-        data: { id: 'a' }
+    {
+        group: "nodes",
+        data: { 
+            id: 'Acetaminophen',
+            classes:["drug"],
+            chembl_code: 'CHEMBL112'
+        }
     },
-    { // node b
-        data: { id: 'b' }
+    {
+        group: "nodes",
+        data: {
+            id: 'Acute hepatic failure',
+            classes: ["adverse event"],
+            meddraCode: '10000804'
+        }
     },
-    { // edge ab
-        data: { id: 'ab', source: 'a', target: 'b' }
+    {
+        group: "nodes",
+        data: {
+            id: 'Toxicity to various agents',
+            classes: ["adverse event"],
+            meddraCode: '10070863'
+        }
+    },
+    { 
+        data: { id: 'edge_1', source: 'Acetaminophen', target: 'Acute hepatic failure', arrow: "vee" }
     }
 ]
 
@@ -34,14 +52,15 @@ function setupCy(){
                     'line-color': '#ccc',
                     'target-arrow-color': '#ccc',
                     'target-arrow-shape': 'triangle',
-                    'curve-style': 'bezier'
+                    'curve-style': 'bezier',
+                    "label": "causes"
                 }
             }
         ],
 
         layout: {
             name: 'grid',
-            rows: 1
+            rows: 2
         }
 
     });
