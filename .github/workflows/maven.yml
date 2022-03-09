@@ -31,6 +31,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v2
     - name: Build with Maven
       run: |
         cd springdb
@@ -39,8 +40,9 @@ jobs:
   test:
     needs: build
     runs-on: ubuntu-latest
-    
+
     steps:
+    - uses: actions/checkout@v2
     - name: Run application tests
       run: |
         cd springdb
