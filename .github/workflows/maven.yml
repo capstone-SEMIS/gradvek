@@ -5,10 +5,10 @@ name: Java CI with Maven
 
 on:
   workflow_dispatch
-#  push:
-#    branches: [ master ]
-#  pull_request:
-#    branches: [ master ]
+ push:
+   branches: [ master ]
+ pull_request:
+   branches: [ master ]
 
 jobs:
   build:
@@ -28,6 +28,13 @@ jobs:
         cd springdb
         ./mvnw -DskipTests install
 #        ./mvnw -B package --file pom.xml
+  test:
+    steps:
+    - name: Run end-to-end tests
+      run: |
+        cd springdb
+        ./mvnw -Dtest="SpringdbApplicationTests" test
+
     - name: Run end-to-end tests
       run: |
         cd springdb
