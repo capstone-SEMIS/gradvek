@@ -1,7 +1,6 @@
 package com.semis.gradvek.springdb;
 
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.semis.gradvek.entity.AdverseEvent;
-import com.semis.gradvek.entity.Drug;
-import com.semis.gradvek.entity.Edge;
-import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.Gene;
 
 @SpringBootApplication
@@ -61,7 +56,6 @@ public class SpringdbApplication {
 				mEnv.getProperty("neo4j.user"),
 				mEnv.getProperty("neo4j.password")
 				);
-		driver.clear();
 		driver.run(""
 				+ "CREATE (Acetaminophen:Drug {drugId:'Acetaminophen', chembl_code:'CHEMBL112'}) "
 
