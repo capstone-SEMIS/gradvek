@@ -6,9 +6,6 @@ import { Box, Stack, AppBar, Toolbar, IconButton } from '@mui/material';
 import Iconify from '../../components/Iconify';
 //
 import Searchbar from './Searchbar';
-import AccountPopover from './AccountPopover';
-import LanguagePopover from './LanguagePopover';
-import NotificationsPopover from './NotificationsPopover';
 
 // ----------------------------------------------------------------------
 
@@ -50,15 +47,9 @@ export default function DashboardNavbar({ onOpenSidebar }) {
         >
           <Iconify icon="eva:menu-2-fill" />
         </IconButton>
-
         <Searchbar />
         <Box sx={{ flexGrow: 1 }} />
 
-        <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>
-          <LanguagePopover />
-          <NotificationsPopover />
-          <AccountPopover />
-        </Stack>
       </ToolbarStyle>
     </RootStyle>
   );
