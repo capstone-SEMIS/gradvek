@@ -1,15 +1,11 @@
 // material
-import { alpha, styled } from '@mui/material/styles';
-import {Card, IconButton, InputAdornment, Stack, TextField, Typography} from '@mui/material';
-import { useState } from "react";
+import { styled } from '@mui/material/styles';
+import {Card, Stack, TextField} from '@mui/material';
 
 // utils
-import { fShortenNumber } from '../../../utils/formatNumber';
 // component
-import Iconify from '../../../components/Iconify';
 import * as Yup from "yup";
 import {Form, FormikProvider, useFormik} from "formik";
-import {useNavigate} from "react-router-dom";
 import {LoadingButton} from "@mui/lab";
 
 // ----------------------------------------------------------------------
@@ -22,21 +18,21 @@ const RootStyle = styled(Card)(({ theme }) => ({
   backgroundColor: theme.palette.primary.lighter
 }));
 
-const IconWrapperStyle = styled('div')(({ theme }) => ({
-  margin: 'auto',
-  display: 'flex',
-  borderRadius: '50%',
-  alignItems: 'center',
-  width: theme.spacing(8),
-  height: theme.spacing(8),
-  justifyContent: 'center',
-  marginBottom: theme.spacing(3),
-  color: theme.palette.primary.dark,
-  backgroundImage: `linear-gradient(135deg, ${alpha(theme.palette.primary.dark, 0)} 0%, ${alpha(
-    theme.palette.primary.dark,
-    0.24
-  )} 100%)`
-}));
+// const IconWrapperStyle = styled('div')(({ theme }) => ({
+//   margin: 'auto',
+//   display: 'flex',
+//   borderRadius: '50%',
+//   alignItems: 'center',
+//   width: theme.spacing(8),
+//   height: theme.spacing(8),
+//   justifyContent: 'center',
+//   marginBottom: theme.spacing(3),
+//   color: theme.palette.primary.dark,
+//   backgroundImage: `linear-gradient(135deg, ${alpha(theme.palette.primary.dark, 0)} 0%, ${alpha(
+//     theme.palette.primary.dark,
+//     0.24
+//   )} 100%)`
+// }));
 
 // ----------------------------------------------------------------------
 
@@ -64,7 +60,7 @@ export default function AppWeeklySales() {
     }
   });
 
-  const { errors, touched, handleSubmit, isSubmitting, getFieldProps } = formik;
+  const { errors, touched, isSubmitting, getFieldProps } = formik;
 
   return (
       <RootStyle>
