@@ -1,9 +1,6 @@
 package com.semis.gradvek.springdb;
 
-import org.neo4j.driver.AuthTokens;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.GraphDatabase;
-import org.neo4j.driver.Session;
+import org.neo4j.driver.*;
 
 import com.semis.gradvek.entity.Entity;
 
