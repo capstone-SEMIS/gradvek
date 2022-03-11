@@ -42,3 +42,10 @@ curl --header "Content-Type: application/json"   --request POST   --data '{}'   
 ```
 curl --header "Content-Type: application/json"   --request POST   --data '{}'   http://localhost:8080/clear
 ```
+
+### To run the frontend on localhost:3000
+```
+cd frontend
+npm install 
+npm run start
+```

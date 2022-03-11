@@ -1,5 +1,6 @@
 package com.semis.gradvek.springdb;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,12 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.semis.gradvek.entity.Gene;
@@ -95,7 +91,7 @@ public class SpringdbApplication {
 	}
 
 	@PostMapping("/gene/{id}")
-	public ResponseEntity<Void> gene (@PathVariable(value="id") final String id) {
+	public ResponseEntity<Void> createGene (@PathVariable(value="id") final String id) {
 		mLogger.info("Init");
 		Neo4jDriver driver = Neo4jDriver.instance(
 				mEnv.getProperty("neo4j.url"),
@@ -104,6 +100,20 @@ public class SpringdbApplication {
 				);
 		driver.add(new Gene (id));
 		return new ResponseEntity<Void>(HttpStatus.OK);
+	}
+
+	@GetMapping("/queryType/{type}")
+	public List<String> runAndReturnByType (@PathVariable(value="type") final String type) {
+		mLogger.info("Retrieving Count of " + type);
+		Neo4jDriver driver = Neo4jDriver.instance(
+				mEnv.getProperty("neo4j.url"),
+				mEnv.getProperty("neo4j.user"),
+				mEnv.getProperty("neo4j.password")
+		);
+
+		String cmd = "MATCH (n:"+type+") RETURN n.name ORDER BY n.name;";
+		List<String> nodes = driver.getAllByType(cmd);
+		return nodes;
 	}
 
 	@RequestMapping("/info")

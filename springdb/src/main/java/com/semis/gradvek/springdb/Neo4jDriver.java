@@ -1,14 +1,14 @@
 package com.semis.gradvek.springdb;
 
-import org.neo4j.driver.AuthTokens;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.GraphDatabase;
-import org.neo4j.driver.Session;
+import org.neo4j.driver.*;
 
 import com.semis.gradvek.entity.Entity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletionStage;
 import java.util.logging.Logger;
 
 public class Neo4jDriver {
@@ -49,4 +49,18 @@ public class Neo4jDriver {
     	}
     }
 
+	public List<String> getAllByType (String command) {
+		mLogger.info(command);
+		try (Session session = mDriver.session()) {
+			return session.readTransaction (tx -> {
+				List<String> names = new ArrayList<>();
+				Result result = tx.run( command);
+				while ( result.hasNext() )
+				{
+					names.add( result.next().get( 0 ).asString() );
+				}
+				return names;
+			});
+		}
+	}
 }
