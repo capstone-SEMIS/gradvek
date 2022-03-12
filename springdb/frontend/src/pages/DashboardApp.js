@@ -15,9 +15,15 @@ import {
   AppConversionRates
 } from '../sections/@dashboard/app';
 
+import CytoCard from '../sections/@dashboard/app/CytoCard';
+
 // ----------------------------------------------------------------------
 
+
+
+
 export default function DashboardApp() {
+
   return (
     <Page title="Dashboard | Minimal-UI">
       <Container maxWidth="xl">
@@ -36,6 +42,10 @@ export default function DashboardApp() {
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <AppBugReports />
+          </Grid>
+
+          <Grid item xs={12} md={6} lg={8}>
+            <CytoCard els={initialElements}/>
           </Grid>
 
           <Grid item xs={12} md={6} lg={8}>
