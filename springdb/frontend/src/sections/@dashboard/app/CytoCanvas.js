@@ -5,57 +5,6 @@ import {Component} from 'react';
 // ----------------------------------------------------------------------
 
 export default class CytoCanvas extends Component {
-    
-    initialStyles = [ // the stylesheet for the graph
-            {
-                selector: 'node',
-                style: {
-                    'background-color': '#666',
-                    'label': 'data(id)',
-                }
-            },
-            {
-                selector: '.pathway',
-                style: {
-                    "background-color": "red",
-                    "opacity": "0.3"
-                }
-            },
-            {
-                selector: '.proteinTarget',
-                style: {
-                    "background-color": "blue",
-                    "color": "blue",
-                    "opacity": "1"
-                }
-            },   
-
-            {
-                selector: 'edge',
-                style: {
-                    'width': 3,
-                    'line-color': '#ccc',
-                    'target-arrow-color': '#ccc',
-                    'target-arrow-shape': 'triangle',
-                    'curve-style': 'bezier',
-                    "label": "causes",
-                }
-            },
-            
-            {
-                selector: '.drug_target',
-                style: {
-                    "label": "data(action)",
-                }
-            },   
-        ]
-
-
-    canvasStyle = {
-        width: '100%',
-        minHeight: '300px'
-    }
-
     render(){
         
         return (
@@ -82,4 +31,52 @@ export default class CytoCanvas extends Component {
         this.state.cytoInstance.unmount();
     }
  
+    initialStyles = [ // the stylesheet for the graph
+        {
+            selector: 'node',
+            style: {
+                'background-color': '#666',
+                'label': 'data(id)',
+            }
+        },
+        {
+            selector: '.pathway',
+            style: {
+                "background-color": "red",
+                "opacity": "0.3"
+            }
+        },
+        {
+            selector: '.proteinTarget',
+            style: {
+                "background-color": "blue",
+                "color": "blue",
+                "opacity": "1"
+            }
+        },
+
+        {
+            selector: 'edge',
+            style: {
+                'width': 3,
+                'line-color': '#ccc',
+                'target-arrow-color': '#ccc',
+                'target-arrow-shape': 'triangle',
+                'curve-style': 'bezier',
+                "label": "causes",
+            }
+        },
+
+        {
+            selector: '.drug_target',
+            style: {
+                "label": "data(action)",
+            }
+        },
+    ]
+
+    canvasStyle = {
+        width: '100%',
+        minHeight: '300px'
+    }
 }
