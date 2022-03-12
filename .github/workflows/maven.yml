@@ -24,6 +24,11 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
+    - name: Set up nodejs environment
+      uses: actions/setup-node@v2
+      with:
+      node-version: '16'
+      cache: 'npm'
     - name: Build with Maven
       run: |
         cd springdb
@@ -41,6 +46,12 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
+    - name: "Set up nodejs environment"
+      uses: actions/setup-node@v2
+      with:
+      node-version: '16'
+      cache: 'npm'
+      
     - name: Run application tests
       run: |
         cd springdb
