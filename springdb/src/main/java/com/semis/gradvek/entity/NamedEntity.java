@@ -1,7 +1,11 @@
 package com.semis.gradvek.entity;
 
 public abstract class NamedEntity extends Entity {
-	private final String mName;
+	private String mName;
+	
+	protected NamedEntity () {
+		// Factory
+	}
 	
 	protected NamedEntity (String name) {
 		mName = name;
@@ -11,6 +15,10 @@ public abstract class NamedEntity extends Entity {
 		return mName;
 	}
 	
+	public void setName (String name) {
+		mName = name;
+	}
+
 	@Override
 	public String toString( ) {
 		return ("name:\'" + getName() + "\'");
