@@ -12,10 +12,10 @@ const RootStyle = styled(Card)(({ theme }) => ({
     backgroundColor: theme.palette.primary.lighter,
 }));
 
-export default function CytoCard() {
+export default function CytoCard(props) {
     return (
         <RootStyle>
-            <CytoCanvas els={this.props.els}/>
+            <CytoCanvas graphNodes={props.graphNodes}/>
         </RootStyle>
     );
 }
