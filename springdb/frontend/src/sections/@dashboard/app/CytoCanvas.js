@@ -1,7 +1,3 @@
-// material
-import { styled } from '@mui/material/styles';
-import { Card, Stack, TextField } from '@mui/material';
-
 import cytoscape from 'cytoscape';
 
 import {Component} from 'react';
