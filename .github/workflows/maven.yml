@@ -29,6 +29,7 @@ jobs:
       with:
         node-version: '16'
         cache: 'npm'
+        cache-dependency-path: 'frontend/**/package-lock.json'
     - name: Build with Maven
       run: |
         cd springdb
@@ -51,6 +52,7 @@ jobs:
       with:
         node-version: '16'
         cache: 'npm'
+        cache-dependency-path: 'frontend/**/package-lock.json'
 
     - name: Run application tests
       run: |
