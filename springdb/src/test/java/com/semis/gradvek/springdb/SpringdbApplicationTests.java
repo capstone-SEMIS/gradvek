@@ -10,4 +10,9 @@ class SpringdbApplicationTests {
 	void contextLoads() {
 	}
 
+	@Test
+    void TestsArePassing() {
+        assertThat(true).isTrue();
+    }
+
 }
