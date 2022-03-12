@@ -4,15 +4,18 @@
 name: Java CI with Maven
 
 on:
-  workflow_dispatch
-#  push:
-#    branches: [ master ]
-#  pull_request:
-#    branches: [ master ]
+  workflow_dispatch:
+
+  push:
+   branches: 
+    - 'master'
+  pull_request:
+   branches:
+    - 'master'
 
 jobs:
-  build:
-
+  
+  setup:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,11 +26,28 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
+  build:
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
     - name: Build with Maven
       run: |
         cd springdb
         ./mvnw -DskipTests install
 #        ./mvnw -B package --file pom.xml
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run application tests
+      run: |
+        cd springdb
+        ./mvnw -Dtest="SpringdbApplicationTests" test
+
     - name: Run end-to-end tests
       run: |
         cd springdb
