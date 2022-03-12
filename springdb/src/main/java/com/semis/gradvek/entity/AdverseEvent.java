@@ -1,8 +1,12 @@
 package com.semis.gradvek.entity;
 
 public class AdverseEvent extends NamedEntity {
-	private final String mId;
-	private final String mMeddraCode;
+	private String mId;
+	private String mMeddraCode;
+	
+	public AdverseEvent () {
+		// Factory
+	}
 	
 	public AdverseEvent (String name, String id, String code) {
 		super (name);
@@ -15,6 +19,22 @@ public class AdverseEvent extends NamedEntity {
 		return ("AdverseEvent");
 	}
 	
+	public String getId () {
+		return mId;
+	}
+
+	public void setId (String id) {
+		mId = id;
+	}
+
+	public String getMeddraCode () {
+		return mMeddraCode;
+	}
+
+	public void setMeddraCode (String meddraCode) {
+		mMeddraCode = meddraCode;
+	}
+
 	@Override
 	public final String toString () {
 		return (

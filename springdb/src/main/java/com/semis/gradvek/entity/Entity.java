@@ -1,7 +1,9 @@
 package com.semis.gradvek.entity;
 
+import org.apache.parquet.example.data.simple.SimpleGroup;
+
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.semis.gradvek.springdb.Neo4jDriver;
 
 public abstract class Entity {
 	
@@ -14,4 +16,8 @@ public abstract class Entity {
 	}
 	
 	public abstract String getType ();
+	
+	public void importParquet (Neo4jDriver driver, SimpleGroup data) {
+		
+	}
 }

@@ -16,6 +16,8 @@
 	<properties>
 		<java.version>11</java.version>
 		<jackson.version>2.13.1</jackson.version>
+		<parquet.api.version>1.12.0</parquet.api.version>
+		<hadoop.version>3.3.2</hadoop.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -70,6 +72,40 @@
 	            <groupId>com.fasterxml.jackson.core</groupId>
 	            <artifactId>jackson-annotations</artifactId>
 	        </dependency>
+	        <dependency>
+	            <groupId>com.fasterxml.jackson.dataformat</groupId>
+	            <artifactId>jackson-dataformat-csv</artifactId>
+	        </dependency>
+		<dependency>
+			<groupId>org.apache.parquet</groupId>
+			<artifactId>parquet-common</artifactId>
+			<version>${parquet.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.parquet</groupId>
+			<artifactId>parquet-encoding</artifactId>
+			<version>${parquet.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.parquet</groupId>
+			<artifactId>parquet-column</artifactId>
+			<version>${parquet.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.parquet</groupId>
+			<artifactId>parquet-hadoop</artifactId>
+			<version>${parquet.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.parquet</groupId>
+			<artifactId>parquet-avro</artifactId>
+			<version>${parquet.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-common</artifactId>
+			<version>${hadoop.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
