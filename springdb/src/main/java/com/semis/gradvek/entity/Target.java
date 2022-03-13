@@ -6,20 +6,25 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 import com.semis.gradvek.springdb.Neo4jDriver;
 
 public class Target extends NamedEntity {
-	
+
 	private String mId;
-	
+
 	public Target () {
 		// Factory
 	}
 
-	public Target(String name, String id) {
-		super(name);
+	public Target (String name, String id) {
+		super (name);
 		mId = id;
 	}
 
+	public Target(SimpleGroup data) {
+		super(data.getString ("approvedName", 0));
+		mId = data.getString ("approvedSymbol", 0);
+	}
+
 	@Override
-	public String getType() {
+	public String getType () {
 		return ("Target");
 	}
 
@@ -33,18 +38,13 @@ public class Target extends NamedEntity {
 
 	@Override
 	public final String toCommand () {
-		return (
-			"(:" + getType()
-			+ " {"
-			+ "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString()) + "\', "
-			+ "targetId:\'" + StringEscapeUtils.escapeEcmaScript (mId)
-			+ "\'})"
-		);
-			
+		return ("(:" + getType () + " {" + "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
+				+ "targetId:\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\'})");
+
 	}
-	
+
 	@Override
-	public boolean importParquet (Neo4jDriver driver, SimpleGroup data) {
+	public boolean importParquet (SimpleGroup data) {
 		setName (data.getString ("approvedName", 0));
 		setId (data.getString ("approvedSymbol", 0));
 		return (true);
