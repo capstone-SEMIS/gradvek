@@ -11,13 +11,11 @@ public abstract class Entity {
 		return (null);
 	}
 
-	public final String toCommand () {
-		return (toString ());
-	}
+	public abstract String toCommand ();
 	
 	public abstract String getType ();
 	
-	public void importParquet (Neo4jDriver driver, SimpleGroup data) {
-		
+	public boolean importParquet (Neo4jDriver driver, SimpleGroup data) {
+		return false;
 	}
 }

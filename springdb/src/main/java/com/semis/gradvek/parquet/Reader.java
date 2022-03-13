@@ -13,7 +13,6 @@ import org.apache.parquet.io.MessageColumnIO;
 import org.apache.parquet.io.RecordReader;
 import org.apache.parquet.schema.MessageType;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,11 +37,5 @@ public class Reader {
 		}
 		reader.close ();
 		return new Parquet (simpleGroups, schema.getFields ());
-	}
-
-	public static void main (String[] args) throws IOException {
-		Parquet obj = Reader.read (java.nio.file.Paths.get(args[0]));
-
-		System.currentTimeMillis ();
 	}
 }

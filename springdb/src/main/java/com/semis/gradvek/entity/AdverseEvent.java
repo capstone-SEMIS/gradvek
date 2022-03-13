@@ -36,7 +36,7 @@ public class AdverseEvent extends NamedEntity {
 	}
 
 	@Override
-	public final String toString () {
+	public final String toCommand () {
 		return (
 			"(" + getName() + ":" + getType()  
 			+ " {"
