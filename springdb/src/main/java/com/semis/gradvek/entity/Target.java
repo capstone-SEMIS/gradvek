@@ -1,5 +1,6 @@
 package com.semis.gradvek.entity;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 
 import com.semis.gradvek.springdb.Neo4jDriver;
@@ -31,24 +32,22 @@ public class Target extends NamedEntity {
 	}
 
 	@Override
-	public final String toString () {
+	public final String toCommand () {
 		return (
-			"(" + mId
-			+ ":" + getType()
+			"(:" + getType()
 			+ " {"
-			+ super.toString() + ", "
-			+ "targetId:\'" + mId
+			+ "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString()) + "\', "
+			+ "targetId:\'" + StringEscapeUtils.escapeEcmaScript (mId)
 			+ "\'})"
 		);
 			
 	}
 	
 	@Override
-	public void importParquet (Neo4jDriver driver, SimpleGroup data) {
+	public boolean importParquet (Neo4jDriver driver, SimpleGroup data) {
 		setName (data.getString ("approvedName", 0));
 		setId (data.getString ("approvedSymbol", 0));
-		driver.add (this);
-		System.currentTimeMillis ();
+		return (true);
 	}
 
 }

@@ -1,13 +1,10 @@
 package com.semis.gradvek.springdb;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
@@ -115,11 +112,5 @@ public class Controller {
 	@RequestMapping ("/info")
 	public String home () {
 		return "Hello Gradvec";
-	}
-
-	public static void main (String[] args) {
-		boolean match = mParquetMatcher.matches (Paths.get (args[0]));
-
-		System.currentTimeMillis ();
 	}
 }

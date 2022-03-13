@@ -1,8 +1,7 @@
 package com.semis.gradvek.springdb;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.parquet.example.data.simple.SimpleGroup;
 
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityFactory;
@@ -18,10 +17,13 @@ public class Importer {
 	}
 	
 	public final void importParquet (Parquet parquet, EntityType type) {
-		List<SimpleGroup> data = parquet.getData ();
-		data.stream ().forEach (e -> {
+		final List<Entity> toImport = new ArrayList<> ();
+		parquet.getData ().stream ().forEach (p -> {
 			Entity entity = EntityFactory.newEntity (EntityType.getEntityClass (type));
-			entity.importParquet (mDriver, e);
+			if (entity.importParquet (mDriver, p)) {
+				toImport.add (entity);
+			}
 		});
+		mDriver.add (toImport);
 	}
 }

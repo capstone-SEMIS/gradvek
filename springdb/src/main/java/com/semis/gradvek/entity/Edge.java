@@ -55,7 +55,7 @@ public class Edge extends Entity {
 	}
 
 	@Override
-	public String toString () {
+	public String toCommand () {
 		final StringBuilder sb = new StringBuilder ();
 
 		sb.append ('(').append (mFrom).append (')');
