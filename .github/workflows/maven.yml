@@ -13,9 +13,30 @@ on:
    branches:
     - 'master'
 
-jobs:
-  
-  setup:
+jobs:  
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: maven
+    - name: Set up nodejs environment
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+        cache: 'npm'
+        cache-dependency-path: 'springdb/frontend/**/package-lock.json'
+    - name: Build with Maven
+      run: |
+        cd springdb
+        mvn -DskipTests install
+#        ./mvnw -B package --file pom.xml
+  test:
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -26,29 +47,19 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
-  build:
-    needs: setup
-    runs-on: ubuntu-latest
+    - name: "Set up nodejs environment"
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+        cache: 'npm'
+        cache-dependency-path: 'springdb/frontend/**/package-lock.json'
 
-    steps:
-    - uses: actions/checkout@v2
-    - name: Build with Maven
-      run: |
-        cd springdb
-        ./mvnw -DskipTests install
-#        ./mvnw -B package --file pom.xml
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
     - name: Run application tests
       run: |
         cd springdb
-        ./mvnw -Dtest="SpringdbApplicationTests" test
+        mvn -Dtest="SpringdbApplicationTests" test
 
     - name: Run end-to-end tests
       run: |
         cd springdb
-        ./mvnw -Dtest="EndToEndTests" test
+        mvn -Dtest="EndToEndTests" test
