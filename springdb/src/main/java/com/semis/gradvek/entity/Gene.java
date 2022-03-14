@@ -1,7 +1,7 @@
 package com.semis.gradvek.entity;
 
 public class Gene extends NamedEntity {
-	private final String mId;
+	private String mId;
 
 	public Gene(String id) {
 		super(id);
@@ -14,8 +14,18 @@ public class Gene extends NamedEntity {
 		return ("Gene");
 	}
 
+	public String getId () {
+		return mId;
+	}
+
+
+	public void setId (String id) {
+		mId = id;
+	}
+
+
 	@Override
-	public final String toString () {
+	public final String toCommand () {
 		return (
 			"(" + getName()
 			+ ":" + getType()
