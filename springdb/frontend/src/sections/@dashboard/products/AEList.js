@@ -20,16 +20,18 @@ export default function AEList({ graphNodes, filterHandler}) {
             <TableContainer>
                 <Table>
                     <TableHead>
-                        <TableCell>
-                            ID
-                        </TableCell>
-                        <TableCell>
-                            Meddra
-                        </TableCell>
+                        <TableRow>
+                            <TableCell>
+                                ID
+                            </TableCell>
+                            <TableCell>
+                                Meddra
+                            </TableCell>
+                        </TableRow>
                     </TableHead>
                     <TableBody>
                         {AEs.map( (AE) => (
-                            <TableRow onClick={filterHandler}>
+                            <TableRow onClick={filterHandler} key={AE.data.id}>
                                 <TableCell>
                                     {AE.data.id}
                                 </TableCell>
