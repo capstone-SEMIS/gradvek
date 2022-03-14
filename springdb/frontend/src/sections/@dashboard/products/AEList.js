@@ -31,7 +31,7 @@ export default function AEList({ graphNodes, filterHandler}) {
                     </TableHead>
                     <TableBody>
                         {AEs.map( (AE) => (
-                            <TableRow onClick={filterHandler} key={AE.data.id}>
+                            <TableRow key={AE.data.id} onClick={(e) => filterHandler(AE.data.id)}>
                                 <TableCell>
                                     {AE.data.id}
                                 </TableCell>

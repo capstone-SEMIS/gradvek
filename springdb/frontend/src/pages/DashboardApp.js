@@ -23,18 +23,22 @@ import dummyNodes from '../utils/dummyNodes';
 // ----------------------------------------------------------------------
 
 export default class DashboardApp extends Component {
-  AEFilterHandler(AE_id) {
-    let filterString = `node[id="${AE_id}"]`
-    this.setState({
-      "nodeFilter": filterString
-    });
-  }
+ 
 
   constructor(props){
     super(props)
     this.state = {
       "nodeFilter": '*' //initially, all nodes are visible
     };
+    
+    this.AEfilterCallback = this.AEfilterCallback.bind(this);
+  }
+  
+  AEfilterCallback(AE_id) {
+    let filterString = `node[id="${AE_id}"]`;
+    this.setState({
+      "nodeFilter": filterString
+    });
   }
 
   render(){
@@ -63,7 +67,7 @@ export default class DashboardApp extends Component {
             </Grid>
             
             <Grid item xs={12} md={6} lg={8}>
-              <AEList graphNodes={dummyNodes} filterHandler={this.AEFilterHandler} />
+              <AEList graphNodes={dummyNodes} filterHandler={this.AEfilterCallback} />
             </Grid>
 
             <Grid item xs={12} md={6} lg={8}>
