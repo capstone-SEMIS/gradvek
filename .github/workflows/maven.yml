@@ -83,6 +83,8 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+
       - name: Download back end artifacts
         uses: actions/download-artifact@v3
         with:
