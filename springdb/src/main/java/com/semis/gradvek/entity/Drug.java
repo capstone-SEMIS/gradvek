@@ -2,7 +2,11 @@ package com.semis.gradvek.entity;
 
 public class Drug extends NamedEntity {
 
-	private final String mChemblCode;
+	private String mChemblCode;
+	
+	public Drug () {
+		// Factory
+	}
 	
 	public Drug (String name, String code) {
 		super (name);
@@ -14,8 +18,16 @@ public class Drug extends NamedEntity {
 		return ("Drug");
 	}
 	
+	public String getChemblCode () {
+		return mChemblCode;
+	}
+
+	public void setChemblCode (String chemblCode) {
+		mChemblCode = chemblCode;
+	}
+
 	@Override
-	public final String toString () {
+	public final String toCommand () {
 		return (
 			"(" + getName()
 			+ ":" + getType()

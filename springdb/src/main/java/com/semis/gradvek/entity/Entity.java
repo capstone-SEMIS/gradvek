@@ -1,17 +1,14 @@
 package com.semis.gradvek.entity;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.parquet.example.data.simple.SimpleGroup;
 
 public abstract class Entity {
 	
-	public static Entity parse (JsonNode json) {
-		return (null);
-	}
-
-	public final String toCommand () {
-		return (toString ());
-	}
+	public abstract String toCommand ();
 	
 	public abstract String getType ();
+	
+	public boolean importParquet (SimpleGroup data) {
+		return false;
+	}
 }

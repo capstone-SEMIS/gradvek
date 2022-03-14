@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletionStage;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class Neo4jDriver {
 	private static final Logger mLogger = Logger.getLogger(Neo4jDriver.class.getName());
@@ -33,6 +33,11 @@ public class Neo4jDriver {
     
     public void add (Entity entity) {
     	run ("CREATE " + entity.toCommand());
+    }
+    
+    public void add (List<Entity> entities) {
+    	String cmd = entities.stream ().map (e -> "CREATE " + e.toCommand ()).collect (Collectors.joining ("\n "));
+    	run (cmd);
     }
     
     public void clear () {
