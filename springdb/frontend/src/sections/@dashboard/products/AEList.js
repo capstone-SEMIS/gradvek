@@ -10,7 +10,7 @@ AEList.propTypes = {
   graphNodes: PropTypes.array.isRequired
 };
 
-export default function AEList({ graphNodes, ...other }) {
+export default function AEList({ graphNodes, filterHandler}) {
     let AEs = graphNodes.filter( (graphNode) => {
         return graphNode.classes?.includes("adverse event");
     });
@@ -29,7 +29,7 @@ export default function AEList({ graphNodes, ...other }) {
                     </TableHead>
                     <TableBody>
                         {AEs.map( (AE) => (
-                            <TableRow>
+                            <TableRow onClick={filterHandler}>
                                 <TableCell>
                                     {AE.data.id}
                                 </TableCell>

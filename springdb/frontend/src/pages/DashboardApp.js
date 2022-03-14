@@ -1,5 +1,6 @@
 // material
 import { Box, Grid, Container, Typography } from '@mui/material';
+import { Component } from 'react';
 // components
 import Page from '../components/Page';
 import {
@@ -21,61 +22,77 @@ import dummyNodes from '../utils/dummyNodes';
 
 // ----------------------------------------------------------------------
 
-export default function DashboardApp() {
-  return (
-    <Page title="Dashboard | Minimal-UI">
-      <Container maxWidth="xl">
-        <Box sx={{ pb: 5 }}>
-          <Typography variant="h4">Hi, Welcome back</Typography>
-        </Box>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWeeklySales />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <AppNewUsers />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <AppItemOrders />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <AppBugReports />
-          </Grid>
+export default class DashboardApp extends Component {
+  AEFilterHandler(AE_id) {
+    let filterString = `node[id="${AE_id}"]`
+    this.setState({
+      "nodeFilter": filterString
+    });
+  }
 
-          <Grid item xs={12} md={6} lg={8}>
-            <CytoCard graphNodes={dummyNodes}/>
-          </Grid>
-          
-          <Grid item xs={12} md={6} lg={8}>
-            <AEList graphNodes={dummyNodes} />
-          </Grid>
+  constructor(props){
+    super(props)
+    this.state = {
+      "nodeFilter": '*' //initially, all nodes are visible
+    };
+  }
 
-          <Grid item xs={12} md={6} lg={8}>
-            <AppWebsiteVisits />
-          </Grid>
+  render(){
+    return (
+      <Page title="Dashboard | Minimal-UI">
+        <Container maxWidth="xl">
+          <Box sx={{ pb: 5 }}>
+            <Typography variant="h4">Hi, Welcome back</Typography>
+          </Box>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6} md={3}>
+              <AppWeeklySales />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <AppNewUsers />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <AppItemOrders />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <AppBugReports />
+            </Grid>
 
-          <Grid item xs={12} md={6} lg={4}>
-            <AppCurrentVisits />
-          </Grid>
+            <Grid item xs={12} md={6} lg={8}>
+              <CytoCard graphNodes={dummyNodes} nodeFilter={this.state.nodeFilter}/>
+            </Grid>
+            
+            <Grid item xs={12} md={6} lg={8}>
+              <AEList graphNodes={dummyNodes} filterHandler={this.AEFilterHandler} />
+            </Grid>
 
-          <Grid item xs={12} md={6} lg={8}>
-            <AppConversionRates />
-          </Grid>
+            <Grid item xs={12} md={6} lg={8}>
+              <AppWebsiteVisits />
+            </Grid>
 
-          <Grid item xs={12} md={6} lg={4}>
-            <AppCurrentSubject />
-          </Grid>
+            <Grid item xs={12} md={6} lg={4}>
+              <AppCurrentVisits />
+            </Grid>
 
-          <Grid item xs={12} md={6} lg={8}>
-            <AppTasks />
-          </Grid>
+            <Grid item xs={12} md={6} lg={8}>
+              <AppConversionRates />
+            </Grid>
 
-          <Grid item xs={12} md={6} lg={4}>
-            <AppOrderTimeline />
-          </Grid>
+            <Grid item xs={12} md={6} lg={4}>
+              <AppCurrentSubject />
+            </Grid>
 
-        </Grid>
-      </Container>
-    </Page>
-  );
+            <Grid item xs={12} md={6} lg={8}>
+              <AppTasks />
+            </Grid>
+
+            <Grid item xs={12} md={6} lg={4}>
+              <AppOrderTimeline />
+            </Grid>
+
+          </Grid>
+        </Container>
+      </Page>
+    );
+  }
 }

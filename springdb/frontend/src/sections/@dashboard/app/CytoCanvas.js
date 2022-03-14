@@ -5,8 +5,12 @@ import {Component} from 'react';
 // ----------------------------------------------------------------------
 
 export default class CytoCanvas extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+    
     render(){
-        
         return (
                 <div id="cyto_canvas" style={this.canvasStyle} ref={el => this.el = el} /> 
         );
@@ -14,14 +18,10 @@ export default class CytoCanvas extends Component {
 
     componentDidMount() {
         let cytoInstance = cytoscape({
-            elements: this.props.graphNodes,
             container: this.el,
             style: this.initialStyles,
+        });
 
-            layout: {
-                name: 'circle',
-            }
-        })
         this.setState({
             cytoInstance: cytoInstance
         })
@@ -29,6 +29,18 @@ export default class CytoCanvas extends Component {
 
     componentWillUnmount(){
         this.state.cytoInstance.unmount();
+    }
+
+    componentDidUpdate() {
+        // replace all elements
+        this.state.cytoInstance.remove("*");
+        this.state.cytoInstance.add(this.props.graphNodes);
+
+        // show filtered elements only
+        this.state.cytoInstance.elements(this.props.nodeFilter).style("display", "element");
+
+        // lay them out in a circle
+        this.state.cytoInstance.layout({name: "circle"}).run();
     }
  
     initialStyles = [ // the stylesheet for the graph
@@ -73,6 +85,12 @@ export default class CytoCanvas extends Component {
                 "label": "data(action)",
             }
         },
+        {
+            selector: '*',
+            style: {
+                "display": "none"
+            }
+        }
     ]
 
     canvasStyle = {
