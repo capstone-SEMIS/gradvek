@@ -89,7 +89,7 @@ jobs:
           name: backend
 
       - name: Move back end files to expected location
-        run: mv *.jar springdb/target
+        run: mkdir -p springdb/target && mv *.jar springdb/target
 
       - name: Download front end artifacts
         uses: actions/download-artifact@v3
