@@ -42,11 +42,14 @@ jobs:
         name: backend
         path: springdb/target/*.jar
 
+    - name: Create front end archive
+      run: tar -zcf frontend.tar.gz springdb/frontend
+
     - name: Upload front end artifact
       uses: actions/upload-artifact@v3
       with:
         name: frontend
-        path: springdb/frontend
+        path: frontend.tar.gz
 
   test:
     needs: build
@@ -94,7 +97,7 @@ jobs:
           name: frontend
 
       - name: Move front end files to expected location
-        run: mv frontend springdb/frontend
+        run: tar -xzf frontend.tar.gz
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
