@@ -16,6 +16,7 @@ import {
 } from '../sections/@dashboard/app';
 
 import CytoCard from '../sections/@dashboard/app/CytoCard';
+import AEList from '../sections/@dashboard/products/AEList';
 import dummyNodes from '../utils/dummyNodes';
 
 // ----------------------------------------------------------------------
@@ -43,6 +44,10 @@ export default function DashboardApp() {
 
           <Grid item xs={12} md={6} lg={8}>
             <CytoCard graphNodes={dummyNodes}/>
+          </Grid>
+          
+          <Grid item xs={12} md={6} lg={8}>
+            <AEList graphNodes={dummyNodes} />
           </Grid>
 
           <Grid item xs={12} md={6} lg={8}>
