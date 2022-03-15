@@ -80,6 +80,7 @@ jobs:
         cd springdb
         mvn -Dtest="EndToEndTests" test
   deploy:
+    if: ${{ github.ref == 'refs/heads/master' }}
     needs: test
     runs-on: ubuntu-latest
     steps:
