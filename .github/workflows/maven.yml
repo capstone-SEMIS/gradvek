@@ -44,7 +44,7 @@ jobs:
         mvn -Dtest="EndToEndTests" test
 
   build:
-    if: ${{ github.ref == 'refs/heads/master' }}
+    # if: ${{ github.ref == 'refs/heads/master' }}
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -84,8 +84,17 @@ jobs:
           name: frontend
           path: frontend.tar.gz
 
+      - name: Create node and npm archive
+        run: tar -zcf nodenpm.tar.gz springdb/target/node
+
+      - name: Upload node and npm artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: nodenpm
+          path: nodenpm.tar.gz
+
   deploy:
-    if: ${{ github.ref == 'refs/heads/master' }}
+    # if: ${{ github.ref == 'refs/heads/master' }}
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -106,6 +115,14 @@ jobs:
 
       - name: Move front end files to expected location
         run: tar -xzf frontend.tar.gz
+
+      - name: Download node and npm artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: nodenpm
+
+      - name: Move front end files to expected location
+        run: tar -xzf nodenpm.tar.gz
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1

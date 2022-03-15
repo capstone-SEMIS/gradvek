@@ -4,6 +4,7 @@
 java -jar /app.jar &
 
 # Start the front end
+export PATH="/node:$PATH"
 cd frontend
 npm run start &
 
