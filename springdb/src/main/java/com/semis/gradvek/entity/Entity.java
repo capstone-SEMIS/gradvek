@@ -8,7 +8,8 @@ public abstract class Entity {
 	
 	public abstract String getType ();
 	
-	public boolean importParquet (SimpleGroup data) {
-		return false;
+	public boolean filter (SimpleGroup data) {
+		return (true);
 	}
+	
 }
