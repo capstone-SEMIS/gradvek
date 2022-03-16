@@ -23,13 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.semis.gradvek.entity.EntityType;
 import com.semis.gradvek.entity.Gene;
-import com.semis.gradvek.parquet.Parquet;
-import com.semis.gradvek.parquet.Reader;
+import com.semis.gradvek.parquet.ParquetUtils;
 
 @RestController
 public class Controller {
 	private static final Logger mLogger = Logger.getLogger (Controller.class.getName ());
-	private static final PathMatcher mParquetMatcher = FileSystems.getDefault ().getPathMatcher ("glob:**.parquet");
 
 	@Autowired
 	private Environment mEnv;
@@ -54,22 +52,10 @@ public class Controller {
 	@PostMapping ("/init/targets")
 	@ResponseBody
 	public ResponseEntity<Void> initTargets () throws URISyntaxException, IOException {
+		mLogger.info ("Clear");
 		Neo4jDriver driver = Neo4jDriver.instance (mEnv.getProperty ("neo4j.url"), mEnv.getProperty ("neo4j.user"),
 				mEnv.getProperty ("neo4j.password"));
-		Importer importer = new Importer (driver);
-		URL targetsURL = getClass ().getClassLoader ().getResource ("targets");
-		Files.list (Paths.get (targetsURL.toURI ()))
-			.filter (path -> mParquetMatcher.matches (path))
-			.forEach (path -> 
-		{
-			try {
-				Parquet parquet = Reader.read (path);
-				importer.importParquet (parquet, EntityType.Target);
-			} catch (IOException iox) {
-
-			}
-		});
-
+		ParquetUtils.initEntities (driver, EntityType.Target);
 		return new ResponseEntity<Void> (HttpStatus.OK);
 	}
 
