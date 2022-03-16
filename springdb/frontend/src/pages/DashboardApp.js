@@ -23,21 +23,19 @@ import dummyNodes from '../utils/dummyNodes';
 // ----------------------------------------------------------------------
 
 export default class DashboardApp extends Component {
- 
-
   constructor(props){
     super(props)
     this.state = {
-      "nodeFilter": '*' //initially, all nodes are visible
+      "nodeFilter": '*', //initially, all nodes are visible
+      "focusNode": {}
     };
     
     this.AEfilterCallback = this.AEfilterCallback.bind(this);
   }
   
   AEfilterCallback(AE_id) {
-    let filterString = `node[id="${AE_id}"]`;
     this.setState({
-      "nodeFilter": filterString
+      "focusNode": {"AE": AE_id}
     });
   }
 
@@ -63,11 +61,11 @@ export default class DashboardApp extends Component {
             </Grid>
 
             <Grid item xs={12} md={6} lg={8}>
-              <CytoCard graphNodes={dummyNodes} nodeFilter={this.state.nodeFilter}/>
+              <CytoCard graphNodes={dummyNodes} nodeFilter={this.state.nodeFilter} focusNode={this.state.focusNode}/>
             </Grid>
             
             <Grid item xs={12} md={6} lg={8}>
-              <AEList graphNodes={dummyNodes} filterHandler={this.AEfilterCallback} />
+              <AEList graphNodes={dummyNodes} filterHandler={this.AEfilterCallback}/>
             </Grid>
 
             <Grid item xs={12} md={6} lg={8}>

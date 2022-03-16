@@ -17,6 +17,8 @@ export default class CytoCanvas extends Component {
     }
 
     componentDidMount() {
+        // on initial mount, create a new cytoscape canvas
+        // and hook that canvas up to this element's div
         let cytoInstance = cytoscape({
             container: this.el,
             style: this.initialStyles,
@@ -28,41 +30,62 @@ export default class CytoCanvas extends Component {
     }
 
     componentWillUnmount(){
+        // when this React component is unmounted, also unmount the Cytoscape canvas
         this.state.cytoInstance.unmount();
+        this.state.cytoInstance.destroy();
     }
 
     componentDidUpdate() {
-        // replace all elements
+        // replace all elements with the current graphNodes
         this.state.cytoInstance.remove("*");
-        this.state.cytoInstance.add(this.props.graphNodes);
+        this.state.cytoInstance.add(this.props.graphNodes); 
 
-        // show filtered elements only
-        this.state.cytoInstance.elements(this.props.nodeFilter).style("display", "element");
+        if ('AE' in this.props.focusNode) {
+            let nodeToFocus = this.state.cytoInstance.elements(`node#${this.props.focusNode.AE}`)
+            let neighbouringNodes = nodeToFocus.closedNeighborhood();
 
-        // lay them out in a circle
-        this.state.cytoInstance.layout({name: "circle"}).run();
+            // show neighbouring elements only
+            neighbouringNodes.style("display", "element");
+            neighbouringNodes.layout({name:"breadthfirst"}).run();
+            this.state.cytoInstance.fit(neighbouringNodes);
+        }
+        else {
+            // no focusNode, so show all nodes
+            this.state.cytoInstance.elements(this.props.nodeFilter).style("display", "element");
+            // lay all elements out in a circle
+            this.state.cytoInstance.layout({ name: "breadthfirst" }).run();
+        }
     }
  
     initialStyles = [ // the stylesheet for the graph
         {
             selector: 'node',
             style: {
-                'background-color': '#666',
+                'background-color': '#8b786d',
+                "color": "#8b786d",
                 'label': 'data(id)',
             }
         },
         {
-            selector: '.pathway',
+            selector: '.pathway[:compound]',
             style: {
-                "background-color": "red",
-                "opacity": "0.3"
+                "background-color": "#78a1bb",
+                "background-opacity": "0.15"
             }
         },
         {
             selector: '.proteinTarget',
             style: {
-                "background-color": "blue",
-                "color": "blue",
+                "background-color": "#78a1bb",
+                "color": "#78a1bb",
+                "opacity": "1"
+            }
+        },
+        {
+            selector: '.drug',
+            style: {
+                "background-color": "lightcoral",
+                "color": "lightcoral",
                 "opacity": "1"
             }
         },
