@@ -59,6 +59,16 @@ public class Controller {
 		return new ResponseEntity<Void> (HttpStatus.OK);
 	}
 
+	@PostMapping ("/init/drugs")
+	@ResponseBody
+	public ResponseEntity<Void> initDrugs () throws URISyntaxException, IOException {
+		mLogger.info ("Clear");
+		Neo4jDriver driver = Neo4jDriver.instance (mEnv.getProperty ("neo4j.url"), mEnv.getProperty ("neo4j.user"),
+				mEnv.getProperty ("neo4j.password"));
+		ParquetUtils.initEntities (driver, EntityType.Drug);
+		return new ResponseEntity<Void> (HttpStatus.OK);
+	}
+
 	@PostMapping ("/init/demo")
 	@ResponseBody
 	public ResponseEntity<Void> initDemo () {

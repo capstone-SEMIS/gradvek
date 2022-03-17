@@ -42,12 +42,4 @@ public class Target extends NamedEntity {
 				+ "targetId:\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\'})");
 
 	}
-
-	@Override
-	public boolean importParquet (SimpleGroup data) {
-		setName (data.getString ("approvedName", 0));
-		setId (data.getString ("approvedSymbol", 0));
-		return (true);
-	}
-
 }

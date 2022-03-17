@@ -1,5 +1,8 @@
 package com.semis.gradvek.entity;
 
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+
 public class Drug extends NamedEntity {
 
 	private String mChemblCode;
@@ -11,6 +14,11 @@ public class Drug extends NamedEntity {
 	public Drug (String name, String code) {
 		super (name);
 		mChemblCode = code;
+	}
+
+	public Drug(SimpleGroup data) {
+		super(data.getString ("name", 0));
+		mChemblCode = data.getString ("id", 0);
 	}
 
 	@Override
@@ -28,16 +36,13 @@ public class Drug extends NamedEntity {
 
 	@Override
 	public final String toCommand () {
-		return (
-			"(" + getName()
-			+ ":" + getType()
-			+ " {"
-			+ super.toString()
-			+ "drugId:\'" + getName()
-			+ "\', chembl_code: \'" + mChemblCode
-			+ "\'" 
-			+ "})"
-		);
-			
+		return ("(:" + getType () + " {" + "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
+				+ "id:\'" + StringEscapeUtils.escapeEcmaScript (mChemblCode) + "\'})");
 	}
+	
+	@Override
+	public boolean filter (SimpleGroup data) {
+		return (true);
+	}
+	
 }

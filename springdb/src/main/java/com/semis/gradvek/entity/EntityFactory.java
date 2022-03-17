@@ -21,7 +21,12 @@ public class EntityFactory {
 
 	public static <T extends Entity> T fromParquet (Class<T> entityClass, SimpleGroup parquet) {
 		try {
-			return entityClass.getConstructor (SimpleGroup.class).newInstance (parquet);
+			T ret = entityClass.getConstructor (SimpleGroup.class).newInstance (parquet);
+			if (ret.filter (parquet)) {
+				return (ret);
+			} else {
+				return (null);
+			}
 		} catch (NoSuchMethodException|InvocationTargetException|IllegalAccessException|InstantiationException nsmx) {
 			mLogger.severe ("Couldn't create entity of type " + entityClass.getName () + " with Parquet data");
 			return null;
