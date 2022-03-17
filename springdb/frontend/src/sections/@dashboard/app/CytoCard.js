@@ -17,7 +17,7 @@ export default function CytoCard(props) {
         <RootStyle>
             <CardHeader title="Graph visualisation" subheader="Results for search XYZ" />
             <Box sx={{ p: 3, pb: 1 }} dir="ltr">
-            <CytoCanvas graphNodes={props.graphNodes}/>
+                <CytoCanvas {...props} />
             </Box>
         </RootStyle>
     );

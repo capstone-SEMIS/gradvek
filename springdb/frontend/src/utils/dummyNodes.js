@@ -16,9 +16,17 @@ const dummyNodes = [
     },
     {
         group: "nodes",
+        classes: ["drug"],
+        data: {
+            id: 'Metformin',
+            chembl_code: 'CHEMBL1431'
+        }
+    },
+    {
+        group: "nodes",
         classes: ["adverse event"],
         data: {
-            id: 'Acute hepatic failure',
+            id: 'Acute_hepatic_failure',
             meddraCode: '10000804'
         }
     },
@@ -26,7 +34,7 @@ const dummyNodes = [
         group: "nodes",
         classes: ["adverse event"],
         data: {
-            id: 'Toxicity to various agents',
+            id: 'Toxicity_to_various_agents',
             meddraCode: '10070863'
         }
     },
@@ -34,7 +42,7 @@ const dummyNodes = [
         group: "nodes",
         classes: ["proteinTarget"],
         data: {
-            id: 'Vanilloid receptor',
+            id: 'Vanilloid_receptor',
             parent: "pathway_xyz",
         }
     },
@@ -42,7 +50,7 @@ const dummyNodes = [
         group: "nodes",
         classes: ["proteinTarget"],
         data: {
-            id: 'XYZ receptor',
+            id: 'XYZ_receptor',
             parent: "pathway_xyz",
         }
     },
@@ -59,7 +67,7 @@ const dummyNodes = [
         data: {
             id: 'edge_1',
             source: 'Acetaminophen',
-            target: 'Acute hepatic failure',
+            target: 'Acute_hepatic_failure',
             arrow: "vee",
             critval: 123
         }
@@ -69,7 +77,7 @@ const dummyNodes = [
         data: {
             id: 'edge_2',
             source: 'Acetaminophen',
-            target: 'Toxicity to various agents',
+            target: 'Toxicity_to_various_agents',
             arrow: "vee",
             critval: 123
         }
@@ -80,7 +88,7 @@ const dummyNodes = [
         data: {
             id: 'edge_3',
             source: 'Acetaminophen',
-            target: 'Vanilloid receptor',
+            target: 'Vanilloid_receptor',
             arrow: "vee",
             action: "inhibits",
         }
@@ -92,6 +100,38 @@ const dummyNodes = [
             id: 'edge_4',
             source: 'Acetaminophen',
             target: 'Cyclooxygenase',
+            arrow: "vee",
+            action: "opener",
+        }
+    },
+    {
+        group: "edges",
+        classes: ["drug_target"],
+        data: {
+            id: 'edge_5',
+            source: 'Metformin',
+            target: 'Cyclooxygenase',
+            arrow: "vee",
+            action: "opener",
+        }
+    },
+    {
+        group: "edges",
+        classes: ["drug_target"],
+        data: {
+            id: 'edge_6',
+            source: 'Metformin',
+            target: 'XYZ_receptor',
+            arrow: "vee",
+            action: "opener",
+        }
+    },
+    {
+        group: "edges",
+        data: {
+            id: 'edge_7',
+            source: 'Metformin',
+            target: 'Toxicity_to_various_agents',
             arrow: "vee",
             action: "opener",
         }

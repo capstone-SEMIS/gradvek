@@ -5,52 +5,87 @@ import {Component} from 'react';
 // ----------------------------------------------------------------------
 
 export default class CytoCanvas extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+    
     render(){
-        
         return (
                 <div id="cyto_canvas" style={this.canvasStyle} ref={el => this.el = el} /> 
         );
     }
 
     componentDidMount() {
+        // on initial mount, create a new cytoscape canvas
+        // and hook that canvas up to this element's div
         let cytoInstance = cytoscape({
-            elements: this.props.graphNodes,
             container: this.el,
             style: this.initialStyles,
+        });
 
-            layout: {
-                name: 'circle',
-            }
-        })
         this.setState({
             cytoInstance: cytoInstance
         })
     }
 
     componentWillUnmount(){
+        // when this React component is unmounted, also unmount the Cytoscape canvas
         this.state.cytoInstance.unmount();
+        this.state.cytoInstance.destroy();
+    }
+
+    componentDidUpdate() {
+        // replace all elements with the current graphNodes
+        this.state.cytoInstance.remove("*");
+        this.state.cytoInstance.add(this.props.graphNodes); 
+
+        if ('AE' in this.props.focusNode) {
+            let nodeToFocus = this.state.cytoInstance.elements(`node#${this.props.focusNode.AE}`)
+            let neighbouringNodes = nodeToFocus.closedNeighborhood();
+
+            // show neighbouring elements only
+            neighbouringNodes.style("display", "element");
+            neighbouringNodes.layout({name:"breadthfirst"}).run();
+            this.state.cytoInstance.fit(neighbouringNodes);
+        }
+        else {
+            // no focusNode, so show all nodes
+            this.state.cytoInstance.elements(this.props.nodeFilter).style("display", "element");
+            // lay all elements out in a circle
+            this.state.cytoInstance.layout({ name: "breadthfirst" }).run();
+        }
     }
  
     initialStyles = [ // the stylesheet for the graph
         {
             selector: 'node',
             style: {
-                'background-color': '#666',
+                'background-color': '#8b786d',
+                "color": "#8b786d",
                 'label': 'data(id)',
             }
         },
         {
-            selector: '.pathway',
+            selector: '.pathway[:compound]',
             style: {
-                "background-color": "red",
-                "opacity": "0.3"
+                "background-color": "#78a1bb",
+                "background-opacity": "0.15"
             }
         },
         {
             selector: '.proteinTarget',
             style: {
-                "background-color": "blue",
-                "color": "blue",
+                "background-color": "#78a1bb",
+                "color": "#78a1bb",
+                "opacity": "1"
+            }
+        },
+        {
+            selector: '.drug',
+            style: {
+                "background-color": "lightcoral",
+                "color": "lightcoral",
                 "opacity": "1"
             }
         },
@@ -73,6 +108,12 @@ export default class CytoCanvas extends Component {
                 "label": "data(action)",
             }
         },
+        {
+            selector: '*',
+            style: {
+                "display": "none"
+            }
+        }
     ]
 
     canvasStyle = {
