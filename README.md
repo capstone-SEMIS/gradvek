@@ -1,7 +1,18 @@
 # gradvek
 GRaph of ADVerse Event Knowledge
 
-## Build process
+## Running gradvek locally
+
+To run the `gravek` application locally, run `docker-compose up` from the project's root directory. This will spin up two docker containers:
+
+1. a Neo4j container, which will run the database used by this application
+2. [gradvek/app](https://hub.docker.com/r/gradvek/app), which is the latest version of this application that has been deployed to [DockerHub](https://hub.docker.com/r/gradvek/app).
+
+The gradvek application will be available on port 3000; the Neo4j database will be available at port 7474.
+
+If you want to make local changes to the application, you will need to create your own local development environment instead of using the image hosted on DockerHub. See  the instructions in `springdb/readme.md`.
+
+## Remote build process
 
 GitHub Actions builds the artifacts needed for deployment.
 There is one workflow divided into three jobs:
