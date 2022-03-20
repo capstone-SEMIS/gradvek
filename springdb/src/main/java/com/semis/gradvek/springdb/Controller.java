@@ -37,7 +37,7 @@ public class Controller {
 				mEnv.getProperty ("neo4j.password"));
 
 		// init everything
-		EntityType[] toInit = {EntityType.Disease, EntityType.Drug, EntityType.Causes};
+		EntityType[] toInit = {EntityType.Disease, EntityType.Drug, EntityType.Target, EntityType.Causes};
 		for (EntityType type: toInit) {
 			try {
 				String typeString = type.toString ();
@@ -46,6 +46,7 @@ public class Controller {
 					mLogger.info ("Importing " + typeString + " data");
 					ParquetUtils.initEntities (mEnv, mDriver, type);
 					mDriver.index (type);
+					mLogger.info ("Imported " +  mDriver.count (type) + " entities of type " + typeString);
 				} else {
 					mLogger.info ("Database contains " + alreadyThere + " entries of type " + typeString + ", skipping import");
 
