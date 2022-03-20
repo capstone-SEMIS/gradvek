@@ -58,14 +58,31 @@ public class Neo4jDriver {
 		}
 	}
 	
-	public int count (String type) {
+	public int count (EntityType type) {
 		try (Session session = mDriver.session ()) {
 			return session.readTransaction (tx -> {
-				Result result = tx.run ("MATCH (n:" + type + ") RETURN COUNT (n)");
+				Result result = tx.run (EntityType.toCountString (type));
 				return (result.next ().get (0).asInt ());
 			});
 		}
 		
+	}
+	
+	public void index (EntityType type) {
+		String indexField = EntityType.toIndexField (type);
+		if (indexField != null) {
+			String typeString = type.toString ();
+			try (Session session = mDriver.session ()) {
+				session.writeTransaction (tx -> {
+					tx.run (
+						"CREATE INDEX " + typeString
+						+ "Index IF NOT EXISTS FOR (n:" + typeString + ") ON (n." + indexField
+						+ ")"
+					);
+					return ("");
+				});
+			}
+		}
 	}
 
 	public List<String> getAllByType (String command) {

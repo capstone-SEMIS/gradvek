@@ -28,4 +28,35 @@ public enum EntityType {
 
 		return ret;
 	}
+	
+	public static String toCountString (EntityType type) {
+		String ret = "";
+		switch (type) {
+			case AdverseEvent:
+			case Drug:
+			case Gene:
+			case Target:
+			case Disease:
+				ret = "MATCH (n:" + type.toString () + ") RETURN COUNT (n)";
+			break;
+
+			case Causes:
+				ret = "MATCH (:Drug)-[n]->(:AdverseEvent) RETURN count(n)";
+			break;
+		}
+		
+		return (ret);
+	}
+	
+	public static String toIndexField (EntityType type) {
+		String ret = null;
+		
+		switch(type) {
+			case Drug:
+				ret = "chembl_code";
+			break;
+		}
+		
+		return (ret);
+	}
 }

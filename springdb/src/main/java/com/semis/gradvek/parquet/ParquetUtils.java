@@ -61,6 +61,7 @@ public class ParquetUtils {
 			.collect (Collectors.joining(", "));
 		return (ret);
 	}
+	
 	public static ResponseEntity<Void> initEntities (Environment env, Neo4jDriver driver, EntityType type)
 			throws IOException, MalformedURLException {
 		Importer importer = new Importer (driver);
