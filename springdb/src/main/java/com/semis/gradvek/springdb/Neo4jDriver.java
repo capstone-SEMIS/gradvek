@@ -69,7 +69,7 @@ public class Neo4jDriver {
 	}
 	
 	public void index (EntityType type) {
-		String indexField = EntityType.toIndexField (type);
+		String indexField = type.getIndexField ();
 		if (indexField != null) {
 			String typeString = type.toString ();
 			try (Session session = mDriver.session ()) {

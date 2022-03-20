@@ -19,7 +19,7 @@ public class Importer {
 	public final void importParquet (Parquet parquet, EntityType type) {
 		final List<Entity> toImport = new ArrayList<> ();
 		parquet.getData ().stream ().forEach (p -> {
-			Entity entity = EntityFactory.fromParquet (EntityType.getEntityClass (type), p);
+			Entity entity = EntityFactory.fromParquet (type.getEntityClass (), p);
 			if (entity != null) {
 				if (entity.canCombine ()) {
 					toImport.add (entity);

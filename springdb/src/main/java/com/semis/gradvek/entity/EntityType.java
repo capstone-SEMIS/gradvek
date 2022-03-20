@@ -1,32 +1,26 @@
 package com.semis.gradvek.entity;
 
 public enum EntityType {
-	AdverseEvent, Drug, Gene, Target, Disease, Causes;
-
-	public static Class<? extends Entity> getEntityClass (EntityType type) {
-		Class<? extends Entity> ret = null;
-		switch (type) {
-			case AdverseEvent:
-				ret = com.semis.gradvek.entity.AdverseEvent.class;
-			break;
-			case Drug:
-				ret = com.semis.gradvek.entity.Drug.class;
-			break;
-			case Gene:
-				ret = com.semis.gradvek.entity.Gene.class;
-			break;
-			case Target:
-				ret = com.semis.gradvek.entity.Target.class;
-			break;
-			case Disease:
-				ret = com.semis.gradvek.entity.Disease.class;
-			break;
-			case Causes:
-				ret = com.semis.gradvek.entity.Causes.class;
-			break;
-		}
-
-		return ret;
+	AdverseEvent (AdverseEvent.class, null), 
+	Drug (Drug.class, "chembl_code"), 
+	Gene (Gene.class, null), 
+	Target (Target.class, null), 
+	Disease (Disease.class, null), 
+	Causes (Causes.class, null);
+	
+	private final Class<? extends Entity> mClass;
+	private final String mIndexField;
+	
+	private EntityType (
+			Class<? extends Entity> typeClass,
+			String indexField)
+	{
+		mClass = typeClass;
+		mIndexField = indexField;
+	}
+	
+	public Class<? extends Entity> getEntityClass () {
+		return (mClass);
 	}
 	
 	public static String toCountString (EntityType type) {
@@ -48,15 +42,7 @@ public enum EntityType {
 		return (ret);
 	}
 	
-	public static String toIndexField (EntityType type) {
-		String ret = null;
-		
-		switch(type) {
-			case Drug:
-				ret = "chembl_code";
-			break;
-		}
-		
-		return (ret);
+	public String getIndexField () {
+		return (mIndexField);
 	}
 }
