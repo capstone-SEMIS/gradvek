@@ -7,10 +7,6 @@ public class Drug extends NamedEntity {
 
 	private String mChemblCode;
 	
-	public Drug () {
-		// Factory
-	}
-	
 	public Drug (String name, String code) {
 		super (name);
 		mChemblCode = code;
@@ -35,9 +31,9 @@ public class Drug extends NamedEntity {
 	}
 
 	@Override
-	public final String toCommand () {
-		return ("(:" + getType () + " {" + "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
-				+ "id:\'" + StringEscapeUtils.escapeEcmaScript (mChemblCode) + "\'})");
+	public final String addCommand () {
+		return ("CREATE (:" + getType () + " {" + "drugId:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
+				+ "chembl_code:\'" + StringEscapeUtils.escapeEcmaScript (mChemblCode) + "\'})");
 	}
 	
 	@Override

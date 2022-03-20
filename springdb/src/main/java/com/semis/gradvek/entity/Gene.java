@@ -25,9 +25,9 @@ public class Gene extends NamedEntity {
 
 
 	@Override
-	public final String toCommand () {
+	public final String addCommand () {
 		return (
-			"(" + getName()
+			"CREATE (" + getName()
 			+ ":" + getType()
 			+ " {"
 			+ super.toString()

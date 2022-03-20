@@ -1,7 +1,7 @@
 package com.semis.gradvek.entity;
 
 public enum EntityType {
-	AdverseEvent, Drug, Gene, Target;
+	AdverseEvent, Drug, Gene, Target, Disease, Causes;
 
 	public static Class<? extends Entity> getEntityClass (EntityType type) {
 		Class<? extends Entity> ret = null;
@@ -17,6 +17,12 @@ public enum EntityType {
 			break;
 			case Target:
 				ret = com.semis.gradvek.entity.Target.class;
+			break;
+			case Disease:
+				ret = com.semis.gradvek.entity.Disease.class;
+			break;
+			case Causes:
+				ret = com.semis.gradvek.entity.Causes.class;
 			break;
 		}
 

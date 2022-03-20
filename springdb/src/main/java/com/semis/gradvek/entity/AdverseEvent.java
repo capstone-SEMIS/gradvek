@@ -1,12 +1,10 @@
 package com.semis.gradvek.entity;
 
+import org.apache.parquet.example.data.simple.SimpleGroup;
+
 public class AdverseEvent extends NamedEntity {
 	private String mId;
 	private String mMeddraCode;
-	
-	public AdverseEvent () {
-		// Factory
-	}
 	
 	public AdverseEvent (String name, String id, String code) {
 		super (name);
@@ -14,6 +12,11 @@ public class AdverseEvent extends NamedEntity {
 		mMeddraCode = code;
 	}
 	
+	public AdverseEvent(SimpleGroup data) {
+		super(data.getString ("name", 0));
+		mId = data.getString ("id", 0);
+	}
+
 	@Override
 	public final String getType () {
 		return ("AdverseEvent");
@@ -36,9 +39,9 @@ public class AdverseEvent extends NamedEntity {
 	}
 
 	@Override
-	public final String toCommand () {
+	public final String addCommand () {
 		return (
-			"(" + getName() + ":" + getType()  
+			"CREATE (" + getName() + ":" + getType()  
 			+ " {"
 			+ super.toString()
 			+ "adverseEventId: \'" + mId
