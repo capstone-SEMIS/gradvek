@@ -22,16 +22,21 @@ public class Neo4jDriver {
 	}
 
 	private static final Map<String, Neo4jDriver> mInstances = new HashMap<> ();
-
-	public static Neo4jDriver instance (String uri, String user, String password) {
-		Neo4jDriver ret = mInstances.getOrDefault (uri, null);
-		if (ret == null) {
-			ret = new Neo4jDriver (uri, user, password);
-			mInstances.put (uri, ret);
+  
+  public static Neo4jDriver instance (String uri, String user, String password) {
+		String uriOverride = System.getenv("NEO4JURL");
+		if (uriOverride != null) {
+			uri = uriOverride;
 		}
+    	Neo4jDriver ret = mInstances.getOrDefault(uri, null);
+    	if (ret == null) {
+    		ret = new Neo4jDriver(uri, user, password);
+    		mInstances.put(uri, ret);
+    	}
+    	
+    	return (ret);
+    }
 
-		return (ret);
-	}
 
 	public void add (Entity entity) {
 		write (entity.addCommand ());
