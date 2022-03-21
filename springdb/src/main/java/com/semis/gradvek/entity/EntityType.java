@@ -1,14 +1,27 @@
 package com.semis.gradvek.entity;
 
+/**
+ * The list of types of entities supported by the Gradvek database
+ * @author ymachkasov
+ *
+ */
 public enum EntityType {
-	AdverseEvent (AdverseEvent.class, null), 
+	AdverseEvent (AdverseEvent.class, "meddraCode"), 
 	Drug (Drug.class, "chembl_code"), 
 	Gene (Gene.class, null), 
 	Target (Target.class, null), 
 	Disease (Disease.class, null), 
 	Causes (Causes.class, null);
 	
+	/**
+	 * The class of the corresponding entity (a subclass of Entity)
+	 */
 	private final Class<? extends Entity> mClass;
+	
+	/**
+	 * The optional name of the field by which the entities of this type
+	 * should be indexed in the database
+	 */
 	private final String mIndexField;
 	
 	private EntityType (
@@ -19,10 +32,19 @@ public enum EntityType {
 		mIndexField = indexField;
 	}
 	
+	public String getIndexField () {
+		return (mIndexField);
+	}
+	
 	public Class<? extends Entity> getEntityClass () {
 		return (mClass);
 	}
 	
+	/**
+	 * The string representing a Cypher command to count all entities of this type
+	 * @param type
+	 * @return
+	 */
 	public static String toCountString (EntityType type) {
 		String ret = "";
 		switch (type) {
@@ -35,14 +57,10 @@ public enum EntityType {
 			break;
 
 			case Causes:
-				ret = "MATCH (:Drug)-[n]->(:AdverseEvent) RETURN count(n)";
+				ret = "MATCH (:Drug)-[n]->(:AdverseEvent) RETURN COUNT (n)";
 			break;
 		}
 		
 		return (ret);
-	}
-	
-	public String getIndexField () {
-		return (mIndexField);
 	}
 }

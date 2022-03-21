@@ -5,10 +5,14 @@ import java.util.Map;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.semis.gradvek.parquet.ParquetUtils;
 
+/**
+ * The immutable class representing a causal connection between a drug
+ * and an adverse event 
+ * @author ymachkasov
+ *
+ */
 public class Causes extends Edge {
 
 	public Causes (String type, String from, String to, Map<String, String> params) {
@@ -17,22 +21,29 @@ public class Causes extends Edge {
 
 	private String mAdverseEvent;
 
+	/**
+	 * Constructor from Parquet data
+	 * 
+	 * @param data the full Parquet entity for this event
+	 */
 	public Causes (SimpleGroup data) {
 		super (data.getString ("chembl_id", 0), data.getString ("meddraCode", 0),
 				ParquetUtils.extractParams (data, "llr", "critval", "count"));
 		mAdverseEvent = data.getString ("event", 0);
 	}
 
-	@Override
-	public String getType () {
-		return ("CAUSES");
-	}
-	
+	/**
+	 * The Cypher command to create this entity cannot be batched because of the many-to-many
+	 * nature of the relationship 
+	 */
 	@Override
 	public boolean canCombine () {
 		return (false);
 	}
 
+	/**
+	 * The Cypher command to create this entity
+	 */
 	@Override
 	public String addCommand () {
 		String jsonMap = ParquetUtils.paramsAsJSON (getParams ());

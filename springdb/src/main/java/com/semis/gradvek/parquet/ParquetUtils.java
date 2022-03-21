@@ -43,6 +43,12 @@ public class ParquetUtils {
 			EntityType.Disease, "diseases",
 			EntityType.Causes, "fda/significantAdverseDrugReactions");
 
+	/**
+	 * Collects all fields with the specified keys from the supplied data into a map
+	 * @param data Parquet data
+	 * @param keys a vararg list of string keys
+	 * @return the map
+	 */
 	public static Map<String, String> extractParams (SimpleGroup data, String... keys) {
 		Map<String, String> ret = new HashMap<> ();
 		for (String key: keys) {
@@ -55,6 +61,12 @@ public class ParquetUtils {
 		return (ret);
 	}
 	
+	/**
+	 * Constructs a single valid JSON string from all entries in the map
+	 * The curly braces are not included
+	 * @param params the map to be transformed 
+	 * @return the JSON representation
+	 */
 	public static String paramsAsJSON (Map<String, String> params) {
 		String ret = params.keySet ().stream ()
 			.map (key -> key + ":" + StringEscapeUtils.escapeEcmaScript (params.get (key)))
@@ -62,6 +74,16 @@ public class ParquetUtils {
 		return (ret);
 	}
 	
+	/**
+	 * Uses the driver to connect to the database and initialize it with entities of the required type
+	 * from the OpenTarget database
+	 * @param env application environment
+	 * @param driver the Neo4j driver abstraction
+	 * @param type the entity type to read
+	 * @return an empty HTTP response
+	 * @throws IOException if cannot read file/resource
+	 * @throws MalformedURLException
+	 */
 	public static ResponseEntity<Void> initEntities (Environment env, Neo4jDriver driver, EntityType type)
 			throws IOException, MalformedURLException {
 		Importer importer = new Importer (driver);
@@ -72,7 +94,7 @@ public class ParquetUtils {
 			ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver ();
 			resources = resourcePatternResolver.getResources (mEntityTypeToPath.get (type) + "/*.parquet");
 		} catch (FileNotFoundException fnfx) {
-			
+			mLogger.warning ("No files for type " + type + " found in local environment");
 		}
 
 		if ((resources == null || resources.length <= 0) && env.getProperty ("opentarget.server") != null) {
@@ -91,11 +113,13 @@ public class ParquetUtils {
 		}
 
 		if (resources == null || resources.length <= 0) {
+			mLogger.warning ("Could not load data for type " + type);
 			return new ResponseEntity<Void> (HttpStatus.NO_CONTENT);
 		}
 		
 		for (Resource r : resources) {
 			// to use the Hadoop parquet standalone utils, we need to have a file, not a stream
+
 			File resourceFile = null;
 			File tmpFile = null;
 			if (r.isFile ()) {
@@ -110,6 +134,7 @@ public class ParquetUtils {
 				resourceFile = tmpFile;
 			}
 
+			// do the import
 			try {
 				Parquet parquet = Reader.read (Paths.get (resourceFile.toURI ()));
 				importer.importParquet (parquet, type);

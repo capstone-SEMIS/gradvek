@@ -1,7 +1,5 @@
 package com.semis.gradvek.springdb;
 
-import org.neo4j.driver.*;
-
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
 
@@ -12,6 +10,17 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Result;
+import org.neo4j.driver.Session;
+
+/**
+ * The abstraction of the access to the Neo4j database, delegating methods to the Cypher queries
+ * @author ymachkasov
+ *
+ */
 public class Neo4jDriver {
 	private static final Logger mLogger = Logger.getLogger (Neo4jDriver.class.getName ());
 
@@ -21,9 +30,19 @@ public class Neo4jDriver {
 		mDriver = GraphDatabase.driver (NeoURI, AuthTokens.basic (user, password));
 	}
 
+	/**
+	 * Map of singleton instances keyed by access URI
+	 */
 	private static final Map<String, Neo4jDriver> mInstances = new HashMap<> ();
   
-  public static Neo4jDriver instance (String uri, String user, String password) {
+	/**
+	 * Retrieves a singleton tied to the specified URI
+	 * @param uri Neo4j URI
+	 * @param user user name
+	 * @param password user password
+	 * @return the singleton driver instance
+	 */
+	public static Neo4jDriver instance (String uri, String user, String password) {
 		String uriOverride = System.getenv("NEO4JURL");
 		if (uriOverride != null) {
 			uri = uriOverride;
@@ -37,20 +56,34 @@ public class Neo4jDriver {
     	return (ret);
     }
 
-
+	/**
+	 * Performs the command to add this entity to the database
+	 * @param entity
+	 */
 	public void add (Entity entity) {
 		write (entity.addCommand ());
 	}
 
+	/**
+	 * Performs the command to add this list of entities to the database
+	 * @param entity
+	 */
 	public void add (List<Entity> entities) {
 		String cmd = entities.stream ().map (e -> e.addCommand ()).collect (Collectors.joining ("\n "));
 		write (cmd);
 	}
 
+	/**
+	 * Clears the database
+	 */
 	public void clear () {
 		write ("MATCH (n) DETACH DELETE n");
 	}
 
+	/**
+	 * Executes the command in write mode
+	 * @param command
+	 */
 	public void write (String command) {
 		mLogger.info (command);
 		if (command != null && !command.isEmpty ()) {
@@ -63,7 +96,13 @@ public class Neo4jDriver {
 		}
 	}
 	
+	/**
+	 * Counts the entities of the given type
+	 * @param type the entity type for the query
+	 * @return the number of entities of this type in the database
+	 */
 	public int count (EntityType type) {
+		mLogger.info ("Counting " + type);
 		try (Session session = mDriver.session ()) {
 			return session.readTransaction (tx -> {
 				Result result = tx.run (EntityType.toCountString (type));
@@ -73,9 +112,15 @@ public class Neo4jDriver {
 		
 	}
 	
+	/**
+	 * Creates an index on entries of the specified type, if this type supports indexing
+	 * and the index does not yet exist
+	 * @param type the type of the entities to index
+	 */
 	public void index (EntityType type) {
 		String indexField = type.getIndexField ();
 		if (indexField != null) {
+			mLogger.info ("Indexing " + type + " on " + indexField);
 			String typeString = type.toString ();
 			try (Session session = mDriver.session ()) {
 				session.writeTransaction (tx -> {
@@ -87,6 +132,8 @@ public class Neo4jDriver {
 					return ("");
 				});
 			}
+		} else {
+			mLogger.info ("" + type + " does not support indexing");
 		}
 	}
 

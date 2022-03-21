@@ -17,11 +17,6 @@ public class Drug extends NamedEntity {
 		mChemblCode = data.getString ("id", 0);
 	}
 
-	@Override
-	public String getType() {
-		return ("Drug");
-	}
-	
 	public String getChemblCode () {
 		return mChemblCode;
 	}
@@ -32,7 +27,7 @@ public class Drug extends NamedEntity {
 
 	@Override
 	public final String addCommand () {
-		return ("CREATE (:" + getType () + " {" + "drugId:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
+		return ("CREATE (:Drug" + " {" + "drugId:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
 				+ "chembl_code:\'" + StringEscapeUtils.escapeEcmaScript (mChemblCode) + "\'})");
 	}
 	

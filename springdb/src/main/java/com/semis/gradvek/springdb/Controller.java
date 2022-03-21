@@ -1,7 +1,6 @@
 package com.semis.gradvek.springdb;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +21,11 @@ import com.semis.gradvek.entity.EntityType;
 import com.semis.gradvek.entity.Gene;
 import com.semis.gradvek.parquet.ParquetUtils;
 
+/**
+ * The Spring controller representing the REST API to the driver abstraction over Neo4j database
+ * @author ymachkasov
+ *
+ */
 @RestController
 public class Controller {
 	private static final Logger mLogger = Logger.getLogger (Controller.class.getName ());
@@ -31,14 +35,22 @@ public class Controller {
 
 	private Neo4jDriver mDriver;
 
+	/**
+	 * Initialization; invoked when the application has completed startup
+	 * @param event
+	 */
 	@EventListener
 	public void onApplicationReadyEvent (ApplicationReadyEvent event) {
 		try {
+			/**
+			 * Connect to the Neo4j database; will throw ServiceUnavailableException if can't
+			 */
 			mDriver = Neo4jDriver.instance (mEnv.getProperty ("neo4j.url"), mEnv.getProperty ("neo4j.user"),
 					mEnv.getProperty ("neo4j.password"));
 	
-			// init everything
+			// init these types of entities from OpenTarget
 			EntityType[] toInit = {EntityType.Disease, EntityType.Drug, EntityType.Target, EntityType.Causes};
+			
 			for (EntityType type: toInit) {
 				try {
 					String typeString = type.toString ();
@@ -61,6 +73,11 @@ public class Controller {
 
 	}
 
+	/**
+	 * Uploading a single entity in JSON format from the body of the request 
+	 * @param entityJson
+	 * @return
+	 */
 	@PostMapping ("/upload")
 	@ResponseBody
 	public ResponseEntity<Void> upload (@RequestBody JsonNode entityJson) {
@@ -68,6 +85,10 @@ public class Controller {
 		return new ResponseEntity<Void> (HttpStatus.CREATED);
 	}
 
+	/**
+	 * Clean out the entire database
+	 * @return
+	 */
 	@PostMapping ("/clear")
 	@ResponseBody
 	public ResponseEntity<Void> clear () {
@@ -76,6 +97,10 @@ public class Controller {
 		return new ResponseEntity<Void> (HttpStatus.OK);
 	}
 
+	/**
+	 * Initializa the database with the demop nodes and relationships
+	 * @return
+	 */
 	@PostMapping ("/init/demo")
 	@ResponseBody
 	public ResponseEntity<Void> initDemo () {
@@ -100,6 +125,11 @@ public class Controller {
 		return new ResponseEntity<Void> (HttpStatus.OK);
 	}
 
+	/**
+	 * Add a single gene; the name is in the path parameter
+	 * @param id
+	 * @return
+	 */
 	@PostMapping ("/gene/{id}")
 	public ResponseEntity<Void> gene (@PathVariable (value = "id") final String id) {
 		mLogger.info ("Init");
@@ -107,8 +137,12 @@ public class Controller {
 		return new ResponseEntity<Void> (HttpStatus.OK);
 	}
 
+	/**
+	 * Health check
+	 * @return
+	 */
 	@GetMapping ("/info")
 	public String home () {
-		return "Hello Gradvec";
+		return "Hello Gradvek";
 	}
 }

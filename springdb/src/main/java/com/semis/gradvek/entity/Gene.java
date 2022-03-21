@@ -1,5 +1,12 @@
 package com.semis.gradvek.entity;
 
+/**
+ * The immutable object representing a gene from the OpenTargets
+ * database
+ * 
+ * @author ymachkasov
+ *
+ */
 public class Gene extends NamedEntity {
 	private String mId;
 
@@ -8,11 +15,6 @@ public class Gene extends NamedEntity {
 		mId = id;
 	}
 
-
-	@Override
-	public String getType() {
-		return ("Gene");
-	}
 
 	public String getId () {
 		return mId;
@@ -28,7 +30,7 @@ public class Gene extends NamedEntity {
 	public final String addCommand () {
 		return (
 			"CREATE (" + getName()
-			+ ":" + getType()
+			+ ":Gene"
 			+ " {"
 			+ super.toString()
 			+ ", geneId:\'" + mId

@@ -1,5 +1,10 @@
 package com.semis.gradvek.entity;
 
+/**
+ * The base class for all entities possessing a name 
+ * @author ymachkasov
+ *
+ */
 public abstract class NamedEntity extends Entity {
 	private String mName;
 	

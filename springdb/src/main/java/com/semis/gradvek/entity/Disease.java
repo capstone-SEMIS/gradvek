@@ -3,6 +3,13 @@ package com.semis.gradvek.entity;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 
+/**
+ * The immutable object representing a phenotype (disease) from the OpenTargets
+ * database
+ * 
+ * @author ymachkasov
+ *
+ */
 public class Disease extends NamedEntity {
 
 	private String mId;
@@ -12,14 +19,14 @@ public class Disease extends NamedEntity {
 		mId = id;
 	}
 
+	/**
+	 * Constructor from Parquet data
+	 * 
+	 * @param data the full Parquet entity for this event
+	 */
 	public Disease(SimpleGroup data) {
 		super(data.getString ("name", 0));
 		mId = data.getString ("id", 0);
-	}
-
-	@Override
-	public String getType () {
-		return ("Disease");
 	}
 
 	public String getId () {
@@ -30,9 +37,12 @@ public class Disease extends NamedEntity {
 		mId = id;
 	}
 
+	/**
+	 * The Cypher command to create this entity
+	 */
 	@Override
 	public final String addCommand () {
-		return ("CREATE (:" + getType () + " {" + "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
+		return ("CREATE (:Disease" + " {" + "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
 				+ "id:\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\'})");
 
 	}

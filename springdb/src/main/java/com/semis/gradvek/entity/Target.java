@@ -3,7 +3,13 @@ package com.semis.gradvek.entity;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 
-public class Target extends NamedEntity {
+/**
+ * The immutable object representing a drug target from the OpenTargets
+ * database
+ * 
+ * @author ymachkasov
+ *
+ */public class Target extends NamedEntity {
 
 	private String mId;
 
@@ -17,11 +23,6 @@ public class Target extends NamedEntity {
 		mId = data.getString ("approvedSymbol", 0);
 	}
 
-	@Override
-	public String getType () {
-		return ("Target");
-	}
-
 	public String getId () {
 		return mId;
 	}
@@ -32,7 +33,7 @@ public class Target extends NamedEntity {
 
 	@Override
 	public final String addCommand () {
-		return ("CREATE (:" + getType () + " {" + "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
+		return ("CREATE (:Target" + " {" + "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
 				+ "targetId:\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\'})");
 
 	}
