@@ -160,4 +160,4 @@ jobs:
           username: ${{ secrets.GCP_USERNAME }}
           key: ${{ secrets.GCP_KEY }}
           script: |
-            curl -s https://raw.githubusercontent.com/capstone-SEMIS/gradvek/docker-compose/demo/install.sh | bash
+            curl -s https://raw.githubusercontent.com/capstone-SEMIS/gradvek/master/demo/install.sh | bash
