@@ -12,6 +12,7 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
  */public class Target extends NamedEntity {
 
 	private String mId;
+	private String mSymbol;
 
 	public Target (String name, String id) {
 		super (name);
@@ -20,7 +21,8 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 
 	public Target(SimpleGroup data) {
 		super(data.getString ("approvedName", 0));
-		mId = data.getString ("approvedSymbol", 0);
+		mSymbol = data.getString ("approvedSymbol", 0);
+		mId = data.getString ("id", 0);
 	}
 
 	public String getId () {
@@ -33,8 +35,11 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 
 	@Override
 	public final String addCommand () {
-		return ("CREATE (:Target" + " {" + "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
-				+ "targetId:\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\'})");
+		return ("CREATE (:Target" 
+				+ " {" + "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
+				+ "targetId:\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\', "
+				+ "symbol:\'" + StringEscapeUtils.escapeEcmaScript (mSymbol) + "\'"
+				+ "})");
 
 	}
 }

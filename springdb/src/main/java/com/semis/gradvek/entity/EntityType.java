@@ -9,8 +9,7 @@ public enum EntityType {
 	AdverseEvent (AdverseEvent.class, "meddraCode"), 
 	Drug (Drug.class, "chembl_code"), 
 	Gene (Gene.class, null), 
-	Target (Target.class, null), 
-	Disease (Disease.class, null), 
+	Target (Target.class, "targetId"), 
 	Causes (Causes.class, null);
 	
 	/**
@@ -52,7 +51,6 @@ public enum EntityType {
 			case Drug:
 			case Gene:
 			case Target:
-			case Disease:
 				ret = "MATCH (n:" + type.toString () + ") RETURN COUNT (n)";
 			break;
 

@@ -28,7 +28,7 @@ public class Causes extends Edge {
 	 */
 	public Causes (SimpleGroup data) {
 		super (data.getString ("chembl_id", 0), data.getString ("meddraCode", 0),
-				ParquetUtils.extractParams (data, "llr", "critval", "count"));
+				ParquetUtils.extractParams (data, "llr", "critval"/*, "count" is there, but irrelevant */));
 		mAdverseEvent = data.getString ("event", 0);
 	}
 

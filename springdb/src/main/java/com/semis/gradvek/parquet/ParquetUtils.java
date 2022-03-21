@@ -40,7 +40,6 @@ public class ParquetUtils {
 	private static final Map<EntityType, String> mEntityTypeToPath = Map.of (
 			EntityType.Target, "targets",
 			EntityType.Drug, "molecule",
-			EntityType.Disease, "diseases",
 			EntityType.Causes, "fda/significantAdverseDrugReactions");
 
 	/**

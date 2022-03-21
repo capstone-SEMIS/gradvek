@@ -1,6 +1,7 @@
 package com.semis.gradvek.springdb;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,35 @@ public class Controller {
 	private Environment mEnv;
 
 	private Neo4jDriver mDriver;
+	
+	private final class InitThread extends Thread {
+		@Override
+		public void run () {
+			initFromOpenTarget ();
+		}
+	}
 
+	private final void initFromOpenTarget () {
+		EntityType[] toInit = {EntityType.Drug, EntityType.Target, EntityType.Causes};
+		
+		for (EntityType type: toInit) {
+			try {
+				String typeString = type.toString ();
+				int alreadyThere = mDriver.count (type);
+				if (alreadyThere <= 0) {
+					mLogger.info ("Importing " + typeString + " data");
+					ParquetUtils.initEntities (mEnv, mDriver, type);
+					mDriver.index (type);
+					mLogger.info ("Imported " +  mDriver.count (type) + " entities of type " + typeString);
+				} else {
+					mLogger.info ("Database contains " + alreadyThere + " entries of type " + typeString + ", skipping import");
+
+				}
+			} catch (IOException iox) {
+			}
+		}					
+	}
+	
 	/**
 	 * Initialization; invoked when the application has completed startup
 	 * @param event
@@ -49,24 +78,9 @@ public class Controller {
 					mEnv.getProperty ("neo4j.password"));
 	
 			// init these types of entities from OpenTarget
-			EntityType[] toInit = {EntityType.Disease, EntityType.Drug, EntityType.Target, EntityType.Causes};
+			// new InitThread ().start (); - if needed
+			initFromOpenTarget ();
 			
-			for (EntityType type: toInit) {
-				try {
-					String typeString = type.toString ();
-					int alreadyThere = mDriver.count (type);
-					if (alreadyThere <= 0) {
-						mLogger.info ("Importing " + typeString + " data");
-						ParquetUtils.initEntities (mEnv, mDriver, type);
-						mDriver.index (type);
-						mLogger.info ("Imported " +  mDriver.count (type) + " entities of type " + typeString);
-					} else {
-						mLogger.info ("Database contains " + alreadyThere + " entries of type " + typeString + ", skipping import");
-	
-					}
-				} catch (IOException iox) {
-				}
-			}
 		} catch (org.neo4j.driver.exceptions.ServiceUnavailableException suax) {
 			mLogger.warning ("Could not connect to neo4j database - is this testing mode?");
 		}
@@ -82,6 +96,7 @@ public class Controller {
 	@ResponseBody
 	public ResponseEntity<Void> upload (@RequestBody JsonNode entityJson) {
 		mLogger.info (entityJson.toString ());
+		// TODO
 		return new ResponseEntity<Void> (HttpStatus.CREATED);
 	}
 
@@ -98,7 +113,7 @@ public class Controller {
 	}
 
 	/**
-	 * Initializa the database with the demop nodes and relationships
+	 * Initialize the database with the demo nodes and relationships
 	 * @return
 	 */
 	@PostMapping ("/init/demo")

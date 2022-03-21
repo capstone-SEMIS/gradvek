@@ -5,7 +5,7 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 
 public class Drug extends NamedEntity {
 
-	private String mChemblCode;
+	private final String mChemblCode;
 	
 	public Drug (String name, String code) {
 		super (name);
@@ -21,13 +21,9 @@ public class Drug extends NamedEntity {
 		return mChemblCode;
 	}
 
-	public void setChemblCode (String chemblCode) {
-		mChemblCode = chemblCode;
-	}
-
 	@Override
 	public final String addCommand () {
-		return ("CREATE (:Drug" + " {" + "drugId:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
+		return ("CREATE (:Drug" + " {" + "drugId:\'" + StringEscapeUtils.escapeEcmaScript (getName ()) + "\', "
 				+ "chembl_code:\'" + StringEscapeUtils.escapeEcmaScript (mChemblCode) + "\'})");
 	}
 	
