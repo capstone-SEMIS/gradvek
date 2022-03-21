@@ -98,7 +98,7 @@ jobs:
           name: nodenpm
           path: nodenpm.tar.gz
 
-  deploy:
+  publish:
     if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
     needs: build
     runs-on: ubuntu-latest
@@ -147,3 +147,17 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/app:latest
+
+  deploy:
+    if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GCP
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.GCP_HOST }}
+          username: ${{ secrets.GCP_USERNAME }}
+          key: ${{ secrets.GCP_KEY }}
+          script: |
+            curl -s https://raw.githubusercontent.com/capstone-SEMIS/gradvek/docker-compose/demo/install.sh | bash
