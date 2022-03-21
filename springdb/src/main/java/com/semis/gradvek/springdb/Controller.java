@@ -33,26 +33,30 @@ public class Controller {
 
 	@EventListener
 	public void onApplicationReadyEvent (ApplicationReadyEvent event) {
-		mDriver = Neo4jDriver.instance (mEnv.getProperty ("neo4j.url"), mEnv.getProperty ("neo4j.user"),
-				mEnv.getProperty ("neo4j.password"));
-
-		// init everything
-		EntityType[] toInit = {EntityType.Disease, EntityType.Drug, EntityType.Target, EntityType.Causes};
-		for (EntityType type: toInit) {
-			try {
-				String typeString = type.toString ();
-				int alreadyThere = mDriver.count (type);
-				if (alreadyThere <= 0) {
-					mLogger.info ("Importing " + typeString + " data");
-					ParquetUtils.initEntities (mEnv, mDriver, type);
-					mDriver.index (type);
-					mLogger.info ("Imported " +  mDriver.count (type) + " entities of type " + typeString);
-				} else {
-					mLogger.info ("Database contains " + alreadyThere + " entries of type " + typeString + ", skipping import");
-
+		try {
+			mDriver = Neo4jDriver.instance (mEnv.getProperty ("neo4j.url"), mEnv.getProperty ("neo4j.user"),
+					mEnv.getProperty ("neo4j.password"));
+	
+			// init everything
+			EntityType[] toInit = {EntityType.Disease, EntityType.Drug, EntityType.Target, EntityType.Causes};
+			for (EntityType type: toInit) {
+				try {
+					String typeString = type.toString ();
+					int alreadyThere = mDriver.count (type);
+					if (alreadyThere <= 0) {
+						mLogger.info ("Importing " + typeString + " data");
+						ParquetUtils.initEntities (mEnv, mDriver, type);
+						mDriver.index (type);
+						mLogger.info ("Imported " +  mDriver.count (type) + " entities of type " + typeString);
+					} else {
+						mLogger.info ("Database contains " + alreadyThere + " entries of type " + typeString + ", skipping import");
+	
+					}
+				} catch (IOException iox) {
 				}
-			} catch (IOException iox) {
 			}
+		} catch (org.neo4j.driver.exceptions.ServiceUnavailableException suax) {
+			mLogger.warning ("Could not connect to neo4j database - is this testing mode?");
 		}
 
 	}
