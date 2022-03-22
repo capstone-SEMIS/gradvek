@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -150,6 +152,36 @@ public class Controller {
 		mLogger.info ("Init");
 		mDriver.add (new Gene (id));
 		return new ResponseEntity<Void> (HttpStatus.OK);
+	}
+	
+	/**
+	 * List of all loaded databases
+	 * TODO
+	 */
+	@GetMapping ("/databases")
+	@ResponseBody
+	public ResponseEntity<String> databases () {
+		final HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		return (new ResponseEntity<String> (
+				"{["
+				+ "{\"dataset\":\"Targets\","
+				+ " \"description\":\"Core annotation for targets\","
+				+ " \"source\":\"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets\","
+				+ " \"timestamp\":1647831895},"
+				+ "{\"dataset\":\"Drugs\","
+				+ " \"description\":\"Core annotation for drugs\","
+				+ " \"source\":\"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/molecule\","
+				+ " timestamp:1647831895},"
+				+ "{\"dataset\":\"Adverse Events\","
+				+ " \"description\":\"Core annotation for drug - adverse event relationship\","
+				+ " \"source\":\"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/fda/significantAdverseDrugReactions\","
+				+ " \"timestamp\":1647831895}"
+				+ "]}",
+				headers, HttpStatus.OK
+				)
+		);
+		
 	}
 
 	/**
