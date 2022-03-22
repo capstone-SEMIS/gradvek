@@ -1,75 +1,46 @@
 package com.semis.gradvek.entity;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
-public class Edge extends Entity {
+/**
+ * Base class for an immutable object to represent a relationship between
+ * two entities in the Neo4j database (an edge on the graph)
+ * @author ymachkasov
+ *
+ */
 
-	private String mType;
-	private String mFrom;
-	private String mTo;
-	private Map<String, String> mParams;
+public abstract class Edge extends Entity {
 
-	public Edge () {
-		// Factory
-	}
+	/**
+	 * the identifier for the source of the relationship
+	 */
+	private final String mFrom;
+	
+	/**
+	 * the identifier for the target of the relationship
+	 */
+	private final String mTo;
+	
+	/**
+	 * The list of parameters which are the property of the relationship
+	 */
+	private final Map<String, String> mParams;
 
-	public Edge (String type, String from, String to, Map<String, String> params) {
-		mType = type;
+	public Edge (String from, String to, Map<String, String> params) {
 		mFrom = from;
 		mTo = to;
 		mParams = params;
-	}
-
-	@Override
-	public String getType () {
-		return (mType);
 	}
 
 	public String getFrom () {
 		return mFrom;
 	}
 
-	public void setFrom (String from) {
-		mFrom = from;
-	}
-
 	public String getTo () {
 		return mTo;
-	}
-
-	public void setTo (String to) {
-		mTo = to;
 	}
 
 	public Map<String, String> getParams () {
 		return mParams;
 	}
-
-	public void setParams (Map<String, String> params) {
-		mParams = params;
-	}
-
-	public void setType (String type) {
-		mType = type;
-	}
-
-	@Override
-	public String toCommand () {
-		final StringBuilder sb = new StringBuilder ();
-
-		sb.append ('(').append (mFrom).append (')');
-		sb.append ('-');
-		sb.append ("[:").append (mType);
-		if (mParams != null && mParams.size () > 0) {
-			String paramString = mParams.entrySet ().stream ().map (e -> e.getKey () + ":" + e.getValue ())
-					.collect (Collectors.joining (","));
-			sb.append (" {").append (paramString).append ("}");
-		}
-		sb.append (']');
-		sb.append ("->");
-		sb.append ('(').append (mTo).append (')');
-		return (sb.toString ());
-	}
-
 }

@@ -44,13 +44,13 @@ class EndToEndTests {
     @Test
     void InfoSaysHello() {
         driver.get("http://localhost/info");
-        assertThat(driver.getPageSource()).contains("Hello Gradvec");
+        assertThat(driver.getPageSource()).contains("Hello Gradvek");
     }
 
     @Test
     @Disabled
     void InfoSaysGoodbye() {
         driver.get("http://localhost/info");
-        assertThat(driver.getPageSource()).contains("Goodbye Gradvec");
+        assertThat(driver.getPageSource()).contains("Goodbye Gradvek");
     }
 }
