@@ -10,42 +10,41 @@ import IconButton from "@mui/material/IconButton";
 
 // import { filter } from "lodash";
 // import { sentenceCase } from "change-case";
-import { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+//import { useState } from "react";
+//import { Link as RouterLink } from "react-router-dom";
 // material
 import {
-  Card,
-  Table,
-  Stack,
-  Avatar,
-  Button,
+  //  Card,
+  //  Table,
+  //  Stack,
+  //  Avatar,
+  //  Button,
   Checkbox,
-  TableRow,
-  TableBody,
-  TableCell,
+  // TableRow,
+  // TableBody,
+  //TableCell,
   Container,
-  Typography,
-  TableContainer,
-  TablePagination
+  Typography
+  // TableContainer,
+  // TablePagination
 } from "@mui/material";
 // components
 import Page from "../components/Page";
-import Label from "../components/Label";
-import Scrollbar from "../components/Scrollbar";
-import Iconify from "../components/Iconify";
+//import Label from "../components/Label";
+//import Scrollbar from "../components/Scrollbar";
+//import Iconify from "../components/Iconify";
 // import SearchNotFound from "../components/SearchNotFound";
-import {
-  //DataMgmtHead,
-  //  DataMgmtToolbar,
-  DataMgmtMenu
-} from "../sections/@dashboard/datamgmt";
+import //DataMgmtHead,
+//  DataMgmtToolbar,
+//DataMgmtMenu
+"../sections/@dashboard/datamgmt";
 //
 
 // ----------------------------------------------------------------------
 
 // ----------------------------------------------------------------------
 export default function CheckboxList() {
-  const [checked, setChecked] = React.useState([0]);
+  const [checked, setChecked] = React.useState([]);
 
   const handleToggle = value => () => {
     const currentIndex = checked.indexOf(value);
