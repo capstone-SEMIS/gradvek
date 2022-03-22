@@ -11,11 +11,6 @@ import { Checkbox, Typography } from "@mui/material";
 
 // components
 import Page from "../components/Page";
-//import //DataMgmtHead,
-//  DataMgmtToolbar,
-//DataMgmtMenu
-//"../sections/@dashboard/datamgmt";
-//
 
 // ----------------------------------------------------------------------
 
