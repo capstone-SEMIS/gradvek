@@ -1,7 +1,7 @@
 import { useState } from 'react';
 // material
 import { styled, alpha } from '@mui/material/styles';
-import {Input, Slide, Button, IconButton, InputAdornment, ClickAwayListener, Toolbar, AppBar} from '@mui/material';
+import {Input, Slide, IconButton, InputAdornment, ClickAwayListener, Toolbar, AppBar} from '@mui/material';
 // component
 import Iconify from '../../components/Iconify';
 import {Form, FormikProvider, useFormik} from "formik";
@@ -90,7 +90,7 @@ export default function Searchbar({onResultsChange}) {
     }
   });
 
-  const { errors, touched, isSubmitting, getFieldProps } = formik;
+  const {isSubmitting, getFieldProps } = formik;
 
   return (
       <RootStyle>
