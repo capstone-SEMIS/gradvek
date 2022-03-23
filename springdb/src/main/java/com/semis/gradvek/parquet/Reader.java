@@ -21,21 +21,23 @@ public class Reader {
 
 	public static Parquet read (java.nio.file.Path filePath) throws IOException {
 		List<SimpleGroup> simpleGroups = new ArrayList<> ();
-		ParquetFileReader reader = ParquetFileReader
-				.open (HadoopInputFile.fromPath (new Path(filePath.toRealPath ().toString ()), new Configuration ()));
-		MessageType schema = reader.getFooter ().getFileMetaData ().getSchema ();
 
-		for (PageReadStore pages = reader.readNextRowGroup (); pages != null; pages = reader.readNextRowGroup ()) {
-			long rows = pages.getRowCount ();
-			MessageColumnIO columnIO = new ColumnIOFactory ().getColumnIO (schema);
-			RecordReader<Group> recordReader = columnIO.getRecordReader (pages, new GroupRecordConverter (schema));
+		try (ParquetFileReader reader = ParquetFileReader.open (
+				HadoopInputFile.fromPath (new Path (filePath.toRealPath ().toString ()), new Configuration ()))) {
+			MessageType schema = reader.getFooter ().getFileMetaData ().getSchema ();
 
-			for (int i = 0; i < rows; i++) {
-				SimpleGroup simpleGroup = (SimpleGroup) recordReader.read ();
-				simpleGroups.add (simpleGroup);
+			for (PageReadStore pages = reader.readNextRowGroup (); pages != null; pages = reader.readNextRowGroup ()) {
+				long rows = pages.getRowCount ();
+				MessageColumnIO columnIO = new ColumnIOFactory ().getColumnIO (schema);
+				RecordReader<Group> recordReader = columnIO.getRecordReader (pages, new GroupRecordConverter (schema));
+
+				for (int i = 0; i < rows; i++) {
+					SimpleGroup simpleGroup = (SimpleGroup) recordReader.read ();
+					simpleGroups.add (simpleGroup);
+				}
 			}
+			
+			return new Parquet (simpleGroups, schema.getFields ());
 		}
-		reader.close ();
-		return new Parquet (simpleGroups, schema.getFields ());
 	}
 }
