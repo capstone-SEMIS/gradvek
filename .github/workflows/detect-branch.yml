@@ -1,0 +1,18 @@
+name: Branch detection test
+
+on:
+  workflow_dispatch
+
+jobs:  
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GCP
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.GCP_HOST }}
+          username: ${{ secrets.GCP_USERNAME }}
+          key: ${{ secrets.GCP_KEY }}
+          script: |
+            echo "https://raw.githubusercontent.com/capstone-SEMIS/gradvek/$GITHUB_REF_NAME/demo/install.sh"
+            echo "https://raw.githubusercontent.com/capstone-SEMIS/gradvek/$GITHUB_REF_NAME/demo/docker-compose.yml"
