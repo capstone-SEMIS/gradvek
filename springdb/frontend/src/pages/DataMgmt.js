@@ -1,3 +1,4 @@
+// import List components
 import * as React from "react";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -13,7 +14,8 @@ import { Checkbox, Typography } from "@mui/material";
 import Page from "../components/Page";
 
 // ----------------------------------------------------------------------
-
+// React function for CheckboxList. This has hardcoded
+// list of data sets. In future version, it will dynamically read from the backend.
 // ----------------------------------------------------------------------
 export default function CheckboxList() {
   const [checked, setChecked] = React.useState([]);
