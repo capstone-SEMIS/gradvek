@@ -13,11 +13,13 @@ There is one workflow divided into four jobs:
 * publish
   * The build artifacts from the previous job are restored.  Then the main project Dockerfile is used to generate an image, which is pushed to Docker Hub.
 * deploy
-  * A Compute Engine instance on the Google Cloud Platform runs the script in `demo/install.sh`, which in turn retrieves a fresh copy of the updated image published in the previous step.  A container based on this image is then run alongside a Neo4j container.  With the application and database running, the Compute Engine instance hosts the website.  NOTE: This instance is intended as a demo controlled by the dev team, not as a production instance controlled by the customer.
+  * Via SSH, the demo server runs the script in `demo/install.sh`, which in turn retrieves a fresh copy of the updated image published in the previous step.  A container based on this image is then run alongside a Neo4j container using `docker-compose`.
 
 Separating the build and publish jobs has two main advantages.  First, it's clear at a glance if a failure occurred during Maven or during Docker Hub operations.  Second, the build artifacts are available for later inspection if desired for troubleshooting.
 
-In addition, before continuing past the test phase, the [GitHub context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context) is checked to ensure that the `master` branch is being used.  If not, the remainder of the jobs are skipped by default.  The default may be overridden by setting the workflow input "Deploy even if this is not on the master branch" to TRUE on manual invocation.  This allows testing some CI/CD changes before merging to `master`, using the demo instance like a staging environment.
+Finally, before continuing past the test phase, the [GitHub context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context) is checked to ensure that the `master` branch is being used.  If not, the remainder of the jobs are skipped by default.  The default may be overridden by setting the workflow input "Deploy even if this is not on the master branch" to TRUE on manual invocation.  This allows testing some CI/CD changes before merging to `master`, using the demo instance like a staging environment.
+
+Our demo server is a Compute Engine instance on the Google Cloud Platform.    With the application and database running, the Compute Engine instance hosts the website.  Note that this instance is intended as a demo controlled by the dev team, not as a production instance controlled by the customer.  The demo server is accessible at http://34.134.56.173 on the web.
 
 ## Running locally
 
