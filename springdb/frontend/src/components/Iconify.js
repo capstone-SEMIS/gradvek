@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 // icons
-import { Icon } from '@iconify/react';
+import { Icon } from "@iconify/react";
 // @mui
-import { Box } from '@mui/material';
-
+import { Box } from "@mui/material";
+//import { Box } from "@mui/icons-material";
 // ----------------------------------------------------------------------
 
 Iconify.propTypes = {

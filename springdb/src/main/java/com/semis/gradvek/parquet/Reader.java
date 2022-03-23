@@ -17,13 +17,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * the utility class for reading Parquet-formatted files using Hadoop internals
+ * instead of full-blown Sparc
+ * @author ymachkasov
+ *
+ */
 public class Reader {
 
 	public static Parquet read (java.nio.file.Path filePath) throws IOException {
 		List<SimpleGroup> simpleGroups = new ArrayList<> ();
 
 		try (ParquetFileReader reader = ParquetFileReader.open (
-				HadoopInputFile.fromPath (new Path (filePath.toRealPath ().toString ()), new Configuration ()))) {
+				HadoopInputFile.fromPath (new Path (filePath.toRealPath ().toString ()), new Configuration ())
+				)
+			)
+		{
 			MessageType schema = reader.getFooter ().getFileMetaData ().getSchema ();
 
 			for (PageReadStore pages = reader.readNextRowGroup (); pages != null; pages = reader.readNextRowGroup ()) {
@@ -31,9 +40,8 @@ public class Reader {
 				MessageColumnIO columnIO = new ColumnIOFactory ().getColumnIO (schema);
 				RecordReader<Group> recordReader = columnIO.getRecordReader (pages, new GroupRecordConverter (schema));
 
-				for (int i = 0; i < rows; i++) {
-					SimpleGroup simpleGroup = (SimpleGroup) recordReader.read ();
-					simpleGroups.add (simpleGroup);
+				for (int iRow = 0; iRow < rows; ++iRow) {
+					simpleGroups.add ((SimpleGroup) recordReader.read ());
 				}
 			}
 			

@@ -5,6 +5,11 @@ import org.apache.parquet.schema.Type;
 
 import java.util.List;
 
+/**
+ * An object combining the data and the schema for a single record from a Parquet file
+ * @author ymachkasov
+ *
+ */
 public class Parquet {
     private List<SimpleGroup> data;
     private List<Type> schema;

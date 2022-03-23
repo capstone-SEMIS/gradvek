@@ -5,6 +5,11 @@ name: Java CI with Maven
 
 on:
   workflow_dispatch:
+    inputs:
+      NON_MASTER_DEPLOY:
+        description: 'Deploy even if this is not on the master branch'
+        required: false
+        default: 'FALSE'
 
   push:
    branches: 
@@ -44,7 +49,7 @@ jobs:
         mvn -Dtest="EndToEndTests" test
 
   build:
-    if: ${{ github.ref == 'refs/heads/master' }}
+    if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -93,8 +98,8 @@ jobs:
           name: nodenpm
           path: nodenpm.tar.gz
 
-  deploy:
-    if: ${{ github.ref == 'refs/heads/master' }}
+  publish:
+    if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -142,3 +147,17 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/app:latest
+
+  deploy:
+    if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GCP
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.GCP_HOST }}
+          username: ${{ secrets.GCP_USERNAME }}
+          key: ${{ secrets.GCP_KEY }}
+          script: |
+            curl -s https://raw.githubusercontent.com/capstone-SEMIS/gradvek/master/demo/install.sh | bash
