@@ -2,47 +2,49 @@ import PropTypes from 'prop-types';
 // material
 
 import { Card, TableRow, TableCell, TableHead, TableContainer, Table, TableBody } from '@mui/material';
+import {Component} from "react";
 
 
-// ----------------------------------------------------------------------
+export default class AEResults extends Component {
+    constructor(props) {
+        super(props);
+        this.handleChange = this.handleChange.bind(this);
+    }
 
-AEList.propTypes = {
-  graphNodes: PropTypes.array.isRequired
-};
+    handleChange(e) {
+        this.props.onResultsChange(e.target.value);  }
 
-export default function AEList({ graphNodes, filterHandler}) {
-    let AEs = graphNodes.filter( (graphNode) => {
-        return graphNode.classes?.includes("adverse event");
-    });
-
-    return (
-        <Card>
-            <TableContainer>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>
-                                ID
-                            </TableCell>
-                            <TableCell>
-                                Meddra
-                            </TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {AEs.map( (AE) => (
-                            <TableRow key={AE.data.id} onClick={(e) => filterHandler(AE.data.id)}>
+    render() {
+        const results = this.props.results;
+        return (
+            <Card>
+                <TableContainer>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
                                 <TableCell>
-                                    {AE.data.id}
+                                    Adverse Event
                                 </TableCell>
                                 <TableCell>
-                                    {AE.data.meddraCode}
+                                    Weight
                                 </TableCell>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table >
-            </TableContainer>
-        </Card>
-    )
+                        </TableHead>
+                        <TableBody>
+                            {results.map( (row) => (
+                                <TableRow key={row.name}>
+                                    <TableCell>
+                                        {row.name}
+                                    </TableCell>
+                                    <TableCell>
+                                        {row.llr}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table >
+                </TableContainer>
+            </Card>
+        )
+    }
 }
