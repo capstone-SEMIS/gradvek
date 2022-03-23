@@ -14,5 +14,5 @@ jobs:
           username: ${{ secrets.GCP_USERNAME }}
           key: ${{ secrets.GCP_KEY }}
           script: |
-            echo "https://raw.githubusercontent.com/capstone-SEMIS/gradvek/$GITHUB_REF_NAME/demo/install.sh"
-            echo "https://raw.githubusercontent.com/capstone-SEMIS/gradvek/$GITHUB_REF_NAME/demo/docker-compose.yml"
+            echo "https://raw.githubusercontent.com/capstone-SEMIS/gradvek/${{ github.ref_name }}/demo/install.sh"
+            echo "https://raw.githubusercontent.com/capstone-SEMIS/gradvek/${{ github.ref_name }}/demo/docker-compose.yml"
