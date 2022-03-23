@@ -1,25 +1,64 @@
 package com.semis.gradvek.entity;
 
+/**
+ * The list of types of entities supported by the Gradvek database
+ * @author ymachkasov
+ *
+ */
 public enum EntityType {
-	AdverseEvent, Drug, Gene, Target;
-
-	public static Class<? extends Entity> getEntityClass (EntityType type) {
-		Class<? extends Entity> ret = null;
+	AdverseEvent (AdverseEvent.class, "meddraCode"), 
+	Drug (Drug.class, "chembl_code"), 
+	Gene (Gene.class, null), 
+	Target (Target.class, "targetId"), 
+	Causes (Causes.class, null);
+	
+	/**
+	 * The class of the corresponding entity (a subclass of Entity)
+	 */
+	private final Class<? extends Entity> mClass;
+	
+	/**
+	 * The optional name of the field by which the entities of this type
+	 * should be indexed in the database
+	 */
+	private final String mIndexField;
+	
+	private EntityType (
+			Class<? extends Entity> typeClass,
+			String indexField)
+	{
+		mClass = typeClass;
+		mIndexField = indexField;
+	}
+	
+	public String getIndexField () {
+		return (mIndexField);
+	}
+	
+	public Class<? extends Entity> getEntityClass () {
+		return (mClass);
+	}
+	
+	/**
+	 * The string representing a Cypher command to count all entities of this type
+	 * @param type
+	 * @return
+	 */
+	public static String toCountString (EntityType type) {
+		String ret = "";
 		switch (type) {
 			case AdverseEvent:
-				ret = com.semis.gradvek.entity.AdverseEvent.class;
-			break;
 			case Drug:
-				ret = com.semis.gradvek.entity.Drug.class;
-			break;
 			case Gene:
-				ret = com.semis.gradvek.entity.Gene.class;
-			break;
 			case Target:
-				ret = com.semis.gradvek.entity.Target.class;
+				ret = "MATCH (n:" + type.toString () + ") RETURN COUNT (n)";
+			break;
+
+			case Causes:
+				ret = "MATCH (:Drug)-[n]->(:AdverseEvent) RETURN COUNT (n)";
 			break;
 		}
-
-		return ret;
+		
+		return (ret);
 	}
 }

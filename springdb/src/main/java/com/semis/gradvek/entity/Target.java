@@ -3,15 +3,16 @@ package com.semis.gradvek.entity;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 
-import com.semis.gradvek.springdb.Neo4jDriver;
-
-public class Target extends NamedEntity {
+/**
+ * The immutable object representing a drug target from the OpenTargets
+ * database
+ * 
+ * @author ymachkasov
+ *
+ */public class Target extends NamedEntity {
 
 	private String mId;
-
-	public Target () {
-		// Factory
-	}
+	private String mSymbol;
 
 	public Target (String name, String id) {
 		super (name);
@@ -20,12 +21,8 @@ public class Target extends NamedEntity {
 
 	public Target(SimpleGroup data) {
 		super(data.getString ("approvedName", 0));
-		mId = data.getString ("approvedSymbol", 0);
-	}
-
-	@Override
-	public String getType () {
-		return ("Target");
+		mSymbol = data.getString ("approvedSymbol", 0);
+		mId = data.getString ("id", 0);
 	}
 
 	public String getId () {
@@ -37,17 +34,12 @@ public class Target extends NamedEntity {
 	}
 
 	@Override
-	public final String toCommand () {
-		return ("(:" + getType () + " {" + "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
-				+ "targetId:\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\'})");
+	public final String addCommand () {
+		return ("CREATE (:Target" 
+				+ " {" + "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
+				+ "targetId:\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\', "
+				+ "symbol:\'" + StringEscapeUtils.escapeEcmaScript (mSymbol) + "\'"
+				+ "})");
 
 	}
-
-	@Override
-	public boolean importParquet (SimpleGroup data) {
-		setName (data.getString ("approvedName", 0));
-		setId (data.getString ("approvedSymbol", 0));
-		return (true);
-	}
-
 }

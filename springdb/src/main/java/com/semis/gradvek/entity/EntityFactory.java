@@ -5,23 +5,31 @@ import java.util.logging.Logger;
 
 import org.apache.parquet.example.data.simple.SimpleGroup;
 
+/**
+ * The factory class capable of creating entities representing OpenTarget data by type
+ * through reflection 
+ * @author ymachkasov
+ *
+ */
 public class EntityFactory {
 	private static final Logger mLogger = Logger.getLogger (EntityFactory.class.getName ());
 
 
-	public static <T extends Entity> T newEntity (Class<T> entityClass) {
-		try {
-			return entityClass.getConstructor ().newInstance ();
-		} catch (NoSuchMethodException|InvocationTargetException|IllegalAccessException|InstantiationException nsmx) {
-			mLogger.severe ("Couldn't create entity of type " + entityClass.getName ());
-			return null;
-		}
-	}
-
-
+	/**
+	 * Creates an entity of a certain type from the Parquet data for it
+	 * @param <T> returned entity type
+	 * @param entityClass the required entity class 
+	 * @param parquet the Parquet data for this entity
+	 * @return The created instance of the specified type
+	 */
 	public static <T extends Entity> T fromParquet (Class<T> entityClass, SimpleGroup parquet) {
 		try {
-			return entityClass.getConstructor (SimpleGroup.class).newInstance (parquet);
+			T ret = entityClass.getConstructor (SimpleGroup.class).newInstance (parquet);
+			if (ret.filter (parquet)) {
+				return (ret);
+			} else {
+				return (null);
+			}
 		} catch (NoSuchMethodException|InvocationTargetException|IllegalAccessException|InstantiationException nsmx) {
 			mLogger.severe ("Couldn't create entity of type " + entityClass.getName () + " with Parquet data");
 			return null;
