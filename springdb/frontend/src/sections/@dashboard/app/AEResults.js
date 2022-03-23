@@ -1,9 +1,6 @@
-import PropTypes from 'prop-types';
 // material
-
 import { Card, TableRow, TableCell, TableHead, TableContainer, Table, TableBody } from '@mui/material';
 import {Component} from "react";
-
 
 export default class AEResults extends Component {
     constructor(props) {
