@@ -189,12 +189,7 @@ public class Controller {
 
 	@GetMapping("/ae/{target}")
 	public ResponseEntity<List<AdverseEvent>> getAdverseEvent(@PathVariable(value="target") final String target) {
-		Neo4jDriver driver = Neo4jDriver.instance(
-				mEnv.getProperty("neo4j.url"),
-				mEnv.getProperty("neo4j.user"),
-				mEnv.getProperty("neo4j.password")
-		);
-		List<AdverseEvent> adverseEvents = driver.getAEByTarget(target);
+		List<AdverseEvent> adverseEvents = mDriver.getAEByTarget(target);
 		return ResponseEntity.ok(adverseEvents);
 	}
 
