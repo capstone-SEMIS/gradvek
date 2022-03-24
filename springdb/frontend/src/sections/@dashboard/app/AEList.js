@@ -44,6 +44,5 @@ export default function AEList({ graphNodes, filterHandler}) {
                 </Table >
             </TableContainer>
         </Card>
-        
     )
 }

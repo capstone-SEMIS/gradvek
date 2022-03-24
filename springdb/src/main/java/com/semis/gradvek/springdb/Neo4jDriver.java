@@ -1,12 +1,12 @@
 package com.semis.gradvek.springdb;
 
+import com.semis.gradvek.entity.AdverseEvent;
+
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
+import org.neo4j.driver.Record;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -18,7 +18,7 @@ import org.neo4j.driver.Session;
 
 /**
  * The abstraction of the access to the Neo4j database, delegating methods to the Cypher queries
- * @author ymachkasov
+ * @author ymachkasov, ychen
  *
  */
 public class Neo4jDriver {
@@ -34,7 +34,7 @@ public class Neo4jDriver {
 	 * Map of singleton instances keyed by access URI
 	 */
 	private static final Map<String, Neo4jDriver> mInstances = new HashMap<> ();
-  
+
 	/**
 	 * Retrieves a singleton tied to the specified URI
 	 * @param uri Neo4j URI
@@ -95,7 +95,7 @@ public class Neo4jDriver {
 			}
 		}
 	}
-	
+
 	/**
 	 * Counts the entities of the given type
 	 * @param type the entity type for the query
@@ -109,9 +109,9 @@ public class Neo4jDriver {
 				return (result.next ().get (0).asInt ());
 			});
 		}
-		
+
 	}
-	
+
 	/**
 	 * Creates an index on entries of the specified type, if this type supports indexing
 	 * and the index does not yet exist
@@ -147,6 +147,26 @@ public class Neo4jDriver {
 					names.add (result.next ().get (0).asString ());
 				}
 				return names;
+			});
+		}
+	}
+
+	public List<AdverseEvent> getAEByTarget (String target) {
+		mLogger.info("Getting adverse event by target " +target);
+		try (Session session = mDriver.session()) {
+			return session.readTransaction (tx -> {
+				Result result = tx.run("MATCH ((Target{targetId:'" +target+ "'})-[:TARGETS]-(Drug)-[causes:CAUSES]-(AdverseEvent)) RETURN DISTINCT AdverseEvent.adverseEventId, AdverseEvent.meddraCode, causes.llr ORDER BY causes.llr DESC");
+				List<AdverseEvent> finalMap = new LinkedList<>();
+				while ( result.hasNext() ) {
+					Record record = result.next();
+					String name = record.fields().get(0).value().asString();
+					String id = record.fields().get(0).value().asString().replace(' ', '_');
+					String code = record.fields().get(1).value().asString();
+					AdverseEvent ae = new AdverseEvent(name, id, code);
+					ae.setLlr(record.fields().get(2).value().asDouble());
+					finalMap.add(ae);
+				}
+				return finalMap;
 			});
 		}
 	}
