@@ -36,7 +36,7 @@ export default function CheckboxList() {
   return (
     <Page title="Dashboard: Data Management ">
       <Typography variant="h4" sx={{ mb: 5 }}>
-        Data Managment
+        Data Management
       </Typography>
 
       <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
