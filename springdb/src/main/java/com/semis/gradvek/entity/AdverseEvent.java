@@ -5,8 +5,8 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 /**
  * The immutable object representing an adverse effect from the OpenTargets
  * database
- * 
- * @author ymachkasov
+ *
+ * @author ymachkasov, ychen
  *
  */
 public class AdverseEvent extends NamedEntity {
@@ -21,6 +21,12 @@ public class AdverseEvent extends NamedEntity {
 	 */
 	private final String mMeddraCode;
 
+	/**
+	 * The code of the adverse event according to Medical Dictionary for Regulatory
+	 * Activities (https://www.meddra.org/)
+	 */
+	private Double llr;
+
 	public AdverseEvent (String name, String id, String code) {
 		super (name);
 		mId = id;
@@ -29,7 +35,7 @@ public class AdverseEvent extends NamedEntity {
 
 	/**
 	 * Constructor from Parquet data
-	 * 
+	 *
 	 * @param data the full Parquet entity for this event
 	 */
 	public AdverseEvent (SimpleGroup data) {
@@ -44,6 +50,14 @@ public class AdverseEvent extends NamedEntity {
 
 	public String getMeddraCode () {
 		return mMeddraCode;
+	}
+
+	public Double getLlr() {
+		return llr;
+	}
+
+	public void setLlr(Double llr) {
+		this.llr = llr;
 	}
 
 	@Override

@@ -2,8 +2,11 @@ package com.semis.gradvek.springdb;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.List;
 import java.util.logging.Logger;
 
+import com.semis.gradvek.entity.AdverseEvent;
+import com.semis.gradvek.entity.NamedEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -26,7 +29,7 @@ import com.semis.gradvek.parquet.ParquetUtils;
 
 /**
  * The Spring controller representing the REST API to the driver abstraction over Neo4j database
- * @author ymachkasov
+ * @author ymachkasov, ychen
  *
  */
 @RestController
@@ -37,7 +40,7 @@ public class Controller {
 	private Environment mEnv;
 
 	private Neo4jDriver mDriver;
-	
+
 	private final class InitThread extends Thread {
 		@Override
 		public void run () {
@@ -47,7 +50,7 @@ public class Controller {
 
 	private final void initFromOpenTarget () {
 		EntityType[] toInit = {EntityType.Drug, EntityType.Target, EntityType.Causes};
-		
+
 		for (EntityType type: toInit) {
 			try {
 				String typeString = type.toString ();
@@ -63,9 +66,9 @@ public class Controller {
 				}
 			} catch (IOException iox) {
 			}
-		}					
+		}
 	}
-	
+
 	/**
 	 * Initialization; invoked when the application has completed startup
 	 * @param event
@@ -78,11 +81,11 @@ public class Controller {
 			 */
 			mDriver = Neo4jDriver.instance (mEnv.getProperty ("neo4j.url"), mEnv.getProperty ("neo4j.user"),
 					mEnv.getProperty ("neo4j.password"));
-	
+
 			// init these types of entities from OpenTarget
 			// new InitThread ().start (); - if needed
 			initFromOpenTarget ();
-			
+
 		} catch (org.neo4j.driver.exceptions.ServiceUnavailableException suax) {
 			mLogger.warning ("Could not connect to neo4j database - is this testing mode?");
 		}
@@ -90,7 +93,7 @@ public class Controller {
 	}
 
 	/**
-	 * Uploading a single entity in JSON format from the body of the request 
+	 * Uploading a single entity in JSON format from the body of the request
 	 * @param entityJson
 	 * @return
 	 */
@@ -153,7 +156,7 @@ public class Controller {
 		mDriver.add (new Gene (id));
 		return new ResponseEntity<Void> (HttpStatus.OK);
 	}
-	
+
 	/**
 	 * List of all loaded databases
 	 * TODO
@@ -181,7 +184,13 @@ public class Controller {
 				headers, HttpStatus.OK
 				)
 		);
-		
+
+	}
+
+	@GetMapping("/ae/{target}")
+	public ResponseEntity<List<AdverseEvent>> getAdverseEvent(@PathVariable(value="target") final String target) {
+		List<AdverseEvent> adverseEvents = mDriver.getAEByTarget(target);
+		return ResponseEntity.ok(adverseEvents);
 	}
 
 	/**
