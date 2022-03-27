@@ -70,6 +70,7 @@ public enum EntityType {
 			
 			case MechanismOfAction:
 				ret = "MATCH (:Drug)-[n]->(:Target) RETURN COUNT (n)";
+			break;
 		}
 		
 		return (ret);

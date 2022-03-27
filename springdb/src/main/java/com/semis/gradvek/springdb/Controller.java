@@ -48,7 +48,7 @@ public class Controller {
 	}
 
 	private final void initFromOpenTarget () {
-		EntityType[] toInit = {EntityType.Target, EntityType.Drug, EntityType.AssociatedWith, EntityType.MechanismOfAction};
+		EntityType[] toInit = {EntityType.Target, EntityType.Drug, EntityType.AdverseEvent, EntityType.AssociatedWith, EntityType.MechanismOfAction};
 		
 		for (EntityType type: toInit) {
 			try {
