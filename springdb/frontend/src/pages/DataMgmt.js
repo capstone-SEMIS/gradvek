@@ -85,5 +85,9 @@ export default function DataMgmtPage() {
             <CheckboxList/>
         </Page>
     );
+<<<<<<< HEAD
 >>>>>>> origin/master
+=======
+>>>>>>> 39fb90d93b406b1962954db9eac5e57eccfc51e6
+>>>>>>> master
 }
