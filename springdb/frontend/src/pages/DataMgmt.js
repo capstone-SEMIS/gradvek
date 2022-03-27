@@ -1,17 +1,9 @@
-// import List components
-import * as React from "react";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import IconButton from "@mui/material/IconButton";
-
 // material
-import { Checkbox, Typography } from "@mui/material";
+import {Typography} from "@mui/material";
 
 // components
 import Page from "../components/Page";
+<<<<<<< HEAD
 
 // ----------------------------------------------------------------------
 // React function for CheckboxList. This has hardcoded
@@ -78,4 +70,20 @@ export default function CheckboxList() {
       </List>
     </Page>
   );
+=======
+import CheckboxList from "../sections/@dashboard/datamgmt/CheckboxList";
+import EntityCsvImporter from "../sections/@dashboard/datamgmt/EntityCsvImporter";
+
+export default function DataMgmtPage() {
+    return (
+        <Page title="Dashboard: Data Management ">
+            <Typography variant="h4" sx={{mb: 5}}>
+                Data Management
+            </Typography>
+
+            <EntityCsvImporter/>
+            <CheckboxList/>
+        </Page>
+    );
+>>>>>>> 39fb90d93b406b1962954db9eac5e57eccfc51e6
 }
