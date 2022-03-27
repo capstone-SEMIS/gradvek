@@ -1,12 +1,10 @@
 package com.semis.gradvek.springdb;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.logging.Logger;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import com.semis.gradvek.entity.AdverseEvent;
-import com.semis.gradvek.entity.NamedEntity;
+import com.semis.gradvek.entity.EntityType;
+import com.semis.gradvek.entity.Gene;
+import com.semis.gradvek.parquet.ParquetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -24,15 +22,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.semis.gradvek.entity.EntityType;
-import com.semis.gradvek.entity.Gene;
-import com.semis.gradvek.parquet.ParquetUtils;
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * The Spring controller representing the REST API to the driver abstraction over Neo4j database
- * @author ymachkasov, ychen
  *
+ * @author ymachkasov, ychen
  */
 @RestController
 public class Controller {
