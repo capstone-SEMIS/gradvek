@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.semis.gradvek.entity.EntityType;
@@ -39,8 +41,8 @@ public class Controller {
 	@Autowired
 	private Environment mEnv;
 
-	private Neo4jDriver mDriver;
-
+	private DBDriver mDriver;
+	
 	private final class InitThread extends Thread {
 		@Override
 		public void run () {
@@ -49,8 +51,8 @@ public class Controller {
 	}
 
 	private final void initFromOpenTarget () {
-		EntityType[] toInit = {EntityType.Drug, EntityType.Target, EntityType.Causes};
-
+		EntityType[] toInit = {EntityType.Target, EntityType.Drug, EntityType.AssociatedWith, EntityType.MechanismOfAction};
+		
 		for (EntityType type: toInit) {
 			try {
 				String typeString = type.toString ();
@@ -58,6 +60,7 @@ public class Controller {
 				if (alreadyThere <= 0) {
 					mLogger.info ("Importing " + typeString + " data");
 					ParquetUtils.initEntities (mEnv, mDriver, type);
+					mDriver.unique (type);
 					mDriver.index (type);
 					mLogger.info ("Imported " +  mDriver.count (type) + " entities of type " + typeString);
 				} else {
@@ -85,7 +88,6 @@ public class Controller {
 			// init these types of entities from OpenTarget
 			// new InitThread ().start (); - if needed
 			initFromOpenTarget ();
-
 		} catch (org.neo4j.driver.exceptions.ServiceUnavailableException suax) {
 			mLogger.warning ("Could not connect to neo4j database - is this testing mode?");
 		}
@@ -105,6 +107,13 @@ public class Controller {
 		return new ResponseEntity<Void> (HttpStatus.CREATED);
 	}
 
+    @PostMapping(value = "/csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CsvService.SimpleFile> csv(@RequestParam MultipartFile file) {
+        CsvService cs = new CsvService();
+        CsvService.SimpleFile sf = cs.save(file);
+        return ResponseEntity.ok(sf);
+    }
+
 	/**
 	 * Clean out the entire database
 	 * @return
@@ -117,6 +126,20 @@ public class Controller {
 		return new ResponseEntity<Void> (HttpStatus.OK);
 	}
 
+	/**
+	 * Initialize the database with the entities or relationships of the specified type
+	 * @return
+	 */
+	@PostMapping ("/init/{type}")
+	@ResponseBody
+	public ResponseEntity<Void> initType (@PathVariable (value = "type") final String typeString) throws IOException {
+		EntityType type = EntityType.valueOf (typeString);
+		ParquetUtils.initEntities (mEnv, mDriver, type);
+		mDriver.unique (type);
+		mDriver.index (type);
+		return new ResponseEntity<Void> (HttpStatus.OK);
+	}
+	
 	/**
 	 * Initialize the database with the demo nodes and relationships
 	 * @return
@@ -177,7 +200,7 @@ public class Controller {
 				+ " \"source\":\"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/molecule\","
 				+ " timestamp:1647831895},"
 				+ "{\"dataset\":\"Adverse Events\","
-				+ " \"description\":\"Core annotation for drug - adverse event relationship\","
+				+ " \"description\":\"Significant adverse events for drug molecules\","
 				+ " \"source\":\"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/fda/significantAdverseDrugReactions\","
 				+ " \"timestamp\":1647831895}"
 				+ "]}",

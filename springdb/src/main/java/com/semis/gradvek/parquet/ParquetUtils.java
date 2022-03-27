@@ -1,19 +1,17 @@
 package com.semis.gradvek.parquet;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -21,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.parquet.example.data.Group;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
@@ -30,17 +29,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.semis.gradvek.entity.EntityType;
+import com.semis.gradvek.springdb.DBDriver;
 import com.semis.gradvek.springdb.Importer;
-import com.semis.gradvek.springdb.Neo4jDriver;
 
 public class ParquetUtils {
 	private static final Logger mLogger = Logger.getLogger (ParquetUtils.class.getName ());
-
+	
 	// maps the entity type to the name of the folder where the parquet files for it live
 	private static final Map<EntityType, String> mEntityTypeToPath = Map.of (
 			EntityType.Target, "targets",
+			EntityType.AdverseEvent, "fda/significantAdverseDrugReactions",
 			EntityType.Drug, "molecule",
-			EntityType.Causes, "fda/significantAdverseDrugReactions");
+			EntityType.MechanismOfAction, "mechanismOfAction",
+			EntityType.AssociatedWith, "fda/significantAdverseDrugReactions");
 
 	/**
 	 * Collects all fields with the specified keys from the supplied data into a map
@@ -57,6 +58,16 @@ public class ParquetUtils {
 			}
 		}
 		
+		return (ret);
+	}
+	
+	public static List<String> extractList (SimpleGroup data, String key) {
+		Group list = data.getGroup (key, 0);
+		int numInList = list.getFieldRepetitionCount (0);
+		List<String> ret = new ArrayList<> (numInList);
+		for (int iKey = 0; iKey < numInList; iKey ++) {
+			ret.add (list.getGroup (0, iKey).getString (0, 0));
+		}
 		return (ret);
 	}
 	
@@ -83,7 +94,7 @@ public class ParquetUtils {
 	 * @throws IOException if cannot read file/resource
 	 * @throws MalformedURLException
 	 */
-	public static ResponseEntity<Void> initEntities (Environment env, Neo4jDriver driver, EntityType type)
+	public static ResponseEntity<Void> initEntities (Environment env, DBDriver driver, EntityType type)
 			throws IOException, MalformedURLException {
 		Importer importer = new Importer (driver);
 		
@@ -135,8 +146,10 @@ public class ParquetUtils {
 
 			// do the import
 			try {
+				mLogger.info ("Processing " + resourceFile.getName ());
 				Parquet parquet = Reader.read (Paths.get (resourceFile.toURI ()));
 				importer.importParquet (parquet, type);
+				mLogger.info ("Finished " + resourceFile.getName ());
 			} catch (IOException iox) {
 				mLogger.severe (iox.toString ());
 			}

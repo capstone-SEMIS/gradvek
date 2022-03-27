@@ -1,5 +1,7 @@
 package com.semis.gradvek.entity;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.text.StringEscapeUtils;
@@ -13,45 +15,40 @@ import com.semis.gradvek.parquet.ParquetUtils;
  * @author ymachkasov
  *
  */
-public class Causes extends Edge {
+public class AssociatedWith extends Edge {
 
-	public Causes (String type, String from, String to, Map<String, String> params) {
+	public AssociatedWith (String type, String from, String to, Map<String, String> params) {
 		super (from, to, params);
 	}
-
-	private String mAdverseEvent;
 
 	/**
 	 * Constructor from Parquet data
 	 * 
 	 * @param data the full Parquet entity for this event
 	 */
-	public Causes (SimpleGroup data) {
+	public AssociatedWith (SimpleGroup data) {
 		super (data.getString ("chembl_id", 0), data.getString ("meddraCode", 0),
 				ParquetUtils.extractParams (data, "llr", "critval"/*, "count" is there, but irrelevant */));
-		mAdverseEvent = data.getString ("event", 0);
-	}
-
-	/**
-	 * The Cypher command to create this entity cannot be batched because of the many-to-many
-	 * nature of the relationship 
-	 */
-	@Override
-	public boolean canCombine () {
-		return (false);
 	}
 
 	/**
 	 * The Cypher command to create this entity
 	 */
 	@Override
-	public String addCommand () {
+	public List<String> addCommands () {
 		String jsonMap = ParquetUtils.paramsAsJSON (getParams ());
 
-		return ("MATCH (from:Drug) WHERE from.chembl_code=\'" + getFrom () + "\'\n" 
-				+ "MERGE (to:AdverseEvent {meddraCode:\'" + getTo () 
-				+ "\', adverseEventId: \'" + StringEscapeUtils.escapeEcmaScript (mAdverseEvent) + "\'})\n"
-				+ "CREATE (from)-[:CAUSES " + (jsonMap != null ? "{" + jsonMap + "}": "") + "]->(to)");
+		StringBuilder cmd = new StringBuilder ();
+		return Collections.singletonList(
+			"MATCH (from:Drug), (to:AdverseEvent)\n"
+			+ "WHERE from.chembl_code=\'" + getFrom () + "\'\n"
+			+ "AND to.meddraCode=\'" + getTo () + "\'\n"
+			+ "CREATE (from)-[:ASSOCIATED_WITH" + (jsonMap != null ? " {" + jsonMap + "} ": "") + "]->(to)"
+		);
 	}
 
+	
+	public final EntityType getType () {
+		return EntityType.AssociatedWith;
+	}
 }

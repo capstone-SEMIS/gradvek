@@ -1,5 +1,7 @@
 package com.semis.gradvek.entity;
 
+import java.util.List;
+
 import org.apache.parquet.example.data.simple.SimpleGroup;
 
 /**
@@ -13,7 +15,7 @@ public abstract class Entity {
 	 * The Cypher command to add this entity to the database
 	 * @return the string representation of the command
 	 */
-	public abstract String addCommand ();
+	public abstract List<String> addCommands ();
 	
 	/**
 	 * Optional filter which indicates if this entity should be imported
@@ -24,13 +26,6 @@ public abstract class Entity {
 		return (true);
 	}
 	
-	/**
-	 * Indicates whether entities of this type can be created in batch mode
-	 * (that is, they are not dependent on uniqueness and other Cypher variables)
-	 * @return if returns true, the entity is batchable
-	 */
-	public boolean canCombine () {
-		return (true);
-	}
+	public abstract EntityType getType ();
 	
 }
