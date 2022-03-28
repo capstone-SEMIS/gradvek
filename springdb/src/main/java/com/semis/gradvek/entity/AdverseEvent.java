@@ -1,6 +1,10 @@
 package com.semis.gradvek.entity;
 
-import org.apache.parquet.example.data.simple.SimpleGroup;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.parquet.example.data.Group;
 
 /**
  * The immutable object representing an adverse effect from the OpenTargets
@@ -11,25 +15,13 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
  */
 public class AdverseEvent extends NamedEntity {
 	/**
-	 * The human-readable description of the adverse event
-	 */
-	private final String mId;
-
-	/**
 	 * The code of the adverse event according to Medical Dictionary for Regulatory
 	 * Activities (https://www.meddra.org/)
 	 */
 	private final String mMeddraCode;
-
-	/**
-	 * The code of the adverse event according to Medical Dictionary for Regulatory
-	 * Activities (https://www.meddra.org/)
-	 */
-	private Double llr;
-
+	
 	public AdverseEvent (String name, String id, String code) {
 		super (name);
-		mId = id;
 		mMeddraCode = code;
 	}
 
@@ -38,34 +30,39 @@ public class AdverseEvent extends NamedEntity {
 	 *
 	 * @param data the full Parquet entity for this event
 	 */
-	public AdverseEvent (SimpleGroup data) {
-		super (data.getString ("name", 0));
-		mId = data.getString ("id", 0);
+	public AdverseEvent (Group data) {
+		super (data.getString ("event", 0));
 		mMeddraCode = data.getString ("meddraCode", 0);
-	}
-
-	public String getId () {
-		return mId;
 	}
 
 	public String getMeddraCode () {
 		return mMeddraCode;
 	}
 
-	public Double getLlr() {
-		return llr;
-	}
-
-	public void setLlr(Double llr) {
-		this.llr = llr;
-	}
-
 	@Override
-	public final String addCommand () {
-		return ("CREATE (" + getName () + ":AdverseEvent" + " {" + super.toString () + "adverseEventId: \'" + mId
-				+ "\', meddraCode: \'" + mMeddraCode + "\'})"
-
-		);
+	public final List<String> addCommands () {
+		return Collections.singletonList("CREATE (:AdverseEvent " 
+				+ " {" + "meddraCode:\'" + mMeddraCode + "\', "
+				+ "adverseEventId:\'" + StringEscapeUtils.escapeEcmaScript (getName ()) + "\'"
+				+ "})");
+	}
+	
+	public final EntityType getType () {
+		return EntityType.AdverseEvent;
+	}
+	
+	@Override
+	public boolean equals (Object otherObj) {
+		if (otherObj instanceof AdverseEvent) {
+			return ((AdverseEvent) otherObj).mMeddraCode.equals (mMeddraCode);
+		} else {
+			return (false);
+		}
+	}
+	
+	@Override
+	public int hashCode () {
+		return (mMeddraCode.hashCode ());
 	}
 
 }

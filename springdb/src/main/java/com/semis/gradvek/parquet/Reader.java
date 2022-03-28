@@ -4,7 +4,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.column.page.PageReadStore;
 import org.apache.parquet.example.data.Group;
-import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.example.data.simple.convert.GroupRecordConverter;
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.util.HadoopInputFile;
@@ -26,7 +25,7 @@ import java.util.List;
 public class Reader {
 
 	public static Parquet read (java.nio.file.Path filePath) throws IOException {
-		List<SimpleGroup> simpleGroups = new ArrayList<> ();
+		List<Group> groups = new ArrayList<> ();
 
 		try (ParquetFileReader reader = ParquetFileReader.open (
 				HadoopInputFile.fromPath (new Path (filePath.toRealPath ().toString ()), new Configuration ())
@@ -41,11 +40,11 @@ public class Reader {
 				RecordReader<Group> recordReader = columnIO.getRecordReader (pages, new GroupRecordConverter (schema));
 
 				for (int iRow = 0; iRow < rows; ++iRow) {
-					simpleGroups.add ((SimpleGroup) recordReader.read ());
+					groups.add (recordReader.read ());
 				}
 			}
 			
-			return new Parquet (simpleGroups, schema.getFields ());
+			return new Parquet (groups, schema.getFields ());
 		}
 	}
 }

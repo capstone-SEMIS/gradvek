@@ -1,5 +1,8 @@
 package com.semis.gradvek.entity;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * The immutable object representing a gene from the OpenTargets
  * database
@@ -27,8 +30,8 @@ public class Gene extends NamedEntity {
 
 
 	@Override
-	public final String addCommand () {
-		return (
+	public final List<String> addCommands () {
+		return Collections.singletonList(
 			"CREATE (" + getName()
 			+ ":Gene"
 			+ " {"
@@ -37,5 +40,9 @@ public class Gene extends NamedEntity {
 			+ "\'})"
 		);
 			
+	}
+	
+	public final EntityType getType () {
+		return EntityType.Drug;
 	}
 }
