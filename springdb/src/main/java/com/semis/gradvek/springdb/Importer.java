@@ -1,7 +1,7 @@
 package com.semis.gradvek.springdb;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityFactory;
@@ -10,27 +10,23 @@ import com.semis.gradvek.parquet.Parquet;
 
 public class Importer {
 
-	private final Neo4jDriver mDriver;
+	private final DBDriver mDriver;
 	
-	public Importer (Neo4jDriver driver) {
+	public Importer (DBDriver driver) {
 		mDriver = driver;
 	}
 	
 	public final void importParquet (Parquet parquet, EntityType type) {
-		final List<Entity> toImport = new ArrayList<> ();
+		final Set<Entity> toImport = new HashSet<> ();
 		parquet.getData ().stream ().forEach (p -> {
 			Entity entity = EntityFactory.fromParquet (type.getEntityClass (), p);
 			if (entity != null) {
-				if (entity.canCombine ()) {
-					toImport.add (entity);
-				} else {
-					mDriver.add (entity);
-				}
+				toImport.add (entity);
 			}
 		});
 		
 		if (toImport.size () >= 0) {
-			mDriver.add (toImport);
+			mDriver.add (toImport, type.canCombine ());
 		}
 	}
 }
