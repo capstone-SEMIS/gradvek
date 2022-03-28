@@ -191,11 +191,16 @@ public class Neo4jDriver implements DBDriver {
 	}
 
 	public void loadCsv(String url) {
-		// TODO use apoc to set labels
-		// https://community.neo4j.com/t/get-node-label-name-from-csv-file/41994
-		// https://neo4j.com/labs/apoc/4.0/installation/#docker
-		// or set labels using Java enumeration
-		// https://stackoverflow.com/questions/26536573/neo4j-how-to-set-label-with-property-value
+		// TODO Get properties from column headers
+		// TODO log the time taken to import the whole CSV
+		// TODO Refactor this with index()
+		try (Session session = mDriver.session()) {
+			session.writeTransaction(tx -> {
+				tx.run("CREATE INDEX imported_label IF NOT EXISTS FOR (n:IMPORTED) ON (n.label)");
+				return 1;
+			});
+		}
+
 		String command = String.format(
 				"LOAD CSV FROM '%s' AS line "
 						+ "  CALL { "
@@ -207,6 +212,30 @@ public class Neo4jDriver implements DBDriver {
 		mLogger.info(command);
 		try (Session session = mDriver.session()) {
 			session.run(command);
+		}
+
+		List<String> labels = new ArrayList<>();
+		try (Session session = mDriver.session ()) {
+			session.readTransaction (tx -> {
+				Result result = tx.run ("MATCH (n:IMPORTED) RETURN DISTINCT n.label");
+				while (result.hasNext()) {
+					labels.add(result.next().get(0).asString());
+				}
+				return labels.size();
+			});
+		}
+
+		for (String label : labels) {
+			String relabelCommand = "MATCH (n:IMPORTED {label:'" + label + "'}) "
+					+ "SET n:" + label + " "
+					+ "REMOVE n.label "
+					+ "REMOVE n:IMPORTED";
+			try (Session session = mDriver.session()) {
+				session.writeTransaction(tx -> {
+					tx.run(relabelCommand);
+					return 1;
+				});
+			}
 		}
 	}
 }
