@@ -1,6 +1,8 @@
 package com.semis.gradvek.springdb;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.semis.gradvek.csv.CsvFile;
+import com.semis.gradvek.csv.CsvService;
 import com.semis.gradvek.entity.AdverseEvent;
 import com.semis.gradvek.entity.EntityType;
 import com.semis.gradvek.entity.Gene;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,8 +19,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -101,10 +108,25 @@ public class Controller {
     }
 
     @PostMapping(value = "/csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity csv(@RequestParam MultipartFile file) {
-        CsvService cs = new CsvService();
-        CsvService.SimpleFile sf = cs.save(file);
-        return ResponseEntity.ok(sf);
+    public ResponseEntity csvPost(@RequestParam MultipartFile file, @RequestParam String baseUrl, HttpServletRequest request) {
+        String fileId = CsvService.getInstance().put(file);
+        Map<String, String> body = new HashMap<>();
+        body.put("name", file.getOriginalFilename());
+        URI uri = URI.create(baseUrl + request.getRequestURI() + "/" + fileId);
+        mDriver.loadCsv(uri.toString());
+        return ResponseEntity.created(uri).body(body);
+    }
+
+    @GetMapping(value = "/csv/{fileId}", produces = "text/csv")
+    public ResponseEntity csvGet(@PathVariable(value = "fileId") String fileId) throws IOException {
+        CsvFile file = CsvService.getInstance().get(fileId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", file.getName()));
+        headers.add(HttpHeaders.CONTENT_TYPE, "text/csv");
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(file.length())
+                .body(new InputStreamResource(file.getInputStream()));
     }
 
     /**

@@ -170,4 +170,24 @@ public class Neo4jDriver {
 			});
 		}
 	}
+
+	public void loadCsv(String url) {
+		// TODO use apoc to set labels
+		// https://community.neo4j.com/t/get-node-label-name-from-csv-file/41994
+		// https://neo4j.com/labs/apoc/4.0/installation/#docker
+		// or set labels using Java enumeration
+		// https://stackoverflow.com/questions/26536573/neo4j-how-to-set-label-with-property-value
+		String command = String.format(
+				"LOAD CSV FROM '%s' AS line "
+						+ "  CALL { "
+						+ "  WITH line "
+						+ "  CREATE (:IMPORTED {label: line[0], id: line[1], name: line[2]}) "
+						+ "} IN TRANSACTIONS",
+				url
+		);
+		mLogger.info(command);
+		try (Session session = mDriver.session()) {
+			session.run(command);
+		}
+	}
 }
