@@ -67,7 +67,7 @@ public class Neo4jDriver implements DBDriver {
 	 * @param entity
 	 */
 	@Override
-	public void add (Entity entity) {
+	public <T extends Entity> void add (T entity) {
 		entity.addCommands ().forEach (c -> write (c));
 	}
 
@@ -76,7 +76,7 @@ public class Neo4jDriver implements DBDriver {
 	 * @param entity
 	 */
 	@Override
-	public void add (Set<Entity> entities, boolean canCombine) {
+	public <T extends Entity> void add (Set<T> entities, boolean canCombine) {
 		if (canCombine) {
 			// We can get the entire batch in one long command and execute it in one tx
 			String cmd = entities.stream ().map (e -> e.addCommands ().stream ().collect (Collectors.joining (" "))).collect (Collectors.joining ("\n"));
@@ -149,13 +149,11 @@ public class Neo4jDriver implements DBDriver {
 		String indexField = type.getIndexField ();
 		if (indexField != null) {
 			mLogger.info ("Indexing " + type + " on " + indexField);
-			String typeString = type.toString ();
 			try (Session session = mDriver.session ()) {
 				session.writeTransaction (tx -> {
 					tx.run (
-						"CREATE INDEX " + typeString
-						+ "Index IF NOT EXISTS FOR (n:" + typeString + ") ON (n." + indexField
-						+ ")"
+						"CREATE INDEX " + type
+						+ "Index IF NOT EXISTS FOR (n:" + type + ") ON (n." + indexField + ")"
 					);
 					return ("");
 				});
@@ -169,11 +167,10 @@ public class Neo4jDriver implements DBDriver {
 		String indexField = type.getIndexField ();
 		if (indexField != null) {
 			mLogger.info ("Uniquifying " + type + " on " + indexField);
-			String typeString = type.toString ();
 			try (Session session = mDriver.session ()) {
 				session.writeTransaction (tx -> {
 					tx.run (
-							"MATCH (n:" + typeString + ")"
+							"MATCH (n:" + type + ")"
 							+ " WITH n." + indexField + " AS " + indexField 
 							+ " , collect(n) AS nodes WHERE size(nodes) > 1"
 							+ " FOREACH (n in tail(nodes) | DELETE n)"
@@ -186,18 +183,18 @@ public class Neo4jDriver implements DBDriver {
 		}
 	}
 	
-	public List<AdverseEvent> getAEByTarget (String target) {
+	public List<AdverseEventIntObj> getAEByTarget (String target) {
 		mLogger.info("Getting adverse event by target " +target);
 		try (Session session = mDriver.session()) {
 			return session.readTransaction (tx -> {
 				Result result = tx.run("MATCH ((Target{targetId:'" +target+ "'})-[:TARGETS]-(Drug)-[causes:\'ASSOCIATED_WITH\']-(AdverseEvent)) RETURN DISTINCT AdverseEvent.adverseEventId, AdverseEvent.meddraCode, causes.llr ORDER BY causes.llr DESC");
-				List<AdverseEvent> finalMap = new LinkedList<>();
+				List<AdverseEventIntObj> finalMap = new LinkedList<>();
 				while ( result.hasNext() ) {
 					Record record = result.next();
 					String name = record.fields().get(0).value().asString();
 					String id = record.fields().get(0).value().asString().replace(' ', '_');
 					String code = record.fields().get(1).value().asString();
-					AdverseEvent ae = new AdverseEvent(name, id, code);
+					AdverseEventIntObj ae = new AdverseEventIntObj(name, id, code);
 					ae.setLlr(record.fields().get(2).value().asDouble());
 					finalMap.add(ae);
 				}

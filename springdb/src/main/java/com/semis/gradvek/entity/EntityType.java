@@ -8,8 +8,9 @@ package com.semis.gradvek.entity;
 public enum EntityType {
 	AdverseEvent (AdverseEvent.class, "meddraCode"), 
 	Drug (Drug.class, "chembl_code"), 
-	Gene (Gene.class, null), 
+	Gene (Gene.class, "geneId"), 
 	Target (Target.class, "targetId"), 
+	Pathway (Target.class, "pathwayId"), 
 	AssociatedWith (AssociatedWith.class, null),
 	MechanismOfAction (MechanismOfAction.class, null);
 	
@@ -40,6 +41,15 @@ public enum EntityType {
 		return (mClass);
 	}
 	
+	public static EntityType fromEntityClass (Class<? extends Entity> c) {
+		for (EntityType type: EntityType.values ()) {
+			if (c.equals (type.getEntityClass ())) {
+				return type;
+			}
+		}
+		
+		return null;
+	}
 	/**
 	 * Indicates whether entities of this type can be created in batch mode
 	 * (that is, they are not dependent on uniqueness and other Cypher variables)
@@ -61,6 +71,7 @@ public enum EntityType {
 			case Drug:
 			case Gene:
 			case Target:
+			case Pathway:
 				ret = "MATCH (n:" + type.toString () + ") RETURN COUNT (n)";
 			break;
 

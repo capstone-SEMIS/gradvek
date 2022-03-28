@@ -3,7 +3,7 @@ package com.semis.gradvek.entity;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Logger;
 
-import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.example.data.Group;
 
 /**
  * The factory class capable of creating entities representing OpenTarget data by type
@@ -22,9 +22,9 @@ public class EntityFactory {
 	 * @param parquet the Parquet data for this entity
 	 * @return The created instance of the specified type
 	 */
-	public static <T extends Entity> T fromParquet (Class<T> entityClass, SimpleGroup parquet) {
+	public static <T extends Entity> T fromParquet (Class<T> entityClass, Group parquet) {
 		try {
-			T ret = entityClass.getConstructor (SimpleGroup.class).newInstance (parquet);
+			T ret = entityClass.getConstructor (Group.class).newInstance (parquet);
 			if (ret.filter (parquet)) {
 				return (ret);
 			} else {

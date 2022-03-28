@@ -2,7 +2,7 @@ package com.semis.gradvek.entity;
 
 import java.util.List;
 
-import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.example.data.Group;
 
 /**
  * The base class for OpenTarget entities
@@ -22,7 +22,7 @@ public abstract class Entity {
 	 * @param data the Parquet data for this entity
 	 * @return if returns true, the entity is included for import
 	 */
-	public boolean filter (SimpleGroup data) {
+	public boolean filter (Group data) {
 		return (true);
 	}
 	

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.example.data.Group;
 
 import com.semis.gradvek.parquet.ParquetUtils;
 
@@ -62,10 +62,10 @@ public class MechanismOfAction extends Edges {
 	 * 
 	 * @param data the full Parquet entity for this event
 	 */
-	public MechanismOfAction (SimpleGroup data) {
+	public MechanismOfAction (Group data) {
 		super (
-				ParquetUtils.extractList (data, "chemblIds"),
-				ParquetUtils.extractList (data, "targets"),
+				ParquetUtils.extractStringList (data, "chemblIds"),
+				ParquetUtils.extractStringList (data, "targets"),
 				Map.of (
 						"actionType", data.getString ("actionType", 0),
 						"mechanismOfAction", data.getString ("mechanismOfAction", 0)

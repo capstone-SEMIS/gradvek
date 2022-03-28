@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.example.data.Group;
 
 import com.semis.gradvek.parquet.ParquetUtils;
 
@@ -26,7 +26,7 @@ public class AssociatedWith extends Edge {
 	 * 
 	 * @param data the full Parquet entity for this event
 	 */
-	public AssociatedWith (SimpleGroup data) {
+	public AssociatedWith (Group data) {
 		super (data.getString ("chembl_id", 0), data.getString ("meddraCode", 0),
 				ParquetUtils.extractParams (data, "llr", "critval"/*, "count" is there, but irrelevant */));
 	}

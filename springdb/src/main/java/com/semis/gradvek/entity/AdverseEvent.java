@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.example.data.Group;
 
 /**
  * The immutable object representing an adverse effect from the OpenTargets
@@ -20,16 +20,6 @@ public class AdverseEvent extends NamedEntity {
 	 */
 	private final String mMeddraCode;
 	
-	private double mLlr;
-
-	public double getLlr () {
-		return mLlr;
-	}
-
-	public void setLlr (double llr) {
-		mLlr = llr;
-	}
-
 	public AdverseEvent (String name, String id, String code) {
 		super (name);
 		mMeddraCode = code;
@@ -40,7 +30,7 @@ public class AdverseEvent extends NamedEntity {
 	 *
 	 * @param data the full Parquet entity for this event
 	 */
-	public AdverseEvent (SimpleGroup data) {
+	public AdverseEvent (Group data) {
 		super (data.getString ("event", 0));
 		mMeddraCode = data.getString ("meddraCode", 0);
 	}

@@ -1,6 +1,6 @@
 package com.semis.gradvek.parquet;
 
-import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.example.data.Group;
 import org.apache.parquet.schema.Type;
 
 import java.util.List;
@@ -11,15 +11,15 @@ import java.util.List;
  *
  */
 public class Parquet {
-    private List<SimpleGroup> data;
+    private List<Group> data;
     private List<Type> schema;
 
-    public Parquet(List<SimpleGroup> data, List<Type> schema) {
+    public Parquet(List<Group> data, List<Type> schema) {
         this.data = data;
         this.schema = schema;
     }
 
-    public List<SimpleGroup> getData() {
+    public List<Group> getData() {
         return data;
     }
 

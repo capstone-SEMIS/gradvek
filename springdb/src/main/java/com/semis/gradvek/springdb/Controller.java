@@ -48,7 +48,14 @@ public class Controller {
 	}
 
 	private final void initFromOpenTarget () {
-		EntityType[] toInit = {EntityType.Target, EntityType.Drug, EntityType.AdverseEvent, EntityType.AssociatedWith, EntityType.MechanismOfAction};
+		EntityType[] toInit = {
+				EntityType.Target,
+				EntityType.Pathway,
+				EntityType.Drug,
+				EntityType.AdverseEvent,
+				EntityType.AssociatedWith,
+				EntityType.MechanismOfAction
+		};
 		
 		for (EntityType type: toInit) {
 			try {
@@ -208,8 +215,8 @@ public class Controller {
 	}
 
 	@GetMapping("/ae/{target}")
-	public ResponseEntity<List<AdverseEvent>> getAdverseEvent(@PathVariable(value="target") final String target) {
-		List<AdverseEvent> adverseEvents = mDriver.getAEByTarget(target);
+	public ResponseEntity<List<AdverseEventIntObj>> getAdverseEvent(@PathVariable(value="target") final String target) {
+		List<AdverseEventIntObj> adverseEvents = mDriver.getAEByTarget(target);
 		return ResponseEntity.ok(adverseEvents);
 	}
 

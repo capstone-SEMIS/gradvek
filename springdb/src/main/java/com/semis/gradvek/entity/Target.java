@@ -1,11 +1,12 @@
 package com.semis.gradvek.entity;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.example.data.Group;
+
+import com.semis.gradvek.parquet.ParquetUtils;
 
 /**
  * The immutable object representing a drug target from the OpenTargets
@@ -15,13 +16,15 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
  *
  */public class Target extends NamedEntity {
 
-	private String mId;
-	private String mSymbol;
-	private Set<String> mAssociatedDrugs;
+	private final String mId;
+	private final String mSymbol;
+	
+	private transient List<Pathway> mParquetPathways = new ArrayList<> ();
 
-	public Target (String name, String id) {
+	public Target (String name, String id, String symbol) {
 		super (name);
 		mId = id;
+		mSymbol = symbol;
 	}
 	
 	/* target Parquet schema, the fields we use are marked with ^:
@@ -291,28 +294,31 @@ message spark_schema {
 
 	 */
 
-	public Target(SimpleGroup data) {
+	public Target(Group data) {
 		super(data.getString ("approvedName", 0));
 		mSymbol = data.getString ("approvedSymbol", 0);
 		mId = data.getString ("id", 0);
+		
+		List<Group> pathways = ParquetUtils.extractGroupList (data, "pathways");
+		pathways.forEach (p -> mParquetPathways.add (new Pathway (p.getGroup (0, 0))));
 	}
 
 	public String getId () {
 		return mId;
 	}
 
-	public void setId (String id) {
-		mId = id;
-	}
-
 	@Override
 	public final List<String> addCommands () {
-		return Collections.singletonList("CREATE (:Target" 
+		List<String> ret = new ArrayList<> ();
+		ret.add ("CREATE (:Target" 
 				+ " {" + "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
 				+ "targetId:\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\', "
 				+ "symbol:\'" + StringEscapeUtils.escapeEcmaScript (mSymbol) + "\'"
 				+ "})");
 
+		mParquetPathways.forEach (p -> ret.add (p.addCommands ().get (0)));
+		
+		return (ret);
 	}
 	
 	

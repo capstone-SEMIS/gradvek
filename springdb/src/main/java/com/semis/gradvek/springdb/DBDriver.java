@@ -13,13 +13,13 @@ public interface DBDriver {
 	 * Performs the command to add this entity to the database
 	 * @param entity
 	 */
-	void add (Entity entity);
+	<T extends Entity> void add (T entity);
 
 	/**
 	 * Performs the command to add this list of entities to the database
 	 * @param entity
 	 */
-	void add (Set<Entity> entities, boolean canCombine);
+	<T extends Entity> void add (Set<T> entities, boolean canCombine);
 
 	/**
 	 * Clears the database
@@ -52,6 +52,6 @@ public interface DBDriver {
 	 */
 	void unique (EntityType type);
 	
-	public List<AdverseEvent> getAEByTarget (String target);
+	public List<AdverseEventIntObj> getAEByTarget (String target);
 
 }

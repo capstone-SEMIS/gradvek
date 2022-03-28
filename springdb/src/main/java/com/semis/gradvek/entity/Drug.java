@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.example.data.Group;
 
 public class Drug extends NamedEntity {
 
@@ -86,7 +86,7 @@ message spark_schema {
 }
 
 	 */
-	public Drug(SimpleGroup data) {
+	public Drug(Group data) {
 		super(data.getString ("name", 0));
 		mChemblCode = data.getString ("id", 0);
 	}
@@ -102,7 +102,7 @@ message spark_schema {
 	}
 	
 	@Override
-	public boolean filter (SimpleGroup data) {
+	public boolean filter (Group data) {
 		return (true);
 	}
 	

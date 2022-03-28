@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.List;
 import java.util.logging.Logger;
@@ -20,7 +22,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.parquet.example.data.Group;
-import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.example.data.Group;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -41,7 +43,9 @@ public class ParquetUtils {
 			EntityType.AdverseEvent, "fda/significantAdverseDrugReactions",
 			EntityType.Drug, "molecule",
 			EntityType.MechanismOfAction, "mechanismOfAction",
-			EntityType.AssociatedWith, "fda/significantAdverseDrugReactions");
+			EntityType.AssociatedWith, "fda/significantAdverseDrugReactions",
+			EntityType.Pathway, "" // gets created with targets
+	);
 
 	/**
 	 * Collects all fields with the specified keys from the supplied data into a map
@@ -49,7 +53,7 @@ public class ParquetUtils {
 	 * @param keys a vararg list of string keys
 	 * @return the map
 	 */
-	public static Map<String, String> extractParams (SimpleGroup data, String... keys) {
+	public static Map<String, String> extractParams (Group data, String... keys) {
 		Map<String, String> ret = new HashMap<> ();
 		for (String key: keys) {
 			String value = data.getValueToString (data.getType ().getFieldIndex (key), 0);
@@ -61,14 +65,32 @@ public class ParquetUtils {
 		return (ret);
 	}
 	
-	public static List<String> extractList (SimpleGroup data, String key) {
-		Group list = data.getGroup (key, 0);
-		int numInList = list.getFieldRepetitionCount (0);
-		List<String> ret = new ArrayList<> (numInList);
-		for (int iKey = 0; iKey < numInList; iKey ++) {
-			ret.add (list.getGroup (0, iKey).getString (0, 0));
+	public static List<String> extractStringList (Group data, String key) {
+		try {
+			Group list = data.getGroup (key, 0);
+			int numInList = list.getFieldRepetitionCount (0);
+			List<String> ret = new ArrayList<> (numInList);
+			for (int iKey = 0; iKey < numInList; iKey ++) {
+				ret.add (list.getGroup (0, iKey).getString (0, 0));
+			}
+			return (ret);
+		} catch (RuntimeException rx) {
+			return (Collections.<String>emptyList ());
 		}
-		return (ret);
+	}
+	
+	public static List<Group> extractGroupList (Group data, String key) {
+		try {
+			Group list = data.getGroup (key, 0);
+			int numInList = list.getFieldRepetitionCount (0);
+			List<Group> ret = new ArrayList<> (numInList);
+			for (int iKey = 0; iKey < numInList; iKey ++) {
+				ret.add (list.getGroup (0, iKey));
+			}
+			return (ret);
+		} catch (RuntimeException rx) {
+			return (Collections.<Group>emptyList ());
+		}
 	}
 	
 	/**
@@ -96,6 +118,11 @@ public class ParquetUtils {
 	 */
 	public static ResponseEntity<Void> initEntities (Environment env, DBDriver driver, EntityType type)
 			throws IOException, MalformedURLException {
+		String path = mEntityTypeToPath.get (type);
+		if (path == null || path.isEmpty ()) {
+			return new ResponseEntity<Void> (HttpStatus.CREATED);
+		}
+		
 		Importer importer = new Importer (driver);
 		
 		Resource[] resources = null;

@@ -13,13 +13,14 @@ import com.semis.gradvek.entity.EntityType;
 
 public class TestDBDriver implements DBDriver {
 
-	private final Map<EntityType, Set<Entity>> mDB = new HashMap<> ();
+	private final Map<EntityType, Set<? extends Entity>> mDB = new HashMap<> ();
 
 	@Override
-	public void add (Entity entity) {
-		Set<Entity> thisTypeEntities = mDB.getOrDefault (entity.getType (), null);
+	public <T extends Entity> void add (T entity) {
+		@SuppressWarnings ("unchecked")
+		Set<T> thisTypeEntities = (Set<T>) mDB.getOrDefault (entity.getType (), null);
 		if (thisTypeEntities == null) {
-			thisTypeEntities = new HashSet<Entity> ();
+			thisTypeEntities = new HashSet<T> ();
 			mDB.put (entity.getType (), thisTypeEntities);
 		}
 
@@ -27,7 +28,7 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
-	public void add (Set<Entity> entities, boolean canCombine) {
+	public <T extends Entity> void add (Set<T> entities, boolean canCombine) {
 		entities.forEach (e -> add (e));
 	}
 
@@ -43,7 +44,7 @@ public class TestDBDriver implements DBDriver {
 
 	@Override
 	public int count (EntityType type) {
-		Set<Entity> thisTypeEntities = mDB.getOrDefault (type, null);
+		Set<? extends Entity> thisTypeEntities = mDB.getOrDefault (type, null);
 		return (thisTypeEntities != null ? thisTypeEntities.size () : 0);
 	}
 
@@ -56,11 +57,21 @@ public class TestDBDriver implements DBDriver {
 	public void unique (EntityType type) {
 		// nothing
 	}
+	
+//	public <T extends Entity> T getById (Class<T> entityClass, String id) {
+//		EntityType type = EntityType.fromEntityClass (entityClass);
+//		if (type.getIndexField () == null) {
+//			return null;
+//		}
+//		
+//		Set<Entity> thisTypeEntities = mDB.getOrDefault (type, null);
+//		for ()
+//	}
 
 	@Override
-	public List<AdverseEvent> getAEByTarget (String target) {
-		List<AdverseEvent> ret = new ArrayList<> ();
-		Set<Entity> thisTypeEntities = mDB.getOrDefault (EntityType.AdverseEvent, null);
+	public List<AdverseEventIntObj> getAEByTarget (String target) {
+		List<AdverseEventIntObj> ret = new ArrayList<> ();
+		Set<? extends Entity> thisTypeEntities = mDB.getOrDefault (EntityType.AdverseEvent, null);
 		if (thisTypeEntities == null) {
 			return (ret);
 		}
