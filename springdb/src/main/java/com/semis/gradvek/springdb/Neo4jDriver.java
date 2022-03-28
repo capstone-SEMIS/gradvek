@@ -1,26 +1,13 @@
 package com.semis.gradvek.springdb;
 
-import com.semis.gradvek.entity.AdverseEvent;
-
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
-
 import org.neo4j.driver.Record;
+import org.neo4j.driver.*;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import org.neo4j.driver.AuthTokens;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.GraphDatabase;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
 
 /**
  * The abstraction of the access to the Neo4j database, delegating methods to the Cypher queries
