@@ -281,7 +281,7 @@ message spark_schema {
       }
     }
   }
-  optional group pathways (LIST) {
+  ^optional group pathways (LIST) {
     repeated group list {
       required group element {
         optional binary pathwayId (STRING);
@@ -300,7 +300,7 @@ message spark_schema {
 		mId = data.getString ("id", 0);
 		
 		List<Group> pathways = ParquetUtils.extractGroupList (data, "pathways");
-		pathways.forEach (p -> mParquetPathways.add (new Pathway (p.getGroup (0, 0))));
+		pathways.forEach (p -> mParquetPathways.add (new Pathway (p)));
 	}
 
 	public String getId () {

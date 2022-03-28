@@ -22,7 +22,6 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.parquet.example.data.Group;
-import org.apache.parquet.example.data.Group;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -85,7 +84,7 @@ public class ParquetUtils {
 			int numInList = list.getFieldRepetitionCount (0);
 			List<Group> ret = new ArrayList<> (numInList);
 			for (int iKey = 0; iKey < numInList; iKey ++) {
-				ret.add (list.getGroup (0, iKey));
+				ret.add (list.getGroup (0, iKey).getGroup (0, 0));
 			}
 			return (ret);
 		} catch (RuntimeException rx) {
