@@ -78,7 +78,7 @@ export default function Searchbar({onResultsChange}) {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       };
-      fetch('/ae/'+ values.searchText, requestOptions)
+      fetch('/api/ae/'+ values.searchText, requestOptions)
           .then((response) => {
               formik.setSubmitting(false);
               console.log("Status " + response.status);
