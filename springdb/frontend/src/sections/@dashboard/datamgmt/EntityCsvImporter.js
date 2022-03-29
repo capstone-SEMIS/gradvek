@@ -10,9 +10,11 @@ export default function UploadButton() {
 
     function onFileChangeHandler(event) {
         event.preventDefault();
+        const baseUrl = window.location.protocol + '//' + window.location.host;
         const formData = new FormData();
         formData.append('file', event.target.files[0]);
-        fetch('/csv', {
+        formData.append('baseUrl', baseUrl);
+        fetch('/api/csv', {
             method: 'post',
             body: formData
         }).then(response => response.json().then(

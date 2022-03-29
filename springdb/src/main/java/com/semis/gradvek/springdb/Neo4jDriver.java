@@ -1,29 +1,16 @@
 package com.semis.gradvek.springdb;
 
-import com.semis.gradvek.entity.AdverseEvent;
-
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
-
 import org.neo4j.driver.Record;
+import org.neo4j.driver.*;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import org.neo4j.driver.AuthTokens;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.GraphDatabase;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.core.env.Environment;
 
 /**
@@ -237,6 +224,55 @@ public class Neo4jDriver implements DBDriver {
 				}
 				return finalMap;
 			});
+		}
+	}
+
+	public void loadCsv(String url) {
+		// TODO Get properties from column headers
+		// TODO log the time taken to import the whole CSV
+		// TODO Refactor this with index()
+		try (Session session = mDriver.session()) {
+			session.writeTransaction(tx -> {
+				tx.run("CREATE INDEX imported_label IF NOT EXISTS FOR (n:IMPORTED) ON (n.label)");
+				return 1;
+			});
+		}
+
+		String command = String.format(
+				"LOAD CSV FROM '%s' AS line "
+						+ "  CALL { "
+						+ "  WITH line "
+						+ "  CREATE (:IMPORTED {label: line[0], id: line[1], name: line[2]}) "
+						+ "} IN TRANSACTIONS",
+				url
+		);
+		mLogger.info(command);
+		try (Session session = mDriver.session()) {
+			session.run(command);
+		}
+
+		List<String> labels = new ArrayList<>();
+		try (Session session = mDriver.session ()) {
+			session.readTransaction (tx -> {
+				Result result = tx.run ("MATCH (n:IMPORTED) RETURN DISTINCT n.label");
+				while (result.hasNext()) {
+					labels.add(result.next().get(0).asString());
+				}
+				return labels.size();
+			});
+		}
+
+		for (String label : labels) {
+			String relabelCommand = "MATCH (n:IMPORTED {label:'" + label + "'}) "
+					+ "SET n:" + label + " "
+					+ "REMOVE n.label "
+					+ "REMOVE n:IMPORTED";
+			try (Session session = mDriver.session()) {
+				session.writeTransaction(tx -> {
+					tx.run(relabelCommand);
+					return 1;
+				});
+			}
 		}
 	}
 }
