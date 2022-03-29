@@ -93,8 +93,7 @@ public class Controller {
 			/**
 			 * Connect to the Neo4j database; will throw ServiceUnavailableException if can't
 			 */
-			mDriver = Neo4jDriver.instance (mEnv.getProperty ("neo4j.url"), mEnv.getProperty ("neo4j.user"),
-					mEnv.getProperty ("neo4j.password"));
+			mDriver = Neo4jDriver.instance (mEnv);
 
 			// init these types of entities from OpenTarget
 			// new InitThread ().start (); - if needed

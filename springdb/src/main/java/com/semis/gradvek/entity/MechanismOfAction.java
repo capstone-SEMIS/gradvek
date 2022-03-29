@@ -67,8 +67,8 @@ public class MechanismOfAction extends Edges {
 				ParquetUtils.extractStringList (data, "chemblIds"),
 				ParquetUtils.extractStringList (data, "targets"),
 				Map.of (
-						"actionType", data.getString ("actionType", 0),
-						"mechanismOfAction", data.getString ("mechanismOfAction", 0)
+//						"mechanismOfAction", data.getString ("mechanismOfAction", 0),
+						"actionType", data.getString ("actionType", 0)
 				)
 			);
 	}
