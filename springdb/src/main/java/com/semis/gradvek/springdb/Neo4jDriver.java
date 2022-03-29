@@ -26,10 +26,9 @@ public class Neo4jDriver implements DBDriver {
 	private final Driver mDriver;
 	private final Environment mEnv;
 
-	private Neo4jDriver (Environment env) {
+	private Neo4jDriver (Environment env, String uri) {
 		mEnv = env;
 		
-		String uri = env.getProperty ("neo4j.url");
 		String user = env.getProperty ("neo4j.user");
 		String password = env.getProperty ("neo4j.password");
 		mDriver = GraphDatabase.driver (uri, AuthTokens.basic (user, password));
@@ -56,7 +55,7 @@ public class Neo4jDriver implements DBDriver {
 		
 		Neo4jDriver ret = mInstances.getOrDefault (uri, null);
 		if (ret == null) {
-			ret = new Neo4jDriver (env);
+			ret = new Neo4jDriver (env, uri);
 			mInstances.put (uri, ret);
 		}
 
