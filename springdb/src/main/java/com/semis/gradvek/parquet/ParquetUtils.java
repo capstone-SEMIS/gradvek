@@ -100,7 +100,7 @@ public class ParquetUtils {
 	 */
 	public static String paramsAsJSON (Map<String, String> params) {
 		String ret = params.keySet ().stream ()
-			.map (key -> key + ":" + StringEscapeUtils.escapeEcmaScript (params.get (key)))
+			.map (key -> key + ":\"" + StringEscapeUtils.escapeEcmaScript (params.get (key)) + "\"")
 			.collect (Collectors.joining(", "));
 		return (ret);
 	}
