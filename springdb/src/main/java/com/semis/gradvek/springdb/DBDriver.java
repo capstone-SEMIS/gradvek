@@ -54,4 +54,6 @@ public interface DBDriver {
 	
 	public List<AdverseEventIntObj> getAEByTarget (String target);
 
+	public void loadCsv(String url);
+
 }

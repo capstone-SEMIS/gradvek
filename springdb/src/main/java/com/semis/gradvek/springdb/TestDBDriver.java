@@ -83,4 +83,8 @@ public class TestDBDriver implements DBDriver {
 		return (ret);
 	}
 
+	@Override
+	public void loadCsv(String url) {
+	}
+
 }
