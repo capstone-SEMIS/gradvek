@@ -84,8 +84,8 @@ public class MechanismOfAction extends Edges {
 		getFrom ().forEach (from -> {
 			getTo ().forEach (to -> {
 				String cmd = "MATCH (from:Drug), (to:Target)\n"
-						+ "WHERE from.chembl_code=\'" + getFrom () + "\'\n"
-						+ "AND to.targetId=\'" + getTo () + "\'\n"
+						+ "WHERE from.chembl_code=\'" + from + "\'\n"
+						+ "AND to.targetId=\'" + to + "\'\n"
 						+ "CREATE (from)-[:TARGETS" + (jsonMap != null ? " {" + jsonMap + "} ": "") + "]->(to)";
 				commands.add (cmd.toString());
 			});
