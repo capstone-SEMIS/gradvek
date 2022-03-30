@@ -68,7 +68,7 @@ message spark_schema {
 			String cmd = "MATCH (from:Target), (to:Pathway)\n"
 					+ "WHERE from.targetId=\'" + from + "\'\n"
 					+ "AND to.pathwayId=\'" + to + "\'\n"
-					+ "CREATE (from)-[:PARTICIPATES" + (jsonMap != null ? " {" + jsonMap + "} ": "") + "]->(to)";
+					+ "CREATE (from)-[:PARTICIPATES_IN" + (jsonMap != null ? " {" + jsonMap + "} ": "") + "]->(to)";
 			commands.add (cmd.toString());
 		});
 
