@@ -86,6 +86,7 @@ public enum EntityType {
 			
 			case Participates:
 				ret = "MATCH (:Target)-[n]->(:Pathway) RETURN COUNT (n)";
+			break;
 		}
 		
 		return (ret);
