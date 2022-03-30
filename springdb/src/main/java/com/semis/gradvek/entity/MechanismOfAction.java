@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.apache.parquet.example.data.Group;
 
 import com.semis.gradvek.parquet.ParquetUtils;

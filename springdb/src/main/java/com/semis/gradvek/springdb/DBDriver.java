@@ -3,7 +3,6 @@ package com.semis.gradvek.springdb;
 import java.util.Set;
 import java.util.List;
 
-import com.semis.gradvek.entity.AdverseEvent;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
 

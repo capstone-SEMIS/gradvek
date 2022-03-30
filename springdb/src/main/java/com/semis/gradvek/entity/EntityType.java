@@ -12,7 +12,8 @@ public enum EntityType {
 	Target (Target.class, "targetId"), 
 	Pathway (Target.class, "pathwayId"), 
 	AssociatedWith (AssociatedWith.class, null),
-	MechanismOfAction (MechanismOfAction.class, null);
+	MechanismOfAction (MechanismOfAction.class, null),
+	Participates (Participates.class, null);
 	
 	/**
 	 * The class of the corresponding entity (a subclass of Entity)
@@ -81,6 +82,10 @@ public enum EntityType {
 			
 			case MechanismOfAction:
 				ret = "MATCH (:Drug)-[n]->(:Target) RETURN COUNT (n)";
+			break;
+			
+			case Participates:
+				ret = "MATCH (:Target)-[n]->(:Pathway) RETURN COUNT (n)";
 			break;
 		}
 		
