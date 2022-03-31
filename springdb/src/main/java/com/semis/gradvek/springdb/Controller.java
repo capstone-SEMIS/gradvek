@@ -3,7 +3,6 @@ package com.semis.gradvek.springdb;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.csv.CsvService;
-import com.semis.gradvek.entity.AdverseEvent;
 import com.semis.gradvek.entity.EntityType;
 import com.semis.gradvek.entity.Gene;
 import com.semis.gradvek.parquet.ParquetUtils;
@@ -33,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import static com.semis.gradvek.entity.EntityType.*;
+
 /**
  * The Spring controller representing the REST API to the driver abstraction over Neo4j database
  *
@@ -56,12 +57,13 @@ public class Controller {
 
 	private final void initFromOpenTarget () {
 		EntityType[] toInit = {
-				EntityType.Target,
-				EntityType.Pathway,
-				EntityType.Drug,
-				EntityType.AdverseEvent,
-				EntityType.AssociatedWith,
-				EntityType.MechanismOfAction
+				Target,
+				Pathway,
+				Drug,
+				AdverseEvent,
+				AssociatedWith,
+				MechanismOfAction,
+				Participates
 		};
 		
 		for (EntityType type: toInit) {
@@ -118,7 +120,7 @@ public class Controller {
 	}
 
     @PostMapping(value = "/csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity csvPost(@RequestParam MultipartFile file, @RequestParam String baseUrl, HttpServletRequest request) {
+	public ResponseEntity<Map<String, String>> csvPost(@RequestParam MultipartFile file, @RequestParam String baseUrl, HttpServletRequest request) {
 		CsvService csvService = CsvService.getInstance();
         String fileId = csvService.put(file);
 
@@ -133,7 +135,7 @@ public class Controller {
     }
 
     @GetMapping(value = "/csv/{fileId}", produces = "text/csv")
-    public ResponseEntity csvGet(@PathVariable(value = "fileId") String fileId) throws IOException {
+    public ResponseEntity<InputStreamResource> csvGet(@PathVariable(value = "fileId") String fileId) throws IOException {
         CsvFile file = CsvService.getInstance().get(fileId);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", file.getName()));
@@ -181,8 +183,8 @@ public class Controller {
 		mDriver.write ("" + "CREATE (Acetaminophen:Drug {drugId:'Acetaminophen', chembl_code:'CHEMBL112'}) "
 				+ "CREATE (AcuteHepaticFailure:AdverseEvent {adverseEventId:'Acute hepatic failure', meddraCode:'10000804'}) "
 				+ "CREATE (ToxicityToVariousAgents:AdverseEvent {adverseEventId:'Toxicity to various agents', meddraCode:'10070863'}) "
-				+ "CREATE (Acetaminophen)-[:CAUSES {count:1443, llr:4016.61, critval:522.61}]->(AcuteHepaticFailure), "
-				+ "(Acetaminophen)-[:CAUSES {count:3002, llr:3957.48, critval:522.61}]->(ToxicityToVariousAgents) "
+				+ "CREATE (Acetaminophen)-[:ASSOCIATED_WITH {count:1443, llr:4016.61, critval:522.61}]->(AcuteHepaticFailure), "
+				+ "(Acetaminophen)-[:ASSOCIATED_WITH {count:3002, llr:3957.48, critval:522.61}]->(ToxicityToVariousAgents) "
 				+ "CREATE (VanilloidReceptor:Target {targetId:'Vanilloid receptor'}) "
 				+ "CREATE (Cyclooxygenase:Target {targetId:'Cyclooxygenase'}) "
 				+ "CREATE (Acetaminophen)-[:TARGETS {action:'OPENER'}]->(VanilloidReceptor), "
@@ -246,6 +248,15 @@ public class Controller {
 		return ResponseEntity.ok(adverseEvents);
 	}
 
+	@GetMapping("count/{type}")
+	@ResponseBody
+	public ResponseEntity<Integer> count (@PathVariable (value = "type") final String typeString) throws IOException {
+		EntityType type = EntityType.valueOf (typeString);
+		int numEntities = mDriver.count (type);
+		return ResponseEntity.ok(numEntities);
+	}
+	
+	
 	/**
 	 * Health check
 	 * @return

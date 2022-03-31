@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -43,7 +42,8 @@ public class ParquetUtils {
 			EntityType.Drug, "molecule",
 			EntityType.MechanismOfAction, "mechanismOfAction",
 			EntityType.AssociatedWith, "fda/significantAdverseDrugReactions",
-			EntityType.Pathway, "" // gets created with targets
+			EntityType.Pathway, "", // gets created with targets
+			EntityType.Participates, "targets"
 	);
 
 	/**
@@ -99,6 +99,10 @@ public class ParquetUtils {
 	 * @return the JSON representation
 	 */
 	public static String paramsAsJSON (Map<String, String> params) {
+		if (params == null) {
+			return (null);
+		}
+		
 		String ret = params.keySet ().stream ()
 			.map (key -> key + ":\"" + StringEscapeUtils.escapeEcmaScript (params.get (key)) + "\"")
 			.collect (Collectors.joining(", "));
