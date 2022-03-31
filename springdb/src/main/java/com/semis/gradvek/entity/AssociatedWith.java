@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.apache.parquet.example.data.Group;
 
 import com.semis.gradvek.parquet.ParquetUtils;
@@ -38,7 +37,6 @@ public class AssociatedWith extends Edge {
 	public List<String> addCommands () {
 		String jsonMap = ParquetUtils.paramsAsJSON (getParams ());
 
-		StringBuilder cmd = new StringBuilder ();
 		return Collections.singletonList(
 			"MATCH (from:Drug), (to:AdverseEvent)\n"
 			+ "WHERE from.chembl_code=\'" + getFrom () + "\'\n"

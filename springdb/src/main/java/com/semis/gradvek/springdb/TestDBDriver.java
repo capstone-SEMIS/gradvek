@@ -84,7 +84,7 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
-	public void loadCsv(String url) {
+	public void loadCsv(String url, List<String> columns) {
 	}
 
 }
