@@ -120,12 +120,17 @@ public class Controller {
 	}
 
     @PostMapping(value = "/csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String, String>> csvPost(@RequestParam MultipartFile file, @RequestParam String baseUrl, HttpServletRequest request) {
-        String fileId = CsvService.getInstance().put(file);
-        Map<String, String> body = new HashMap<>();
-        body.put("name", file.getOriginalFilename());
+	public ResponseEntity<Map<String, String>> csvPost(@RequestParam MultipartFile file, @RequestParam String baseUrl, HttpServletRequest request) {
+		CsvService csvService = CsvService.getInstance();
+        String fileId = csvService.put(file);
+
+		List<String> columns = csvService.get(fileId).getColumns();
         URI uri = URI.create(baseUrl + request.getRequestURI() + "/" + fileId);
-        mDriver.loadCsv(uri.toString());
+        mDriver.loadCsv(uri.toString(), columns);
+
+		Map<String, String> body = new HashMap<>();
+		body.put("name", file.getOriginalFilename());
+
         return ResponseEntity.created(uri).body(body);
     }
 
