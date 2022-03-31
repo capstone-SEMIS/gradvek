@@ -222,7 +222,7 @@ public class Controller {
 		final HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		return (new ResponseEntity<String> (
-				"{["
+				"{datasets:["
 				+ "{\"dataset\":\"Targets\","
 				+ " \"description\":\"Core annotation for targets\","
 				+ " \"source\":\"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets\","
