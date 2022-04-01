@@ -13,7 +13,8 @@ public enum EntityType {
 	Pathway (Target.class, "pathwayId"), 
 	AssociatedWith (AssociatedWith.class, null),
 	MechanismOfAction (MechanismOfAction.class, null),
-	Participates (Participates.class, null);
+	Participates (Participates.class, null),
+	Dataset (Dataset.class, "dataset");
 	
 	/**
 	 * The class of the corresponding entity (a subclass of Entity)
@@ -57,7 +58,11 @@ public enum EntityType {
 	 * @return if returns true, the entity is batchable
 	 */
 	public boolean canCombine () {
-		return (!Edge.class.isAssignableFrom (mClass) && !Edges.class.isAssignableFrom (mClass));
+		return (
+				!Edge.class.isAssignableFrom (mClass) 
+				&& !Edges.class.isAssignableFrom (mClass)
+				&& !Dataset.class.isAssignableFrom (mClass)
+		);
 	}
 	
 	/**
@@ -73,6 +78,7 @@ public enum EntityType {
 			case Gene:
 			case Target:
 			case Pathway:
+			case Dataset:
 				ret = "MATCH (n:" + type.toString () + ") RETURN COUNT (n)";
 			break;
 
