@@ -16,7 +16,6 @@ export default function DataMgmtPage() {
 
       <EntityCsvImporter />
       <FetchAPI />
-      <CheckboxList />
     </Page>
   );
 }
