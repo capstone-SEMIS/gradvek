@@ -302,17 +302,17 @@ public class Neo4jDriver implements DBDriver {
 				new Dataset (
 						"Targets", "Core annotation for targets",
 						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
-						"1647831895"
+						1647831895L, false
 						),
 				new Dataset (
 						"Drugs", "Core annotation for drugs",
 						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
-						"1647831895"
+						1647831895L, true
 						),
 				new Dataset (
 						"AdverseEvents", "Significant adverse events for drug molecules",
 						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
-						"1647831895"
+						1647831895L, true
 						)
 				)
 		);
