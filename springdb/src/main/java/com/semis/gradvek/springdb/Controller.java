@@ -230,6 +230,11 @@ public class Controller {
 		return (new ResponseEntity<String> ("[" + ret + "]", headers, HttpStatus.OK));
 
 	}
+	
+	@PostMapping ("databases/{dataset}")
+	public ResponseEntity<Void>  enableDataset (@PathVariable (value = "dataset") final String id) {
+		return new ResponseEntity<Void> (HttpStatus.OK);		
+	}
 
 	@GetMapping("/ae/{target}")
 	public ResponseEntity<List<AdverseEventIntObj>> getAdverseEvent(@PathVariable(value="target") final String target) {
