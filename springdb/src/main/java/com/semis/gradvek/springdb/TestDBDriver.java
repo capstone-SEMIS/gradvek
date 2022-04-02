@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.semis.gradvek.entity.AdverseEvent;
+import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
 
@@ -85,6 +86,18 @@ public class TestDBDriver implements DBDriver {
 
 	@Override
 	public void loadCsv(String url, List<String> columns) {
+	}
+
+	@Override
+	public List<Dataset> getDatasets () {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void enableDataset (String dataset, boolean enable) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

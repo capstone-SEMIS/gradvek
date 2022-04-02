@@ -3,6 +3,7 @@ package com.semis.gradvek.springdb;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.csv.CsvService;
+import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.EntityType;
 import com.semis.gradvek.entity.Gene;
 import com.semis.gradvek.parquet.ParquetUtils;
@@ -31,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.semis.gradvek.entity.EntityType.*;
 
@@ -221,25 +223,15 @@ public class Controller {
 	public ResponseEntity<String> databases () {
 		final HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		return (new ResponseEntity<String> (
-				"{datasets:["
-				+ "{\"dataset\":\"Targets\","
-				+ " \"description\":\"Core annotation for targets\","
-				+ " \"source\":\"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets\","
-				+ " \"timestamp\":1647831895},"
-				+ "{\"dataset\":\"Drugs\","
-				+ " \"description\":\"Core annotation for drugs\","
-				+ " \"source\":\"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/molecule\","
-				+ " timestamp:1647831895},"
-				+ "{\"dataset\":\"Adverse Events\","
-				+ " \"description\":\"Significant adverse events for drug molecules\","
-				+ " \"source\":\"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/fda/significantAdverseDrugReactions\","
-				+ " \"timestamp\":1647831895}"
-				+ "]}",
-				headers, HttpStatus.OK
-				)
-		);
+		List<Dataset> datasets = mDriver.getDatasets ();
+		String ret = datasets.stream ().map (d -> d.toJson ()).collect (Collectors.joining (", "));
+		return (new ResponseEntity<String> ("[" + ret + "]", headers, HttpStatus.OK));
 
+	}
+	
+	@PostMapping ("databases/{dataset}")
+	public ResponseEntity<Void>  enableDataset (@PathVariable (value = "dataset") final String id) {
+		return new ResponseEntity<Void> (HttpStatus.OK);		
 	}
 
 	@GetMapping("/ae/{target}")

@@ -1,5 +1,6 @@
 package com.semis.gradvek.springdb;
 
+import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
 import org.neo4j.driver.Record;
@@ -184,6 +185,7 @@ public class Neo4jDriver implements DBDriver {
         }
     }
 
+    @Override
     public void unique(EntityType type) {
         String indexField = type.getIndexField();
         if (indexField != null) {
@@ -201,6 +203,7 @@ public class Neo4jDriver implements DBDriver {
         }
     }
 
+    @Override
     public List<AdverseEventIntObj> getAEByTarget(String target) {
         mLogger.info("Getting adverse event by target " + target);
         try (Session session = mDriver.session()) {
@@ -222,6 +225,7 @@ public class Neo4jDriver implements DBDriver {
         }
     }
 
+    @Override
     public void loadCsv(String url, List<String> columns) {
         long startTime = System.currentTimeMillis();
 
@@ -291,4 +295,32 @@ public class Neo4jDriver implements DBDriver {
             }
         }
     }
+
+	@Override
+	public List<Dataset> getDatasets () {
+		return (List.of (
+				new Dataset (
+						"Targets", "Core annotation for targets",
+						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
+						1647831895L, false
+						),
+				new Dataset (
+						"Drugs", "Core annotation for drugs",
+						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
+						1647831895L, true
+						),
+				new Dataset (
+						"AdverseEvents", "Significant adverse events for drug molecules",
+						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
+						1647831895L, true
+						)
+				)
+		);
+	}
+
+	@Override
+	public void enableDataset (String dataset, boolean enable) {
+		// TODO Auto-generated method stub
+		
+	}
 }
