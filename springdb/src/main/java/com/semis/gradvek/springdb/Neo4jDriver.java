@@ -32,6 +32,7 @@ public class Neo4jDriver implements DBDriver {
 
         mUri = uri;
 		mDriver = GraphDatabase.driver (mUri, AuthTokens.basic (user, password));
+        mLogger.info("Neo4jDriver initialized with URL " + getUri());
 	}
 
     @Override
