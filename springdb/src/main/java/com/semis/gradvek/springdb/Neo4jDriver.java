@@ -90,10 +90,10 @@ public class Neo4jDriver implements DBDriver {
     }
 
     /**
-     * Performs the command to add this list of entities to the database
+     * Performs the command to add this set of entities to the database
      */
     @Override
-    public <T extends Entity> void add(Set<T> entities, boolean canCombine) {
+    public void add(List<Entity> entities, boolean canCombine) {
         List<String> cmds = entities.stream()
                 .map(e -> e.addCommands()) // each entity can have several commands
                 .flatMap(Collection::stream) // flatten them
@@ -134,8 +134,7 @@ public class Neo4jDriver implements DBDriver {
      *
      * @param command
      */
-    @Override
-    public void write(String command) {
+    private void write(String command) {
         mLogger.info(command);
         if (command != null && !command.isEmpty()) {
             try (Session session = mDriver.session()) {

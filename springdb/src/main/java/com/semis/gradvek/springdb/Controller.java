@@ -3,12 +3,22 @@ package com.semis.gradvek.springdb;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.csv.CsvService;
+import com.semis.gradvek.entity.AdverseEvent;
+import com.semis.gradvek.entity.AssociatedWith;
 import com.semis.gradvek.entity.Dataset;
+import com.semis.gradvek.entity.Drug;
+import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
 import com.semis.gradvek.entity.Gene;
+import com.semis.gradvek.entity.Involves;
+import com.semis.gradvek.entity.MechanismOfAction;
+import com.semis.gradvek.entity.Participates;
+import com.semis.gradvek.entity.Pathway;
+import com.semis.gradvek.entity.Target;
 import com.semis.gradvek.parquet.ParquetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.InputStreamResource;
@@ -28,9 +38,13 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -93,6 +107,13 @@ public class Controller {
 	 */
 	@EventListener
 	public void onApplicationReadyEvent (ApplicationReadyEvent event) {
+		// This is the test environment - load the in-memory db driver
+		if ("inmem".equals (mEnv.getProperty ("db.type"))) {
+			mDriver = new TestDBDriver ();
+			initDemo ();
+			return;
+		}
+		
 		try {
 			/**
 			 * Connect to the Neo4j database; will throw ServiceUnavailableException if can't
@@ -105,7 +126,8 @@ public class Controller {
 				initFromOpenTarget();
 			}
 		} catch (org.neo4j.driver.exceptions.ServiceUnavailableException suax) {
-			mLogger.warning ("Could not connect to neo4j database - is this testing mode?");
+			mLogger.warning ("Could not connect to neo4j database - will use inmem db");
+			mDriver = new TestDBDriver ();
 		}
 
 	}
@@ -184,23 +206,41 @@ public class Controller {
 	@ResponseBody
 	public ResponseEntity<Void> initDemo () {
 		mLogger.info ("init with demo data");
-		mDriver.write ("" + "CREATE (Acetaminophen:Drug {drugId:'Acetaminophen', chembl_code:'CHEMBL112'}) "
-				+ "CREATE (AcuteHepaticFailure:AdverseEvent {adverseEventId:'Acute hepatic failure', meddraCode:'10000804'}) "
-				+ "CREATE (ToxicityToVariousAgents:AdverseEvent {adverseEventId:'Toxicity to various agents', meddraCode:'10070863'}) "
-				+ "CREATE (Acetaminophen)-[:ASSOCIATED_WITH {count:1443, llr:4016.61, critval:522.61}]->(AcuteHepaticFailure), "
-				+ "(Acetaminophen)-[:ASSOCIATED_WITH {count:3002, llr:3957.48, critval:522.61}]->(ToxicityToVariousAgents) "
-				+ "CREATE (VanilloidReceptor:Target {targetId:'Vanilloid receptor'}) "
-				+ "CREATE (Cyclooxygenase:Target {targetId:'Cyclooxygenase'}) "
-				+ "CREATE (Acetaminophen)-[:TARGETS {action:'OPENER'}]->(VanilloidReceptor), "
-				+ "(Acetaminophen)-[:TARGETS {action:'INHIBITOR'}]->(Cyclooxygenase) "
-				+ "CREATE (TRPV1:Gene {geneId:'TRPV1'}) " + "CREATE (PTGS1:Gene {geneId:'PTGS1'}) "
-				+ "CREATE (PTGS2:Gene {geneId:'PTGS2'}) " + "CREATE (VanilloidReceptor)-[:INVOLVES]->(TRPV1), "
-				+ "(Cyclooxygenase)-[:INVOLVES]->(PTGS1), " + "(Cyclooxygenase)-[:INVOLVES]->(PTGS2) "
-				+ "CREATE (TRPChannels:Pathway {pathwayId:'TRP channels', pathwayCode:'R-HSA-3295583',topLevelTerm:'Transport of small molecules'}) "
-				+ "CREATE (SynthesisOfPGAndTX:Pathway {pathwayId:'Synthesis of Prostaglandins (PG) and Thromboxanes (TX)', pathwayCode:'R-HSA-2162123', topLevelTerm:'Metabolism'}) "
-				+ "CREATE (TRPV1)-[:PARTICIPATES]->(TRPChannels), " + "(PTGS1)-[:PARTICIPATES]->(SynthesisOfPGAndTX), "
-				+ "(PTGS2)-[:PARTICIPATES]->(SynthesisOfPGAndTX) ");
+		List<Entity> demoEntities = new ArrayList<> ();
+		demoEntities.add (new Drug ("Acetaminophen", "CHEMBL112"));
+		demoEntities.add (new AdverseEvent ("AcuteHepaticFailure", "Acute hepatic failure", "10000804"));
+		demoEntities.add (new AdverseEvent ("ToxicityToVariousAgents", "Toxicity to various agents", "10070863"));
+		demoEntities.add (new AssociatedWith ("CHEMBL112", "10000804", Map.of("llr", "4016.61", "critval", "522.61")));
+		demoEntities.add (new AssociatedWith ("CHEMBL112", "10070863", Map.of("llr", "3957.48", "critval", "522.61")));
+		demoEntities.add (new Target ("Vanilloid Receptor", "ENST00000310522", "VanilloidReceptor"));
+		demoEntities.add (new Target ("Cyclooxygenase", "ENSG00000073756", "Cyclooxygenase"));
+		demoEntities.add (new MechanismOfAction (
+				Collections.singletonList ("CHEMBL112"),
+				Collections.singletonList ("ENST00000310522"),
+				Map.of ("action", "OPENER")));
+		demoEntities.add (new MechanismOfAction (
+				Collections.singletonList ("CHEMBL112"),
+				Collections.singletonList ("ENSG00000073756"),
+				Map.of ("action", "INHIBITOR")));
+		demoEntities.add (new Gene ("TRPV1"));
+		demoEntities.add (new Gene ("PTGS1"));
+		demoEntities.add (new Gene ("PTGS2"));
+		demoEntities.add ((new Involves (
+				Collections.singletonList ("ENST00000310522"),
+				Collections.singletonList ("TRPV1"), null)));
+		demoEntities.add ((new Involves (
+				Collections.singletonList ("ENSG00000073756"),
+				List.of ("PTGS1", "PTGS2"), null)));
+		demoEntities.add (new Pathway ("TRP channels", "R-HSA-3295583", "Transport of small molecules"));
+		demoEntities.add (new Pathway ("Synthesis of Prostaglandins (PG) and Thromboxanes (TX)", "R-HSA-2162123", "Metabolism"));
+		demoEntities.add (new Participates (
+				Collections.singletonList ("ENST00000310522"),
+				Collections.singletonList ("R-HSA-3295583"), null));
+		demoEntities.add (new Participates (
+				Collections.singletonList ("ENSG00000073756"),
+				Collections.singletonList ("R-HSA-2162123"), null));
 
+		mDriver.add (demoEntities, false);
 		return new ResponseEntity<Void> (HttpStatus.OK);
 	}
 

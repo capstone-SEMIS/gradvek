@@ -30,18 +30,13 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
-	public <T extends Entity> void add (Set<T> entities, boolean canCombine) {
+	public void add (List<Entity> entities, boolean canCombine) {
 		entities.forEach (e -> add (e));
 	}
 
 	@Override
 	public void clear () {
 		mDB.clear ();
-	}
-
-	@Override
-	public void write (String command) {
-		throw new RuntimeException ("should not be called on the mock driver");
 	}
 
 	@Override

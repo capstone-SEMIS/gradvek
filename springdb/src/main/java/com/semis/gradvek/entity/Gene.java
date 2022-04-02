@@ -32,12 +32,7 @@ public class Gene extends NamedEntity {
 	@Override
 	public final List<String> addCommands () {
 		return Collections.singletonList(
-			"CREATE (" + getName()
-			+ ":Gene"
-			+ " {"
-			+ super.toString()
-			+ ", geneId:\'" + mId
-			+ "\'})"
+			"CREATE (:Gene {geneId:\'" + mId + "\'})"
 		);
 			
 	}
