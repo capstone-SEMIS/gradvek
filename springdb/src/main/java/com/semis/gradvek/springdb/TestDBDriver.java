@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.entity.AdverseEvent;
 import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
@@ -85,7 +86,7 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
-	public void loadCsv(String url, List<String> columns) {
+	public void loadCsv(String url, CsvFile csvFile) {
 	}
 
 	@Override

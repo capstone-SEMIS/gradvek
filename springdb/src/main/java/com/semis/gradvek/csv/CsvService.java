@@ -1,17 +1,17 @@
 package com.semis.gradvek.csv;
 
-import org.apache.commons.io.FileUtils;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import com.opencsv.exceptions.CsvValidationException;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.*;
 
 public class CsvService {
     private static CsvService instance;
-    private List<CsvFile> files;
+    private final List<CsvFile> files;
 
     private CsvService() {
         this.files = new ArrayList<>();
@@ -24,28 +24,62 @@ public class CsvService {
         return instance;
     }
 
-    public String put(MultipartFile file) {
+    public List<String> put(MultipartFile file) {
         int index = files.size();
-
-        String firstLine = null;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-            firstLine = reader.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        List<String> columns = Stream.of(firstLine.split(",")).map(s -> s.trim()).collect(Collectors.toList());
+        List<String> indexList = new ArrayList<>();
 
         try {
-            InputStream stream = file.getInputStream();
-            File tmpFile = File.createTempFile("csv", null);
-            FileUtils.copyInputStreamToFile(stream, tmpFile);
-            stream.close();
-            files.add(new CsvFile(tmpFile, file.getOriginalFilename(), columns));
-        } catch (IOException e) {
+            // Open a CSV file reader
+            CSVReader csvReader = new CSVReader(new BufferedReader(new InputStreamReader(file.getInputStream())));
+
+            String[] currentLine;
+            String datatype = null;
+            String[] columns = null;
+            Map<String, CSVWriter> writers = new HashMap<>();
+
+            // Read each line
+            while ((currentLine = csvReader.readNext()) != null) {
+                if (columns == null) {
+
+                    // Save the first line as column headings
+                    columns = currentLine;
+
+                    // The first column heading is the data type
+                    datatype = currentLine[0];
+
+                } else {
+
+                    // The first column is the label (node label or relationship type)
+                    String label = currentLine[0];
+
+                    // Create a writer for each label
+                    if (!writers.containsKey(label)) {
+                        File tmpFile = File.createTempFile("csv", null);
+                        CSVWriter writer = new CSVWriter(new BufferedWriter(new FileWriter(tmpFile)));
+                        writers.put(label, writer);
+//                        writer.writeNext(columns);
+
+                        // Register the file
+                        String filename = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + label;
+                        files.add(new CsvFile(tmpFile, filename, datatype, label, Arrays.asList(columns)));
+                        indexList.add(Integer.toString(index++));
+                    }
+
+                    // Write each line to a new file based on its label
+                    CSVWriter writer = writers.get(label);
+                    writer.writeNext(currentLine);
+                }
+            }
+
+            // Close all the writers
+            for (CSVWriter writer : writers.values()) {
+                writer.close();
+            }
+        } catch (IOException | CsvValidationException e) {
             e.printStackTrace();
         }
 
-        return Integer.toString(index);
+        return indexList;
     }
 
     public CsvFile get(String fileId) {

@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,16 +125,17 @@ public class Controller {
     @PostMapping(value = "/csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Map<String, String>> csvPost(@RequestParam MultipartFile file, @RequestParam String baseUrl, HttpServletRequest request) {
 		CsvService csvService = CsvService.getInstance();
-        String fileId = csvService.put(file);
-
-		List<String> columns = csvService.get(fileId).getColumns();
-        URI uri = URI.create(baseUrl + request.getRequestURI() + "/" + fileId);
-        mDriver.loadCsv(uri.toString(), columns);
+        List<String> fileIds = csvService.put(file);
 
 		Map<String, String> body = new HashMap<>();
-		body.put("name", file.getOriginalFilename());
+		for (String fileId : fileIds) {
+			CsvFile currentFile = csvService.get(fileId);
+			URI uri = URI.create(baseUrl + request.getRequestURI() + "/" + fileId);
+			mDriver.loadCsv(uri.toString(), currentFile);
+			body.put(fileId, currentFile.getName());
+		}
 
-        return ResponseEntity.created(uri).body(body);
+        return ResponseEntity.ok(body);
     }
 
     @GetMapping(value = "/csv/{fileId}", produces = "text/csv")
