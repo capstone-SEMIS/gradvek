@@ -210,16 +210,18 @@ public class Neo4jDriver implements DBDriver {
         mLogger.info("Getting adverse event by target " + target);
         try (Session session = mDriver.session()) {
             return session.readTransaction(tx -> {
-                Result result = tx.run("MATCH ((Target{targetId:'" + target
-                        + "'})-[:TARGETS]-(Drug)-[causes:\'ASSOCIATED_WITH\']-(AdverseEvent)) RETURN DISTINCT AdverseEvent.adverseEventId, AdverseEvent.meddraCode, causes.llr ORDER BY causes.llr DESC");
+                String cmd = "match n=(e:AdverseEvent)-[c:ASSOCIATED_WITH]-(:Drug)-[:TARGETS]-(:Target {symbol:'"
+						+ target + "'}) return e, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc limit 10";
+				Result result = tx.run (cmd);
                 List<AdverseEventIntObj> finalMap = new LinkedList<>();
                 while (result.hasNext()) {
                     Record record = result.next();
-                    String name = record.fields().get(0).value().asString();
-                    String id = record.fields().get(0).value().asString().replace(' ', '_');
-                    String code = record.fields().get(1).value().asString();
-                    AdverseEventIntObj ae = new AdverseEventIntObj(name, id, code);
-                    ae.setLlr(record.fields().get(2).value().asDouble());
+					String name = record.fields().get(0).value().asEntity().get("adverseEventId").asString();
+					String id = record.fields().get(0).value().asEntity().get("adverseEventId").asString();
+					String code = record.fields().get(0).value().asEntity().get("meddraCode").asString();
+					AdverseEventIntObj ae = new AdverseEventIntObj (name, id, code);
+					ae.setLlr(record.fields().get(1).value().asDouble());
+
                     finalMap.add(ae);
                 }
                 return finalMap;
