@@ -101,7 +101,9 @@ public class Controller {
 
 			// init these types of entities from OpenTarget
 			// new InitThread ().start (); - if needed
-			initFromOpenTarget ();
+			if (Boolean.TRUE.equals(mEnv.getProperty("neo4j.init", Boolean.class))){
+				initFromOpenTarget();
+			}
 		} catch (org.neo4j.driver.exceptions.ServiceUnavailableException suax) {
 			mLogger.warning ("Could not connect to neo4j database - is this testing mode?");
 		}

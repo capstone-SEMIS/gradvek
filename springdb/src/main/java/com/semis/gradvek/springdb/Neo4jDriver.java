@@ -23,14 +23,21 @@ public class Neo4jDriver implements DBDriver {
 
     private final Driver mDriver;
     private final Environment mEnv;
+    private String mUri;
 
 	private Neo4jDriver (Environment env, String uri) {
 		mEnv = env;
-		
 		String user = env.getProperty ("neo4j.user");
 		String password = env.getProperty ("neo4j.password");
-		mDriver = GraphDatabase.driver (uri, AuthTokens.basic (user, password));
+
+        mUri = uri;
+		mDriver = GraphDatabase.driver (mUri, AuthTokens.basic (user, password));
 	}
+
+    @Override
+    public String getUri() {
+        return mUri;
+    }
 
     /**
      * Map of singleton instances keyed by access URI
@@ -44,17 +51,12 @@ public class Neo4jDriver implements DBDriver {
      * @return the singleton driver instance
      */
     public static DBDriver instance(Environment env) {
-        String uri = env.getProperty("neo4j.url");
-
-        String uriOverride = System.getenv("NEO4JURL");
-        if (uriOverride != null) {
-            uri = uriOverride;
-        }
+        String uri = env.getProperty("NEO4JURL");
 
         Neo4jDriver ret = mInstances.getOrDefault(uri, null);
         if (ret == null) {
             ret = new Neo4jDriver(env, uri);
-            mInstances.put(uri, ret);
+            mInstances.put(ret.getUri(), ret);
         }
 
         return (ret);

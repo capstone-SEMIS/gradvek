@@ -11,6 +11,7 @@ import com.semis.gradvek.entity.AdverseEvent;
 import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
+import org.neo4j.driver.Driver;
 
 public class TestDBDriver implements DBDriver {
 
@@ -100,4 +101,8 @@ public class TestDBDriver implements DBDriver {
 		
 	}
 
+	@Override
+	public String getUri() {
+		return null;
+	}
 }
