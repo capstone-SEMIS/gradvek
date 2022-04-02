@@ -19,6 +19,7 @@ public class Gene extends NamedEntity {
 	}
 
 
+	@Override
 	public String getId () {
 		return mId;
 	}
@@ -38,6 +39,6 @@ public class Gene extends NamedEntity {
 	}
 	
 	public final EntityType getType () {
-		return EntityType.Drug;
+		return EntityType.Gene;
 	}
 }

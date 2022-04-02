@@ -94,6 +94,6 @@ public class MechanismOfAction extends Edges {
 
 	
 	public final EntityType getType () {
-		return EntityType.AssociatedWith;
+		return EntityType.MechanismOfAction;
 	}
 }

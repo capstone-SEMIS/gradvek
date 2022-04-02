@@ -23,4 +23,9 @@ public class DBTests {
 	public void testInit () throws IOException {
 		assertThat (mController.count ("AdverseEvent").getBody () > 0);
 	}
+	
+	@Test
+	public void testAE () {
+		assertThat (mController.getAdverseEvent ("ENST00000310522").getBody ().size () > 0);
+	}
 }

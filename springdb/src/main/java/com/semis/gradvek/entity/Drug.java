@@ -125,4 +125,8 @@ message spark_schema {
 		return (mChemblCode.hashCode ());
 	}
 
+	@Override
+	public String getId () {
+		return (getChemblCode ());
+	}
 }

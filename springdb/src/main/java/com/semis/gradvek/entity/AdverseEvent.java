@@ -64,5 +64,11 @@ public class AdverseEvent extends NamedEntity {
 	public int hashCode () {
 		return (mMeddraCode.hashCode ());
 	}
+	
+
+	@Override
+	public String getId () {
+		return (getMeddraCode ());
+	}
 
 }

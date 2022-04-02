@@ -258,7 +258,6 @@ public class Controller {
 
 	/**
 	 * List of all loaded databases
-	 * TODO
 	 */
 	@GetMapping ("/databases")
 	@ResponseBody
