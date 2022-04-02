@@ -12,6 +12,7 @@ import com.semis.gradvek.entity.AdverseEvent;
 import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
+import org.neo4j.driver.Driver;
 
 public class TestDBDriver implements DBDriver {
 
@@ -30,18 +31,13 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
-	public <T extends Entity> void add (Set<T> entities, boolean canCombine) {
+	public void add (List<Entity> entities, boolean canCombine) {
 		entities.forEach (e -> add (e));
 	}
 
 	@Override
 	public void clear () {
 		mDB.clear ();
-	}
-
-	@Override
-	public void write (String command) {
-		throw new RuntimeException ("should not be called on the mock driver");
 	}
 
 	@Override
@@ -101,4 +97,8 @@ public class TestDBDriver implements DBDriver {
 		
 	}
 
+	@Override
+	public String getUri() {
+		return null;
+	}
 }

@@ -24,14 +24,22 @@ public class Neo4jDriver implements DBDriver {
 
     private final Driver mDriver;
     private final Environment mEnv;
+    private String mUri;
 
 	private Neo4jDriver (Environment env, String uri) {
 		mEnv = env;
-		
 		String user = env.getProperty ("neo4j.user");
 		String password = env.getProperty ("neo4j.password");
-		mDriver = GraphDatabase.driver (uri, AuthTokens.basic (user, password));
+
+        mUri = uri;
+		mDriver = GraphDatabase.driver (mUri, AuthTokens.basic (user, password));
+        mLogger.info("Neo4jDriver initialized with URL " + getUri());
 	}
+
+    @Override
+    public String getUri() {
+        return mUri;
+    }
 
     /**
      * Map of singleton instances keyed by access URI
@@ -45,17 +53,12 @@ public class Neo4jDriver implements DBDriver {
      * @return the singleton driver instance
      */
     public static DBDriver instance(Environment env) {
-        String uri = env.getProperty("neo4j.url");
-
-        String uriOverride = System.getenv("NEO4JURL");
-        if (uriOverride != null) {
-            uri = uriOverride;
-        }
+        String uri = env.getProperty("NEO4JURL");
 
         Neo4jDriver ret = mInstances.getOrDefault(uri, null);
         if (ret == null) {
             ret = new Neo4jDriver(env, uri);
-            mInstances.put(uri, ret);
+            mInstances.put(ret.getUri(), ret);
         }
 
         return (ret);
@@ -88,10 +91,10 @@ public class Neo4jDriver implements DBDriver {
     }
 
     /**
-     * Performs the command to add this list of entities to the database
+     * Performs the command to add this set of entities to the database
      */
     @Override
-    public <T extends Entity> void add(Set<T> entities, boolean canCombine) {
+    public void add(List<Entity> entities, boolean canCombine) {
         List<String> cmds = entities.stream()
                 .map(e -> e.addCommands()) // each entity can have several commands
                 .flatMap(Collection::stream) // flatten them
@@ -132,8 +135,7 @@ public class Neo4jDriver implements DBDriver {
      *
      * @param command
      */
-    @Override
-    public void write(String command) {
+    private void write(String command) {
         mLogger.info(command);
         if (command != null && !command.isEmpty()) {
             try (Session session = mDriver.session()) {
@@ -289,17 +291,17 @@ public class Neo4jDriver implements DBDriver {
 				new Dataset (
 						"Targets", "Core annotation for targets",
 						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
-						"1647831895"
+						1647831895L, false
 						),
 				new Dataset (
 						"Drugs", "Core annotation for drugs",
 						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
-						"1647831895"
+						1647831895L, true
 						),
 				new Dataset (
 						"AdverseEvents", "Significant adverse events for drug molecules",
 						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
-						"1647831895"
+						1647831895L, true
 						)
 				)
 		);

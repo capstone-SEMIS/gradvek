@@ -1,12 +1,11 @@
 package com.semis.gradvek.springdb;
 
-import java.util.Set;
-import java.util.List;
-
 import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
+
+import java.util.List;
 
 public interface DBDriver {
 
@@ -20,18 +19,12 @@ public interface DBDriver {
 	 * Performs the command to add this list of entities to the database
 	 * @param entity
 	 */
-	<T extends Entity> void add (Set<T> entities, boolean canCombine);
+	void add (List<Entity> entities, boolean canCombine);
 
 	/**
 	 * Clears the database
 	 */
 	void clear ();
-
-	/**
-	 * Executes the command in write mode
-	 * @param command
-	 */
-	void write (String command);
 
 	/**
 	 * Counts the entities of the given type
@@ -60,4 +53,5 @@ public interface DBDriver {
 	public List<Dataset> getDatasets ();
 	public void enableDataset (String dataset, boolean enable);
 
+	public String getUri();
 }
