@@ -3,9 +3,8 @@ import { Typography } from "@mui/material";
 
 // components
 import Page from "../components/Page";
-import CheckboxList from "../sections/@dashboard/datamgmt/CheckboxList";
 import EntityCsvImporter from "../sections/@dashboard/datamgmt/EntityCsvImporter";
-import FetchAPI from "../sections/@dashboard/datamgmt/FetchAPI";
+import DataLoader from "../sections/@dashboard/datamgmt/DataLoader";
 
 export default function DataMgmtPage() {
   return (
@@ -14,8 +13,16 @@ export default function DataMgmtPage() {
         Data Management
       </Typography>
 
+      <Typography variant="h6" sx={{ mb: 0 }}>
+        Import CSV Data into Gradvek:
+      </Typography>
       <EntityCsvImporter />
-      <FetchAPI />
+      <br />
+      <br />
+      <Typography variant="h6" sx={{ mb: 0 }}>
+        Datasets from Backend (Include/Exclude):
+      </Typography>
+      <DataLoader />
     </Page>
   );
 }
