@@ -1,5 +1,6 @@
 package com.semis.gradvek.springdb;
 
+import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
@@ -47,7 +48,7 @@ public interface DBDriver {
 	
 	public List<AdverseEventIntObj> getAEByTarget (String target);
 
-	public void loadCsv(String url, List<String> columns);
+	public void loadCsv(String url, CsvFile csvFile);
 	
 	public List<Dataset> getDatasets ();
 	public void enableDataset (String dataset, boolean enable);
