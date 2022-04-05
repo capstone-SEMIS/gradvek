@@ -212,7 +212,7 @@ public class Neo4jDriver implements DBDriver {
         try (Session session = mDriver.session()) {
             return session.readTransaction(tx -> {
                 String cmd = "match n=(e:AdverseEvent)-[c:ASSOCIATED_WITH]-(:Drug)-[:TARGETS]-(:Target {symbol:'"
-						+ target + "'}) return e, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc limit 10";
+						+ target + "'}) return e, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc";
 				Result result = tx.run (cmd);
                 List<AdverseEventIntObj> finalMap = new LinkedList<>();
                 while (result.hasNext()) {
