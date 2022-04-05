@@ -5,10 +5,7 @@ import Button from "@mui/material/Button";
 class CheckboxParent extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      //  data_array: [],
-      //selectedCheckboxes: this.props.selected
-    };
+    this.state = {};
   }
 
   componentWillMount = () => {
