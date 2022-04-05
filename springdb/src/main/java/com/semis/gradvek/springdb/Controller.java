@@ -1,6 +1,7 @@
 package com.semis.gradvek.springdb;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonObject;
 import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.csv.CsvService;
 import com.semis.gradvek.entity.AdverseEvent;
@@ -18,7 +19,6 @@ import com.semis.gradvek.entity.Target;
 import com.semis.gradvek.parquet.ParquetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.InputStreamResource;
@@ -41,10 +41,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -96,6 +94,8 @@ public class Controller {
 					mLogger.info ("Database contains " + alreadyThere + " entries of type " + typeString + ", skipping import");
 
 				}
+				
+				mDriver.add (ParquetUtils.datasetFromType (type));
 			} catch (IOException iox) {
 			}
 		}
@@ -107,8 +107,8 @@ public class Controller {
 	 */
 	@EventListener
 	public void onApplicationReadyEvent (ApplicationReadyEvent event) {
-		// This is the test environment - load the in-memory db driver
 		if ("inmem".equals (mEnv.getProperty ("db.type"))) {
+			// This is the test environment - load the in-memory db driver and init demo data
 			mDriver = new TestDBDriver ();
 			initDemo ();
 			return;
@@ -239,6 +239,7 @@ public class Controller {
 		demoEntities.add (new Participates (
 				Collections.singletonList ("ENSG00000073756"),
 				Collections.singletonList ("R-HSA-2162123"), null));
+		demoEntities.add (new Dataset ("demo", "demo entities", "hardcoded", System.currentTimeMillis ()));
 
 		mDriver.add (demoEntities, false);
 		return new ResponseEntity<Void> (HttpStatus.OK);
@@ -259,9 +260,9 @@ public class Controller {
 	/**
 	 * List of all loaded databases
 	 */
-	@GetMapping ("/databases")
+	@GetMapping ("/datasets")
 	@ResponseBody
-	public ResponseEntity<String> databases () {
+	public ResponseEntity<String> datasets () {
 		final HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		List<Dataset> datasets = mDriver.getDatasets ();
@@ -270,8 +271,11 @@ public class Controller {
 
 	}
 	
-	@PostMapping ("databases/{dataset}")
-	public ResponseEntity<Void>  enableDataset (@PathVariable (value = "dataset") final String id) {
+	@PostMapping ("/datasets")
+	public ResponseEntity<Void>  enableDatasets (@RequestBody Map<String, String>[] datasets) {
+		for (Map<String, String> dataset: datasets) {
+			mDriver.enableDataset (dataset.get ("dataset"), Boolean.valueOf (dataset.get ("include")));
+		}
 		return new ResponseEntity<Void> (HttpStatus.OK);		
 	}
 

@@ -122,14 +122,14 @@ public class TestDBDriver implements DBDriver {
 
 	@Override
 	public List<Dataset> getDatasets () {
-		// TODO Auto-generated method stub
-		return null;
+		Set<Dataset> datasets = getEntities (Dataset.class);
+		return datasets.stream ().collect (Collectors.toList ());
 	}
 
 	@Override
 	public void enableDataset (String dataset, boolean enable) {
-		// TODO Auto-generated method stub
-		
+		Dataset d = getEntity (Dataset.class, dataset);
+		d.setEnabled (enable);
 	}
 
 	@Override

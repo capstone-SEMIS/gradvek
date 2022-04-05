@@ -19,6 +19,16 @@ import com.google.gson.GsonBuilder;
  */
 public abstract class Entity {
 
+	private String mFromDataset = null;
+	
+	public String getDataset () {
+		return (mFromDataset != null ? mFromDataset : getType ().toString ());
+	}
+
+	public void setDataset (String dataset) {
+		mFromDataset = dataset;
+	}
+
 	/**
 	 * The Cypher command to add this entity to the database
 	 * 
@@ -55,8 +65,12 @@ public abstract class Entity {
 		return (mGson.toJson (this));
 	}
 	
+	public static <T> T fromJson (String json, Class<T> entityClass) {
+		return (mGson.fromJson (json, entityClass));
+	}
+	
 	public String getId () {
-		throw new RuntimeException ("does not have an id field");
+		return (null);
 	}
 
 }
