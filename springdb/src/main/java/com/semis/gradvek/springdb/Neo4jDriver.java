@@ -4,11 +4,23 @@ import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
+
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Record;
-import org.neo4j.driver.*;
+import org.neo4j.driver.Result;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.Transaction;
 import org.springframework.core.env.Environment;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -81,17 +93,18 @@ public class Neo4jDriver implements DBDriver {
      * @return
      */
     private final Collection<List<String>> chunk(List<String> cmds) {
-        int batchSize = mEnv.getProperty("neoCommandBatchSize", Integer.class, 0);
+        int batchSize = mEnv.getProperty("neo4j.batch", Integer.class, 0);
         if (batchSize > 0) {
             final AtomicInteger counter = new AtomicInteger(); // because lambda requires effectively final
             return cmds.stream().collect(Collectors.groupingBy(e -> counter.getAndIncrement() / batchSize)).values();
         } else {
+        	// no chunking
             return (Collections.singletonList(cmds));
         }
     }
 
     /**
-     * Performs the command to add this set of entities to the database
+     * Performs the commands to add this set of entities to the database
      */
     @Override
     public void add(List<Entity> entities, boolean canCombine) {
@@ -289,29 +302,60 @@ public class Neo4jDriver implements DBDriver {
 
 	@Override
 	public List<Dataset> getDatasets () {
-		return (List.of (
-				new Dataset (
-						"Targets", "Core annotation for targets",
-						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
-						1647831895L, false
-						),
-				new Dataset (
-						"Drugs", "Core annotation for drugs",
-						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
-						1647831895L, true
-						),
-				new Dataset (
-						"AdverseEvents", "Significant adverse events for drug molecules",
-						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
-						1647831895L, true
-						)
-				)
-		);
+        try (Session session = mDriver.session()) {
+            return session.readTransaction(tx -> {
+                Result result = tx.run(
+                		"MATCH (d:Dataset) RETURN d.dataset, d.description, d.source, d.timestamp, d.enabled ORDER BY d.identity DESC"
+                		);
+                List<Dataset> ret = new LinkedList<>();
+                while (result.hasNext()) {
+                    Record record = result.next();
+                    Dataset d = new Dataset (
+                    		record.get ("d.dataset").asString (),
+                    		record.get ("d.description").asString (),
+                    		record.get ("d.source").asString (),
+                    		record.get ("d.timestamp").asLong ()
+                    		);
+                    d.setEnabled (record.get ("d.enabled", true));
+                    ret.add (d);
+                }
+                return ret;
+            });
+        }
 	}
 
+//		return (List.of (
+//				new Dataset (
+//						"Target", "Core annotation for targets",
+//						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
+//						1647831895L
+//						),
+//				new Dataset (
+//						"Drug", "Core annotation for drugs",
+//						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
+//						1647831895L
+//						),
+//				new Dataset (
+//						"AdverseEvent", "Significant adverse events for drug molecules",
+//						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
+//						1647831895L
+//						)
+//				)
+//		);
+//	}
+
 	@Override
-	public void enableDataset (String dataset, boolean enable) {
-		// TODO Auto-generated method stub
-		
+	public void enableDataset (String datasetName, boolean enable) {
+        try (final Session session = mDriver.session()) {
+            try (Transaction tx = session.beginTransaction()) {
+                tx.run (
+                		"MATCH (d:Dataset { dataset: \'"
+                		+ datasetName
+                		+ "\' }) SET d.enabled="
+                		+ enable
+                );
+                tx.commit();
+            }
+        }
 	}
 }

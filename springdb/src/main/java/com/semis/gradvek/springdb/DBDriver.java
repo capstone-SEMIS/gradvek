@@ -52,6 +52,6 @@ public interface DBDriver {
 	
 	public List<Dataset> getDatasets ();
 	public void enableDataset (String dataset, boolean enable);
-
+	
 	public String getUri();
 }

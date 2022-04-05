@@ -28,6 +28,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.EntityType;
 import com.semis.gradvek.springdb.DBDriver;
 import com.semis.gradvek.springdb.Importer;
@@ -35,15 +36,25 @@ import com.semis.gradvek.springdb.Importer;
 public class ParquetUtils {
 	private static final Logger mLogger = Logger.getLogger (ParquetUtils.class.getName ());
 	
+	private static class OpenTargetsSource {
+		private final String mPath;
+		private final String mDescription;
+		
+		OpenTargetsSource (String path, String description) {
+			mPath = path;
+			mDescription = description;
+		}
+	}
+	
 	// maps the entity type to the name of the folder where the parquet files for it live
-	private static final Map<EntityType, String> mEntityTypeToPath = Map.of (
-			EntityType.Target, "targets",
-			EntityType.AdverseEvent, "fda/significantAdverseDrugReactions",
-			EntityType.Drug, "molecule",
-			EntityType.MechanismOfAction, "mechanismOfAction",
-			EntityType.AssociatedWith, "fda/significantAdverseDrugReactions",
-			EntityType.Pathway, "", // gets created with targets
-			EntityType.Participates, "targets"
+	private static final Map<EntityType, OpenTargetsSource> mEntityTypeToSource = Map.of (
+			EntityType.Target, new OpenTargetsSource ("targets", "Core annotation for targets"),
+			EntityType.AdverseEvent, new OpenTargetsSource ("fda/significantAdverseDrugReactions", "Significant adverse events for drug molecules"),
+			EntityType.Drug, new OpenTargetsSource ("molecule", "Core annotation for drug molecules"),
+			EntityType.MechanismOfAction, new OpenTargetsSource ("mechanismOfAction", "Mechanisms of action for drug molecules"),
+			EntityType.AssociatedWith, new OpenTargetsSource ("fda/significantAdverseDrugReactions", "Significant adverse events for drug molecules"),
+			EntityType.Pathway, new OpenTargetsSource ("", ""), // gets created with targets
+			EntityType.Participates, new OpenTargetsSource ("targets", "Core annotation for targets")
 	);
 
 	/**
@@ -74,7 +85,7 @@ public class ParquetUtils {
 			}
 			return (ret);
 		} catch (RuntimeException rx) {
-			return (Collections.<String>emptyList ());
+			return (Collections.emptyList ());
 		}
 	}
 	
@@ -88,7 +99,7 @@ public class ParquetUtils {
 			}
 			return (ret);
 		} catch (RuntimeException rx) {
-			return (Collections.<Group>emptyList ());
+			return (Collections.emptyList ());
 		}
 	}
 	
@@ -121,7 +132,8 @@ public class ParquetUtils {
 	 */
 	public static ResponseEntity<Void> initEntities (Environment env, DBDriver driver, EntityType type)
 			throws IOException, MalformedURLException {
-		String path = mEntityTypeToPath.get (type);
+		OpenTargetsSource source = mEntityTypeToSource.get (type);
+		String path = source.mPath;
 		if (path == null || path.isEmpty ()) {
 			return new ResponseEntity<Void> (HttpStatus.CREATED);
 		}
@@ -130,9 +142,10 @@ public class ParquetUtils {
 		
 		Resource[] resources = null;
 		
+		
 		try {
 			ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver ();
-			resources = resourcePatternResolver.getResources (mEntityTypeToPath.get (type) + "/*.parquet");
+			resources = resourcePatternResolver.getResources (path + "/*.parquet");
 		} catch (FileNotFoundException fnfx) {
 			mLogger.warning ("No files for type " + type + " found in local environment");
 		}
@@ -143,7 +156,7 @@ public class ParquetUtils {
 			client.connect (env.getProperty ("opentarget.server"));
 		    client.enterRemotePassiveMode();
 			client.login("anonymous", "anonymous");
-			Path entityPath = Paths.get (env.getProperty ("opentarget.path"), mEntityTypeToPath.get (type));
+			Path entityPath = Paths.get (env.getProperty ("opentarget.path"), path);
 			URL entityURL = entityPath.toUri ().toURL ();
 			FTPFile[] files = client.listFiles (entityPath.toString (), file -> {
 				return (file.getName ().endsWith ("parquet"));
@@ -188,7 +201,15 @@ public class ParquetUtils {
 				tmpFile.delete ();
 			}
 		}
+		
+		Dataset dataset = new Dataset (type.toString (), source.mDescription, path, System.currentTimeMillis ());
+		driver.add (dataset);
 
 		return new ResponseEntity<Void> (HttpStatus.OK);
+	}
+	
+	public final static Dataset datasetFromType (EntityType type) {
+		OpenTargetsSource source = mEntityTypeToSource.get (type);
+		return new Dataset (type.toString (), source.mDescription, source.mPath, System.currentTimeMillis ());
 	}
 }
