@@ -24,7 +24,7 @@ export default function UploadButton() {
             }))
         ).then(result => {
             if (result.ok) {
-                alert(`File ${result.body.name} uploaded successfully.`);
+                alert(`File ${JSON.stringify(result.body)} uploaded successfully.`);
             }
         })
     }

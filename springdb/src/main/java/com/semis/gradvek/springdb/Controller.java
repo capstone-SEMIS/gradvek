@@ -8,14 +8,13 @@ import com.semis.gradvek.entity.AdverseEvent;
 import com.semis.gradvek.entity.AssociatedWith;
 import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Drug;
-import com.semis.gradvek.entity.Entity;
-import com.semis.gradvek.entity.EntityType;
 import com.semis.gradvek.entity.Gene;
 import com.semis.gradvek.entity.Involves;
 import com.semis.gradvek.entity.MechanismOfAction;
 import com.semis.gradvek.entity.Participates;
 import com.semis.gradvek.entity.Pathway;
 import com.semis.gradvek.entity.Target;
+import com.semis.gradvek.entity.*;
 import com.semis.gradvek.parquet.ParquetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -26,23 +25,19 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -148,16 +143,17 @@ public class Controller {
     @PostMapping(value = "/csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Map<String, String>> csvPost(@RequestParam MultipartFile file, @RequestParam String baseUrl, HttpServletRequest request) {
 		CsvService csvService = CsvService.getInstance();
-        String fileId = csvService.put(file);
-
-		List<String> columns = csvService.get(fileId).getColumns();
-        URI uri = URI.create(baseUrl + request.getRequestURI() + "/" + fileId);
-        mDriver.loadCsv(uri.toString(), columns);
+        List<String> fileIds = csvService.put(file);
 
 		Map<String, String> body = new HashMap<>();
-		body.put("name", file.getOriginalFilename());
+		for (String fileId : fileIds) {
+			CsvFile currentFile = csvService.get(fileId);
+			URI uri = URI.create(baseUrl + request.getRequestURI() + "/" + fileId);
+			mDriver.loadCsv(uri.toString(), currentFile);
+			body.put(fileId, currentFile.getName());
+		}
 
-        return ResponseEntity.created(uri).body(body);
+        return ResponseEntity.ok(body);
     }
 
     @GetMapping(value = "/csv/{fileId}", produces = "text/csv")

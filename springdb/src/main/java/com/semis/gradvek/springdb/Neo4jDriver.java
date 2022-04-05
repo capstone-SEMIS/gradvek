@@ -1,5 +1,6 @@
 package com.semis.gradvek.springdb;
 
+import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
@@ -223,16 +224,18 @@ public class Neo4jDriver implements DBDriver {
         mLogger.info("Getting adverse event by target " + target);
         try (Session session = mDriver.session()) {
             return session.readTransaction(tx -> {
-                Result result = tx.run("MATCH ((Target{targetId:'" + target
-                        + "'})-[:TARGETS]-(Drug)-[causes:\'ASSOCIATED_WITH\']-(AdverseEvent)) RETURN DISTINCT AdverseEvent.adverseEventId, AdverseEvent.meddraCode, causes.llr ORDER BY causes.llr DESC");
+                String cmd = "match n=(e:AdverseEvent)-[c:ASSOCIATED_WITH]-(:Drug)-[:TARGETS]-(:Target {symbol:'"
+						+ target + "'}) return e, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc limit 10";
+				Result result = tx.run (cmd);
                 List<AdverseEventIntObj> finalMap = new LinkedList<>();
                 while (result.hasNext()) {
                     Record record = result.next();
-                    String name = record.fields().get(0).value().asString();
-                    String id = record.fields().get(0).value().asString().replace(' ', '_');
-                    String code = record.fields().get(1).value().asString();
-                    AdverseEventIntObj ae = new AdverseEventIntObj(name, id, code);
-                    ae.setLlr(record.fields().get(2).value().asDouble());
+					String name = record.fields().get(0).value().asEntity().get("adverseEventId").asString();
+					String id = record.fields().get(0).value().asEntity().get("adverseEventId").asString();
+					String code = record.fields().get(0).value().asEntity().get("meddraCode").asString();
+					AdverseEventIntObj ae = new AdverseEventIntObj (name, id, code);
+					ae.setLlr(record.fields().get(1).value().asDouble());
+
                     finalMap.add(ae);
                 }
                 return finalMap;
@@ -241,74 +244,60 @@ public class Neo4jDriver implements DBDriver {
     }
 
     @Override
-    public void loadCsv(String url, List<String> columns) {
+    public void loadCsv(String url, CsvFile csvFile) {
         long startTime = System.currentTimeMillis();
 
-        if (columns.get(0).equalsIgnoreCase("Node")) {
-            loadNodeCsv(url, columns);
-        } else if (columns.get(0).equalsIgnoreCase("Relationship")) {
-            loadRelationshipCsv(url, columns);
-        }
-
-        long stopTime = System.currentTimeMillis();
-        mLogger.info("CSV loaded in " + (stopTime - startTime) / 1000.0 + " seconds");
-    }
-
-    private void loadRelationshipCsv(String url, List<String> columns) {
-
-    }
-
-    private void loadNodeCsv(String url, List<String> columns) {
+        String command = loadCsvCommand(url, csvFile);
         try (Session session = mDriver.session()) {
-            session.writeTransaction(tx -> {
-                tx.run("CREATE INDEX imported_label IF NOT EXISTS FOR (n:IMPORTED) ON (n.label)");
-                return 1;
-            });
-        }
-
-        StringBuilder properties = new StringBuilder("{label: line." + columns.get(0));
-        for (int i = 1; i < columns.size(); ++i) {
-            String prop = columns.get(i);
-            properties.append(", " + prop + ": line." + prop);
-        }
-        properties.append("}");
-
-        String command = String.format(
-                "LOAD CSV WITH HEADERS FROM '%s' AS line "
-                        + "  CALL { "
-                        + "  WITH line "
-                        + "  CREATE (:IMPORTED %s) "
-                        + "} IN TRANSACTIONS",
-                url, properties
-        );
-        mLogger.info(command);
-        try (Session session = mDriver.session()) {
+            mLogger.info(command);
             session.run(command);
         }
 
-        List<String> labels = new ArrayList<>();
-        try (Session session = mDriver.session()) {
-            session.readTransaction(tx -> {
-                Result result = tx.run("MATCH (n:IMPORTED) RETURN DISTINCT n.label");
-                while (result.hasNext()) {
-                    labels.add(result.next().get(0).asString());
-                }
-                return labels.size();
-            });
+        long stopTime = System.currentTimeMillis();
+        mLogger.info("CSV " + csvFile.getName() + " loaded in " + (stopTime - startTime) / 1000.0 + " seconds");
+    }
+
+    private static String loadCsvCommand(String url, CsvFile csvFile) {
+        List<String> columns = csvFile.getColumns();
+
+        // Properties start at column 1 for nodes, 3 for relationships
+        int propStartIdx = 1;
+        if (csvFile.getType().equalsIgnoreCase("Relationship")) {
+            propStartIdx = 3;
         }
 
-        for (String label : labels) {
-            String relabelCommand = "MATCH (n:IMPORTED {label:'" + label + "'}) "
-                    + "SET n:" + label + " "
-                    + "REMOVE n.label "
-                    + "REMOVE n:IMPORTED";
-            try (Session session = mDriver.session()) {
-                session.writeTransaction(tx -> {
-                    tx.run(relabelCommand);
-                    return 1;
-                });
+        // Build the property string
+        StringBuilder propBuilder = new StringBuilder();
+        for (int i = propStartIdx; i < columns.size(); ++i) {
+            if (propBuilder.length() == 0) {
+                propBuilder.append("{");
+            } else {
+                propBuilder.append(", ");
             }
+            String prop = columns.get(i);
+            propBuilder.append(prop + ": line[" + i + "]");
         }
+        propBuilder.append("}");
+        String properties = columns.size() > propStartIdx ? propBuilder.toString() : "";
+
+        // Build the command string
+        String commandPattern = "LOAD CSV FROM '" + url + "' AS line CALL { WITH line %s } IN TRANSACTIONS";
+        String commandCore = null;
+        if (csvFile.getType().equalsIgnoreCase("Relationship")) {
+            String fromIdProp = columns.get(1);
+            String toIdProp = columns.get(2);
+            String fromIdLabel = EntityType.fromIndex(fromIdProp).name();
+            String toIdLabel = EntityType.fromIndex(toIdProp).name();
+            commandCore =
+                    "MATCH (fromNode:" + fromIdLabel + " {" + fromIdProp + ": line[1]}),"
+                            + " (toNode:" + toIdLabel + " {" + toIdProp + ": line[2]})"
+                            + " CREATE (fromNode)-[:" + csvFile.getLabel() + " " + properties + "]->(toNode)";
+        } else if (csvFile.getType().equalsIgnoreCase("Node")) {
+            commandCore = String.format("CREATE (:%s %s)", csvFile.getLabel(), properties);
+        }
+        String command = String.format(commandPattern, commandCore);
+
+        return command;
     }
 
 	@Override

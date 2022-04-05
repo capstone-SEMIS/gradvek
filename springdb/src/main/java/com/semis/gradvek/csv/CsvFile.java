@@ -8,11 +8,15 @@ import java.util.List;
 public class CsvFile {
     private final File file;
     private final String name;
+    private final String type;
+    private final String label;
     private final List<String> columns;
 
-    public CsvFile(File file, String name, List<String> columns) {
+    public CsvFile(File file, String name, String type, String label, List<String> columns) {
         this.file = file;
         this.name = name;
+        this.type = type;
+        this.label = label;
         this.columns = columns;
     }
 
@@ -30,5 +34,13 @@ public class CsvFile {
 
     public List<String> getColumns() {
         return columns;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getLabel() {
+        return label;
     }
 }
