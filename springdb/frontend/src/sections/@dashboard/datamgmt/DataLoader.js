@@ -12,7 +12,7 @@ class DataLoader extends React.Component {
   async componentDidMount() {
     const url = "/api/databases";
     const objectFromUrl = await fetch(url);
-    const data = await objectFromUrl.json(); //first way
+    const data = await objectFromUrl.json();
     //console.log("data", data);
     this.setState({
       data_array: data

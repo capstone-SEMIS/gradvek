@@ -7,7 +7,7 @@ class CheckboxParent extends Component {
     super(props);
     this.state = {
       //  data_array: [],
-      selectedCheckboxes: this.props.selected
+      //selectedCheckboxes: this.props.selected
     };
   }
 
