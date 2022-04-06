@@ -43,6 +43,15 @@ public enum EntityType {
 	public Class<? extends Entity> getEntityClass () {
 		return (mClass);
 	}
+
+	public static EntityType fromIndex(String index) {
+		for (EntityType entityType : EntityType.values()) {
+			if (index.equalsIgnoreCase(entityType.getIndexField())) {
+				return entityType;
+			}
+		}
+		return null;
+	}
 	
 	public static EntityType fromEntityClass (Class<? extends Entity> c) {
 		for (EntityType type: EntityType.values ()) {
