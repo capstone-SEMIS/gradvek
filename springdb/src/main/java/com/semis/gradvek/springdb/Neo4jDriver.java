@@ -280,7 +280,7 @@ public class Neo4jDriver implements DBDriver {
             propBuilder.append(prop + ": line[" + i + "]");
         }
         // add dataset reference
-		propBuilder.append (", dataset: " + url.substring (url.lastIndexOf ('/') + 1));
+		propBuilder.append (", dataset: '" + url.substring (url.lastIndexOf ('/') + 1) + "'");
 		
         propBuilder.append("}");
         String properties = columns.size() > propStartIdx ? propBuilder.toString() : "";
