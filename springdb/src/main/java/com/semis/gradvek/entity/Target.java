@@ -303,6 +303,7 @@ message spark_schema {
 		pathways.forEach (p -> mParquetPathways.add (new Pathway (p)));
 	}
 
+	@Override
 	public String getId () {
 		return mId;
 	}

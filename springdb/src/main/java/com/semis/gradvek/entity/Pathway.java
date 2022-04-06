@@ -44,6 +44,7 @@ public class Pathway extends NamedEntity {
 		mTerm = term;
 	}
 	
+	@Override
 	public String getId () {
 		return mId;
 	}

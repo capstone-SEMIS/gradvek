@@ -16,7 +16,7 @@ import com.semis.gradvek.parquet.ParquetUtils;
  */
 public class AssociatedWith extends Edge {
 
-	public AssociatedWith (String type, String from, String to, Map<String, String> params) {
+	public AssociatedWith (String from, String to, Map<String, String> params) {
 		super (from, to, params);
 	}
 

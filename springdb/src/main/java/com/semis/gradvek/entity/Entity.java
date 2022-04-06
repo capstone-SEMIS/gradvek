@@ -3,11 +3,10 @@ package com.semis.gradvek.entity;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import javax.management.RuntimeErrorException;
+
 import org.apache.parquet.example.data.Group;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -19,6 +18,16 @@ import com.google.gson.GsonBuilder;
  *
  */
 public abstract class Entity {
+
+	private String mFromDataset = null;
+	
+	public String getDataset () {
+		return (mFromDataset != null ? mFromDataset : getType ().toString ());
+	}
+
+	public void setDataset (String dataset) {
+		mFromDataset = dataset;
+	}
 
 	/**
 	 * The Cypher command to add this entity to the database
@@ -54,6 +63,14 @@ public abstract class Entity {
 
 	public String toJson () {
 		return (mGson.toJson (this));
+	}
+	
+	public static <T> T fromJson (String json, Class<T> entityClass) {
+		return (mGson.fromJson (json, entityClass));
+	}
+	
+	public String getId () {
+		return (null);
 	}
 
 }

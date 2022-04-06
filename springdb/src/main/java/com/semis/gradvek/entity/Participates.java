@@ -77,6 +77,6 @@ message spark_schema {
 
 	
 	public final EntityType getType () {
-		return EntityType.AssociatedWith;
+		return EntityType.Participates;
 	}
 }

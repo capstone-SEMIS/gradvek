@@ -14,6 +14,7 @@ public enum EntityType {
 	AssociatedWith (AssociatedWith.class, null),
 	MechanismOfAction (MechanismOfAction.class, null),
 	Participates (Participates.class, null),
+	Involves (Involves.class, null),
 	Dataset (Dataset.class, "dataset");
 	
 	/**
@@ -41,6 +42,15 @@ public enum EntityType {
 	
 	public Class<? extends Entity> getEntityClass () {
 		return (mClass);
+	}
+
+	public static EntityType fromIndex(String index) {
+		for (EntityType entityType : EntityType.values()) {
+			if (index.equalsIgnoreCase(entityType.getIndexField())) {
+				return entityType;
+			}
+		}
+		return null;
 	}
 	
 	public static EntityType fromEntityClass (Class<? extends Entity> c) {
@@ -88,6 +98,10 @@ public enum EntityType {
 			
 			case MechanismOfAction:
 				ret = "MATCH (:Drug)-[n]->(:Target) RETURN COUNT (n)";
+			break;
+			
+			case Involves:
+				ret = "MATCH (:Target)-[n]->(:Gene) RETURN COUNT (n)";
 			break;
 			
 			case Participates:

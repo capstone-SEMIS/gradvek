@@ -19,6 +19,7 @@ public class Gene extends NamedEntity {
 	}
 
 
+	@Override
 	public String getId () {
 		return mId;
 	}
@@ -32,17 +33,12 @@ public class Gene extends NamedEntity {
 	@Override
 	public final List<String> addCommands () {
 		return Collections.singletonList(
-			"CREATE (" + getName()
-			+ ":Gene"
-			+ " {"
-			+ super.toString()
-			+ ", geneId:\'" + mId
-			+ "\'})"
+			"CREATE (:Gene {geneId:\'" + mId + "\'})"
 		);
 			
 	}
 	
 	public final EntityType getType () {
-		return EntityType.Drug;
+		return EntityType.Gene;
 	}
 }
