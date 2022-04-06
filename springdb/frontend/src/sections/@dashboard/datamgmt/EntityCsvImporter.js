@@ -1,12 +1,32 @@
 import {styled} from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
+import {useState} from "react";
+import {CircularProgress} from "@mui/material";
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckIcon from '@mui/icons-material/Check';
 
 const Input = styled('input')({
     display: 'none',
 });
 
+const CenteredSpan = styled('span')({
+    display: 'flex',
+    alignItems: 'center'
+})
+
+const SpacedSpan = styled('span')({
+    marginLeft: '1em',
+    marginRight: '1em'
+})
+
+function IconicMessage(props) {
+    return <CenteredSpan> {props.icon} <SpacedSpan> {props.message} </SpacedSpan> </CenteredSpan>
+}
+
 export default function UploadButton() {
+    const [INIT, SPINNING, SUCCESS, FAILURE] = [0, 1, 2, 3];
+    const [progress, setProgress] = useState(INIT);
 
     function onFileChangeHandler(event) {
         event.preventDefault();
@@ -14,6 +34,7 @@ export default function UploadButton() {
         const formData = new FormData();
         formData.append('file', event.target.files[0]);
         formData.append('baseUrl', baseUrl);
+        setProgress(SPINNING);
         fetch('/api/csv', {
             method: 'post',
             body: formData
@@ -24,9 +45,24 @@ export default function UploadButton() {
             }))
         ).then(result => {
             if (result.ok) {
-                alert(`File ${JSON.stringify(result.body)} uploaded successfully.`);
+                setProgress(SUCCESS);
+            } else {
+                setProgress(FAILURE);
             }
         })
+    }
+
+    function getProgressIndicator() {
+        switch (progress) {
+            case SPINNING:
+                return <CircularProgress/>;
+            case SUCCESS:
+                return <IconicMessage icon={<CheckIcon color="success"/>} message={"Upload succeeded"}/>
+            case FAILURE:
+                return <IconicMessage icon={<CancelIcon color="error"/>} message={"Upload failed"}/>
+            default:
+                return;
+        }
     }
 
     return (
@@ -35,7 +71,7 @@ export default function UploadButton() {
                 <Input accept=".csv" id="contained-button-file" type="file" onChange={onFileChangeHandler}/>
                 <Button variant="contained" component="span">Upload</Button>
             </label>
-            <label htmlFor="icon-button-file">Import CSV</label>
+            {getProgressIndicator()}
         </Stack>
     );
 }
