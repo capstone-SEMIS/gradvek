@@ -2,9 +2,10 @@ import {styled} from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import {useState} from "react";
-import {CircularProgress} from "@mui/material";
+import {Box, CircularProgress, ClickAwayListener} from "@mui/material";
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckIcon from '@mui/icons-material/Check';
+import HelpIcon from '@mui/icons-material/Help';
 
 const Input = styled('input')({
     display: 'none',
@@ -24,7 +25,35 @@ function IconicMessage(props) {
     return <CenteredSpan> {props.icon} <SpacedSpan> {props.message} </SpacedSpan> </CenteredSpan>
 }
 
-export default function UploadButton() {
+function Helper() {
+    const [open, setOpen] = useState(false);
+
+    const handleClick = () => {
+        setOpen((prev) => !prev);
+    };
+
+    const handleClickAway = () => {
+        setOpen(false);
+    };
+
+    return (
+        <ClickAwayListener onClickAway={handleClickAway}>
+            <Box sx={{position: 'relative'}}>
+                <Button onClick={handleClick}>
+                    <HelpIcon color='info'/>
+                    <SpacedSpan> CSV file format </SpacedSpan>
+                </Button>
+                {open ? (
+                    <Box>
+                        Here's how to format the CSV!
+                    </Box>
+                ) : null}
+            </Box>
+        </ClickAwayListener>
+    );
+}
+
+export default function Uploader() {
     const [INIT, SPINNING, SUCCESS, FAILURE] = [0, 1, 2, 3];
     const [progress, setProgress] = useState(INIT);
 
@@ -66,12 +95,15 @@ export default function UploadButton() {
     }
 
     return (
-        <Stack direction="row" alignItems="center" spacing={2}>
-            <label htmlFor="contained-button-file">
-                <Input accept=".csv" id="contained-button-file" type="file" onChange={onFileChangeHandler}/>
-                <Button variant="contained" component="span">Upload</Button>
-            </label>
-            {getProgressIndicator()}
+        <Stack direction="column" spacing={2}>
+            <Stack direction="row" alignItems="center" spacing={2}>
+                <label htmlFor="contained-button-file">
+                    <Input accept=".csv" id="contained-button-file" type="file" onChange={onFileChangeHandler}/>
+                    <Button variant="contained" component="span">Upload</Button>
+                </label>
+                {getProgressIndicator()}
+            </Stack>
+            <Helper/>
         </Stack>
     );
 }
