@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @TestPropertySource(properties = "neo4j.init=false")
-class EndToEndTests {
+class ServerTests {
 
     WebDriver driver;
 
