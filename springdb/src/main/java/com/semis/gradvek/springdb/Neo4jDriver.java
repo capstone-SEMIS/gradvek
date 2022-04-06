@@ -14,7 +14,6 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.springframework.core.env.Environment;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
