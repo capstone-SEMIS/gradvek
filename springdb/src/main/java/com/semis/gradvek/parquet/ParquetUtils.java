@@ -120,6 +120,40 @@ public class ParquetUtils {
 		return (ret);
 	}
 	
+	public static Parquet readResource (Resource r) throws IOException {
+		Parquet parquet = null;
+		File resourceFile = null;
+		File tmpFile = null;
+		
+		// to use the Hadoop parquet standalone utils, we need to have a file, not a stream
+		if (r.isFile ()) {
+			// this is a filesystem file
+			resourceFile = r.getFile ();
+		} else if (r.isReadable ()) {
+			// looks like we're inside the jar; need to suck out the resource into a temp file
+			InputStream is = r.getInputStream ();
+			tmpFile = File.createTempFile ("prq", null);
+			FileUtils.copyInputStreamToFile (is, tmpFile);
+			is.close ();
+			resourceFile = tmpFile;
+		}
+
+		// do the reading
+		try {
+			mLogger.info ("Processing " + resourceFile.getName ());
+			parquet = Reader.read (Paths.get (resourceFile.toURI ()));
+			mLogger.info ("Finished " + resourceFile.getName ());
+		} catch (IOException iox) {
+			mLogger.severe (iox.toString ());
+		}
+
+		if (tmpFile != null) {
+			tmpFile.delete ();
+		}
+
+		return (parquet);
+	}
+	
 	/**
 	 * Uses the driver to connect to the database and initialize it with entities of the required type
 	 * from the OpenTarget database
@@ -171,39 +205,17 @@ public class ParquetUtils {
 		}
 		
 		for (Resource r : resources) {
-			// to use the Hadoop parquet standalone utils, we need to have a file, not a stream
-
-			File resourceFile = null;
-			File tmpFile = null;
-			if (r.isFile ()) {
-				// this is a filesystem file
-				resourceFile = r.getFile ();
-			} else if (r.isReadable ()) {
-				// looks like we're inside the jar; need to suck out the resource into a temp file
-				InputStream is = r.getInputStream ();
-				tmpFile = File.createTempFile ("prq", null);
-				FileUtils.copyInputStreamToFile (is, tmpFile);
-				is.close ();
-				resourceFile = tmpFile;
-			}
-
-			// do the import
 			try {
-				mLogger.info ("Processing " + resourceFile.getName ());
-				Parquet parquet = Reader.read (Paths.get (resourceFile.toURI ()));
-				importer.importParquet (parquet, type);
-				mLogger.info ("Finished " + resourceFile.getName ());
+				Parquet parquet = readResource (r);
+				if (parquet != null) {
+					importer.importParquet (parquet, type);
+				}
 			} catch (IOException iox) {
 				mLogger.severe (iox.toString ());
 			}
-
-			if (tmpFile != null) {
-				tmpFile.delete ();
-			}
 		}
 		
-		Dataset dataset = new Dataset (type.toString (), source.mDescription, path, System.currentTimeMillis ());
-		driver.add (dataset);
+		driver.add (datasetFromType (type));
 
 		return new ResponseEntity<Void> (HttpStatus.OK);
 	}

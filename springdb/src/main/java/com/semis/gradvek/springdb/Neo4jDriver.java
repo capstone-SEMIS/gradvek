@@ -244,12 +244,18 @@ public class Neo4jDriver implements DBDriver {
     public void loadCsv(String url, List<String> columns) {
         long startTime = System.currentTimeMillis();
 
-        if (columns.get(0).equalsIgnoreCase("Node")) {
+        String type = columns.get(0);
+        if (type.equalsIgnoreCase("Node")) {
             loadNodeCsv(url, columns);
-        } else if (columns.get(0).equalsIgnoreCase("Relationship")) {
+        } else if (type.equalsIgnoreCase("Relationship")) {
             loadRelationshipCsv(url, columns);
+        } else {
+        	mLogger.warning ("Type " + type + "is unknown - nothing imported from " + url);
+        	return;
         }
 
+        // the id of this entity's dataset is the file name
+        add (new Dataset (url.substring (url.lastIndexOf ('/') + 1), type, url, startTime));
         long stopTime = System.currentTimeMillis();
         mLogger.info("CSV loaded in " + (stopTime - startTime) / 1000.0 + " seconds");
     }
@@ -271,6 +277,8 @@ public class Neo4jDriver implements DBDriver {
             String prop = columns.get(i);
             properties.append(", " + prop + ": line." + prop);
         }
+        // the id of this entity's dataset is the file name
+        properties.append (", dataset: " + url.substring (url.lastIndexOf ('/') + 1));
         properties.append("}");
 
         String command = String.format(
