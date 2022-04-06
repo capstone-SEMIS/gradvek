@@ -278,8 +278,6 @@ public class Neo4jDriver implements DBDriver {
             }
             String prop = columns.get(i);
             propBuilder.append(prop + ": line[" + i + "]");
-            
-			propBuilder.append("}");
         }
         // add dataset reference
 		propBuilder.append (", dataset: " + url.substring (url.lastIndexOf ('/') + 1));
