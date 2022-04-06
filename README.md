@@ -31,7 +31,7 @@ curl https://raw.githubusercontent.com/capstone-SEMIS/gradvek/master/demo/docker
 curl -s https://raw.githubusercontent.com/capstone-SEMIS/gradvek/master/demo/install.sh | bash
 ```
 
-This the same process described in the `deploy` step of the [build process](#build-process) above.  Then, as long as port 80 of the server is available on the Internet, you can navigate the URL of the server to access the application.
+This is the same process described in the `deploy` step of the [build process](#build-process) section above.  Then, as long as port 80 of the server is available on the Internet, you can navigate to the URL of the server to access the application.
 
 ## Running locally
 
