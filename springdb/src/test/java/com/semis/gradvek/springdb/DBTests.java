@@ -35,7 +35,7 @@ public class DBTests {
 	
 	@Test
 	public void testAE () {
-		assertThat (mController.getAdverseEvent ("ENST00000310522").getBody ().size () > 0);
+		assertThat (mController.getAdverseEvent ("ENST00000310522").getBody().size() > 0);
 	}
 	
 	@SuppressWarnings ("unchecked")

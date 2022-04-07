@@ -16,7 +16,7 @@ export default class AEResults extends Component {
         return (
             <Card>
                 <TableContainer>
-                    <Table>
+                    <Table id="results-table">
                         <TableHead>
                             <TableRow>
                                 <TableCell>
