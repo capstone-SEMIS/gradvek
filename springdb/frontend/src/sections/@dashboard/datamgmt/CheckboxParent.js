@@ -32,7 +32,7 @@ class CheckboxParent extends Component {
     for (const checkbox of this.selectedCheckboxes) {
       console.log(checkbox, "is selected.");
     }
-    const url = "/api/databases/selecteddata";
+    const url = "/api/datasets";
     const objectFromUrl = fetch(url, {
       method: "POST",
       body: JSON.stringify(body)
@@ -50,13 +50,15 @@ class CheckboxParent extends Component {
 
   createCheckboxes = () =>
     this.props.data_array.map((descr, index) => {
-      return (
-        <Checkbox
-          label={descr.description}
-          handleCheckboxChange={this.toggleCheckbox}
-          key={index}
-        />
-      );
+      if (descr.enabled) {
+        return (
+          <Checkbox
+            label={descr.description}
+            handleCheckboxChange={this.toggleCheckbox}
+            key={index}
+          />
+        );
+      }
     });
 
   render() {
