@@ -21,6 +21,18 @@ Finally, before continuing past the test phase, the [GitHub context](https://doc
 
 Our demo server is a Compute Engine instance on the Google Cloud Platform.    With the application and database running, the Compute Engine instance hosts the website.  Note that this instance is intended as a demo controlled by the dev team, not as a production instance controlled by the customer.  The demo server is accessible at http://34.134.56.173 on the web.
 
+## Running on a server
+
+The `gradvek` application can be run on a server that has both `bash` and the [Docker Engine](https://docs.docker.com/engine/) installed.  One such option in the cloud is a [container-optimized Compute Engine VM](https://cloud.google.com/container-optimized-os/docs/concepts/features-and-benefits) on the Google Cloud Platform.
+
+First, copy the `demo/docker-compose.yml` file to the server, and then run the `demo/install.sh` script on the server.  This can be done with the following commands (for example, via SSH):
+```
+curl https://raw.githubusercontent.com/capstone-SEMIS/gradvek/master/demo/docker-compose.yml > docker-compose.yml
+curl -s https://raw.githubusercontent.com/capstone-SEMIS/gradvek/master/demo/install.sh | bash
+```
+
+This is the same process described in the `deploy` step of the [build process](#build-process) section above.  Then, as long as port 80 of the server is available on the Internet, you can navigate to the URL of the server to access the application.
+
 ## Running locally
 
 To run the `gradvek` application locally, run `docker-compose up` from the project's root directory. This will spin up two docker containers:

@@ -49,12 +49,12 @@ public class ParquetUtils {
 	// maps the entity type to the name of the folder where the parquet files for it live
 	private static final Map<EntityType, OpenTargetsSource> mEntityTypeToSource = Map.of (
 			EntityType.Target, new OpenTargetsSource ("targets", "Core annotation for targets"),
-			EntityType.AdverseEvent, new OpenTargetsSource ("fda/significantAdverseDrugReactions", "Significant adverse events for drug molecules"),
+			EntityType.AdverseEvent, new OpenTargetsSource ("fda/significantAdverseDrugReactions", "Core annotation for significant adverse events"),
 			EntityType.Drug, new OpenTargetsSource ("molecule", "Core annotation for drug molecules"),
 			EntityType.MechanismOfAction, new OpenTargetsSource ("mechanismOfAction", "Mechanisms of action for drug molecules"),
-			EntityType.AssociatedWith, new OpenTargetsSource ("fda/significantAdverseDrugReactions", "Significant adverse events for drug molecules"),
-			EntityType.Pathway, new OpenTargetsSource ("", ""), // gets created with targets
-			EntityType.Participates, new OpenTargetsSource ("targets", "Core annotation for targets")
+			EntityType.AssociatedWith, new OpenTargetsSource ("fda/significantAdverseDrugReactions", "Association of adverse events with drug molecules"),
+			EntityType.Pathway, new OpenTargetsSource ("", "Core annotation for pathways"), // gets created with targets
+			EntityType.Participates, new OpenTargetsSource ("targets", "Participation of targets in pathways")
 	);
 
 	/**
