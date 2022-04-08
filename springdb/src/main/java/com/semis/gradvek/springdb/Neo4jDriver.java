@@ -224,7 +224,7 @@ public class Neo4jDriver implements DBDriver {
         try (Session session = mDriver.session()) {
             return session.readTransaction(tx -> {
                 String cmd = "match n=(e:AdverseEvent)-[c:ASSOCIATED_WITH]-(:Drug)-[:TARGETS]-(:Target {symbol:'"
-						+ target + "'}) return e, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc limit 10";
+						+ target + "'}) return e, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc";
 				Result result = tx.run (cmd);
                 List<AdverseEventIntObj> finalMap = new LinkedList<>();
                 while (result.hasNext()) {
@@ -258,7 +258,7 @@ public class Neo4jDriver implements DBDriver {
         mLogger.info("CSV " + csvFile.getName() + " loaded in " + (stopTime - startTime) / 1000.0 + " seconds");
     }
 
-    private static String loadCsvCommand(String url, CsvFile csvFile) {
+    public static String loadCsvCommand(String url, CsvFile csvFile) {
         List<String> columns = csvFile.getColumns();
 
         // Properties start at column 1 for nodes, 3 for relationships

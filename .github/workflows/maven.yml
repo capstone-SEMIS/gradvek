@@ -38,7 +38,7 @@ jobs:
         cache: 'npm'
         cache-dependency-path: 'springdb/frontend/**/package-lock.json'
 
-    - name: Run backend tests
+    - name: Run all tests
       run: |
         cd springdb
         mvn test

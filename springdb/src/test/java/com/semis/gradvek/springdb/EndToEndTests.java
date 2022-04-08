@@ -55,4 +55,14 @@ class EndToEndTests {
         driver.get("http://localhost/info");
         assertThat(driver.getPageSource()).contains("Goodbye Gradvek");
     }
+
+    @Test
+    void csvPost() {
+        // TODO Michael
+    }
+
+    @Test
+    void csvGet() {
+        // TODO Michael
+    }
 }
