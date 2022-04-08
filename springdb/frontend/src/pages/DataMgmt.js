@@ -4,7 +4,7 @@ import {Typography} from "@mui/material";
 // components
 import Page from "../components/Page";
 import CheckboxList from "../sections/@dashboard/datamgmt/CheckboxList";
-import EntityCsvImporter from "../sections/@dashboard/datamgmt/EntityCsvImporter";
+import CsvImporter from "../sections/@dashboard/datamgmt/CsvImporter";
 
 export default function DataMgmtPage() {
     return (
@@ -13,7 +13,7 @@ export default function DataMgmtPage() {
                 Data Management
             </Typography>
 
-            <EntityCsvImporter/>
+            <CsvImporter/>
             <CheckboxList/>
         </Page>
     );
