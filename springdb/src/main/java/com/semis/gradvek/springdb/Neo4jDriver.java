@@ -14,7 +14,6 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.springframework.core.env.Environment;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -253,7 +252,9 @@ public class Neo4jDriver implements DBDriver {
             session.run(command);
         }
 
+        // the id of this entity's dataset is the file name
         long stopTime = System.currentTimeMillis();
+        add (new Dataset (url.substring (url.lastIndexOf ('/') + 1), csvFile.getColumns().get (0), url, stopTime));
         mLogger.info("CSV " + csvFile.getName() + " loaded in " + (stopTime - startTime) / 1000.0 + " seconds");
     }
 
@@ -277,6 +278,9 @@ public class Neo4jDriver implements DBDriver {
             String prop = columns.get(i);
             propBuilder.append(prop + ": line[" + i + "]");
         }
+        // add dataset reference
+		propBuilder.append (", dataset: '" + url.substring (url.lastIndexOf ('/') + 1) + "'");
+		
         propBuilder.append("}");
         String properties = columns.size() > propStartIdx ? propBuilder.toString() : "";
 

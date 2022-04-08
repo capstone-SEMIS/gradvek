@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  * the utility class for reading Parquet-formatted files using Hadoop internals
- * instead of full-blown Sparc
+ * instead of full-blown Spark
  * @author ymachkasov
  *
  */
