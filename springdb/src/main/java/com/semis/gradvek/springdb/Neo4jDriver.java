@@ -257,7 +257,7 @@ public class Neo4jDriver implements DBDriver {
         mLogger.info("CSV " + csvFile.getName() + " loaded in " + (stopTime - startTime) / 1000.0 + " seconds");
     }
 
-    private static String loadCsvCommand(String url, CsvFile csvFile) {
+    public static String loadCsvCommand(String url, CsvFile csvFile) {
         List<String> columns = csvFile.getColumns();
 
         // Properties start at column 1 for nodes, 3 for relationships
