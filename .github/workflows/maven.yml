@@ -38,15 +38,10 @@ jobs:
         cache: 'npm'
         cache-dependency-path: 'springdb/frontend/**/package-lock.json'
 
-    - name: Run application tests
+    - name: Run all tests
       run: |
         cd springdb
-        mvn -Dtest="SpringdbApplicationTests" test
-
-    - name: Run end-to-end tests
-      run: |
-        cd springdb
-        mvn -Dtest="EndToEndTests" test
+        mvn test
 
   build:
     if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
