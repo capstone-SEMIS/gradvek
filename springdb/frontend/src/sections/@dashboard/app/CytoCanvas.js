@@ -1,9 +1,10 @@
 import cytoscape from 'cytoscape';
+import avsdf from 'cytoscape-avsdf';
 
 import {Component} from 'react';
 
 // ----------------------------------------------------------------------
-
+cytoscape.use( avsdf );
 export default class CytoCanvas extends Component {
     constructor(props) {
         super(props);
@@ -53,7 +54,7 @@ export default class CytoCanvas extends Component {
             // no focusNode, so show all nodes
             this.state.cytoInstance.elements(this.props.nodeFilter).style("display", "element");
             // lay all elements out in a circle
-            this.state.cytoInstance.layout({ name: "breadthfirst" }).run();
+            this.state.cytoInstance.layout({ name: "avsdf" }).run();
         }
     }
  
@@ -74,7 +75,7 @@ export default class CytoCanvas extends Component {
             }
         },
         {
-            selector: '.proteinTarget',
+            selector: '.target',
             style: {
                 "background-color": "#78a1bb",
                 "color": "#78a1bb",
@@ -98,16 +99,16 @@ export default class CytoCanvas extends Component {
                 'target-arrow-color': '#ccc',
                 'target-arrow-shape': 'triangle',
                 'curve-style': 'bezier',
-                "label": "causes",
+                "label": "data(action)"
             }
         },
 
-        {
-            selector: '.drug_target',
-            style: {
-                "label": "data(action)",
-            }
-        },
+        // {
+        //     selector: '.drug_target',
+        //     style: {
+        //         "label": "data(action)",
+        //     }
+        // },
         {
             selector: '*',
             style: {

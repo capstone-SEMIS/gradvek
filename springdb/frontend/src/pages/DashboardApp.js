@@ -19,14 +19,21 @@ export default class DashboardApp extends Component {
     this.state = {
       "nodeFilter": '*', //initially, all nodes are visible
       "focusNode": {},
-      "adverseEvents": []
+      "adverseEvents": [],
+      "resultNodes": []
     };
     this.AEfilterCallback = this.AEfilterCallback.bind(this);
   }
 
   handleResultsChange(results) {
-    this.setState({adverseEvents: results});
+    // this.parseJsonToCytoscapeNodes(results);
+    // this.setState({adverseEvents: results});
+    this.setState({resultNodes: results})
   }
+
+  // parseJsonToCytoscapeNodes(results) {
+  //   const obj = JSON.parse(results);
+  // }
   
   AEfilterCallback(AE_id) {
     this.setState({
@@ -53,11 +60,11 @@ export default class DashboardApp extends Component {
           <Grid container spacing={3}>
             {this.renderAETable()}
             <Grid item xs={12} md={6} lg={8}>
-              <AEList graphNodes={dummyNodes} filterHandler={this.AEfilterCallback}/>
+              <AEList graphNodes={this.state.resultNodes} filterHandler={this.AEfilterCallback}/>
             </Grid>
 
             <Grid item xs={12} md={6} lg={8}>
-              <CytoCard graphNodes={dummyNodes} nodeFilter={this.state.nodeFilter} focusNode={this.state.focusNode}/>
+              <CytoCard graphNodes={this.state.resultNodes} nodeFilter={this.state.nodeFilter} focusNode={this.state.focusNode}/>
             </Grid>
 
           </Grid>

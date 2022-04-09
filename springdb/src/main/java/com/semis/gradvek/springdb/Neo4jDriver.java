@@ -1,9 +1,10 @@
 package com.semis.gradvek.springdb;
 
 import com.semis.gradvek.csv.CsvFile;
-import com.semis.gradvek.entity.Dataset;
-import com.semis.gradvek.entity.Entity;
-import com.semis.gradvek.entity.EntityType;
+import com.semis.gradvek.cytoscape.CytoscapeEntity;
+import com.semis.gradvek.cytoscape.Node;
+import com.semis.gradvek.cytoscape.Relationship;
+import com.semis.gradvek.entity.*;
 
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
@@ -14,15 +15,11 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.springframework.core.env.Environment;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.neo4j.driver.types.Path;
 
 /**
  * The abstraction of the access to the Neo4j database, delegating methods to
@@ -229,15 +226,105 @@ public class Neo4jDriver implements DBDriver {
                 List<AdverseEventIntObj> finalMap = new LinkedList<>();
                 while (result.hasNext()) {
                     Record record = result.next();
-					String name = record.fields().get(0).value().asEntity().get("adverseEventId").asString();
-					String id = record.fields().get(0).value().asEntity().get("adverseEventId").asString();
-					String code = record.fields().get(0).value().asEntity().get("meddraCode").asString();
-					AdverseEventIntObj ae = new AdverseEventIntObj (name, id, code);
-					ae.setLlr(record.fields().get(1).value().asDouble());
+                    String name = record.fields().get(0).value().asEntity().get("adverseEventId").asString();
+                    String id = record.fields().get(0).value().asEntity().get("adverseEventId").asString();
+                    String code = record.fields().get(0).value().asEntity().get("meddraCode").asString();
 
-                    finalMap.add(ae);
+                    AdverseEventIntObj ae = new AdverseEventIntObj(name, name, code);
+                    ae.setLlr(record.fields().get(1).value().asDouble());
+                    finalMap.add (ae);
                 }
                 return finalMap;
+            });
+        }
+    }
+
+
+	public List<CytoscapeEntity> getAEPathByTarget (String target) {
+		mLogger.info ("Getting adverse event paths by target " + target);
+		try (Session session = mDriver.session ()) {
+			return session.readTransaction (tx -> {
+				String cmd = "match n=(e:AdverseEvent)-[c:ASSOCIATED_WITH]-(:Drug)-[:TARGETS]-(:Target {symbol:'"
+						+ target + "'}) return n, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc limit 10";
+				Result result = tx.run (cmd);
+				Map<Long, CytoscapeEntity> entitiesInvolved = new HashMap<>();
+				while (result.hasNext ()) {
+					Record record = result.next();
+					Path path = record.fields().get(0).value().asPath();
+					path.nodes().forEach( node -> {
+						if (!entitiesInvolved.containsKey(node.id())) {
+                            Map<String, String> dataMap = new HashMap<>();
+							if (node.hasLabel("AdverseEvent")) {
+
+                                dataMap.put("id", node.asMap().get("adverseEventId").toString());
+                                dataMap.put("adverseEventId", node.asMap().get("adverseEventId").toString());
+                                dataMap.put("meddraCode", node.asMap().get("meddraCode").toString());
+
+								CytoscapeEntity entity = new Node(node.asMap().get("adverseEventId").toString(),"adverse event", dataMap);
+								entitiesInvolved.put(node.id(), entity);
+							} else if (node.hasLabel("Drug")) {
+
+                                dataMap.put("id", node.asMap().get("drugId").toString());
+                                dataMap.put("drugId", node.asMap().get("drugId").toString());
+                                dataMap.put("chembl_code", node.asMap().get("chembl_code").toString());
+
+                                CytoscapeEntity entity = new Node(node.asMap().get("drugId").toString(), "drug", dataMap);
+								entitiesInvolved.put(node.id(), entity);
+							} else if (node.hasLabel("Target")) {
+
+                                dataMap.put("id", node.asMap().get("symbol").toString());
+                                dataMap.put("targetId", node.asMap().get("targetId").toString());
+                                dataMap.put("name", node.asMap().get("name").toString());
+                                dataMap.put("symbol", node.asMap().get("symbol").toString());
+
+                                CytoscapeEntity entity = new Node(node.asMap().get("symbol").toString(), "target", dataMap);
+                                entitiesInvolved.put(node.id(), entity);
+							} else if (node.hasLabel("Pathway")) {
+                                dataMap.put("id", node.asMap().get("pathwayCode").toString());
+                                dataMap.put("pathwayId", node.asMap().get("pathwayId").toString());
+                                dataMap.put("name", node.asMap().get("pathwayCode").toString());
+                                dataMap.put("term", node.asMap().get("topLevelTerm").toString());
+
+                                CytoscapeEntity entity = new Node(node.asMap().get("pathwayCode").toString(), "pathway", dataMap);
+								entitiesInvolved.put(node.id(), entity);
+							}
+						}
+					});
+
+					path.relationships().forEach(relationship -> {
+                        if (!entitiesInvolved.containsKey(relationship.id())) {
+                            Map<String, String> relationshipMap = new HashMap<>();
+                            relationship.asMap().forEach((k,v) -> relationshipMap.put(k, v.toString())); // Change type of Value from Object to String
+                            CytoscapeEntity entity = null;
+                            if (relationship.hasType("ASSOCIATED_WITH")) {
+                                Node drug = (Node) entitiesInvolved.get(relationship.startNodeId());
+                                Node ae = (Node) entitiesInvolved.get(relationship.endNodeId());
+                                ae.getData().put("llr", relationshipMap.get("llr"));
+                                relationshipMap.put("id", String.valueOf(relationship.id()));
+                                relationshipMap.put("source", drug.getId().toString());
+                                relationshipMap.put("target", ae.getId().toString());
+                                relationshipMap.put("arrow", "vee");
+                                relationshipMap.put("action", relationship.type());
+
+                                entity = new Relationship(String.valueOf(relationship.id()), relationshipMap);
+
+                            } else if (relationship.hasType("TARGETS")) {
+                                Node relatedDrug = (Node) entitiesInvolved.get(relationship.startNodeId());
+                                Node relatedTarget = (Node) entitiesInvolved.get(relationship.endNodeId());
+
+                                relationshipMap.put("id", String.valueOf(relationship.id()));
+                                relationshipMap.put("source", relatedDrug.getId().toString());
+                                relationshipMap.put("target", relatedTarget.getId().toString());
+                                relationshipMap.put("arrow", "vee");
+                                relationshipMap.put("action", relationship.type());
+
+                                entity = new Relationship(String.valueOf(relationship.id()), "drug_target", relationshipMap);
+                            }
+                            entitiesInvolved.put(relationship.id(), entity);
+                        }
+					});
+                }
+                return new ArrayList<>(entitiesInvolved.values());
             });
         }
     }
