@@ -142,22 +142,29 @@ public class Controller {
 
     @PostMapping(value = "/csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Map<String, String>> csvPost(@RequestParam MultipartFile file, @RequestParam String baseUrl, HttpServletRequest request) {
+		return csvPostProcess(file, baseUrl, request.getRequestURI());
+    }
+
+	public ResponseEntity<Map<String, String>> csvPostProcess(MultipartFile file, String baseUrl, String requestURI) {
 		CsvService csvService = CsvService.getInstance();
-        List<String> fileIds = csvService.put(file);
+		List<String> fileIds = csvService.put(file);
+		if (fileIds.isEmpty()) {
+			return ResponseEntity.badRequest().build();
+		}
 
 		Map<String, String> body = new HashMap<>();
 		for (String fileId : fileIds) {
 			CsvFile currentFile = csvService.get(fileId);
-			URI uri = URI.create(baseUrl + request.getRequestURI() + "/" + fileId);
+			URI uri = URI.create(baseUrl + requestURI + "/" + fileId);
 			mDriver.loadCsv(uri.toString(), currentFile);
 			body.put(fileId, currentFile.getName());
 		}
 
-        return ResponseEntity.ok(body);
-    }
+		return ResponseEntity.ok(body);
+	}
 
     @GetMapping(value = "/csv/{fileId}", produces = "text/csv")
-    public ResponseEntity<InputStreamResource> csvGet(@PathVariable(value = "fileId") String fileId) throws IOException {
+    public ResponseEntity<InputStreamResource> csvGet(@PathVariable(value = "fileId") String fileId) {
         CsvFile file = CsvService.getInstance().get(fileId);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", file.getName()));

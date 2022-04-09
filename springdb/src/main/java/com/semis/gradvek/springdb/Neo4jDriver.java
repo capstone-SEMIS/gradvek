@@ -266,7 +266,7 @@ public class Neo4jDriver implements DBDriver {
 
         // Build the property string
         StringBuilder propBuilder = new StringBuilder();
-        propBuilder.append(" { dataset: '" + csvFile.getName() + "'");  // add dataset reference
+        propBuilder.append(" { dataset: '").append(csvFile.getName()).append("'");  // add dataset reference
         for (int i = propStartIdx; i < columns.size(); ++i) {
             propBuilder.append(", ").append(columns.get(i)).append(": line[").append(i).append("]");
         }

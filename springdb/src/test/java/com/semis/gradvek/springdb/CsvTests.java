@@ -4,7 +4,11 @@ import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.csv.CsvService;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,13 +18,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatObject;
 
 @SpringBootTest
-@TestPropertySource(properties = "neo4j.init=false")
+@TestPropertySource(properties = "db.type=inmem")
 class CsvTests {
+    @Autowired
+    private Controller controller;
+
     @Test
     void loadCsvNeitherNodeNorRelationship() {
         CsvService csvService = CsvService.getInstance();
@@ -169,13 +177,31 @@ class CsvTests {
     }
 
     @Test
-    void csvPost() {
-        // TODO Michael
+    void csvPostBadRequest() {
+        CsvTestFile file = new CsvTestFile("test");
+        file.setHeaders(List.of("hello"));
+        ResponseEntity<Map<String, String>> response = controller.csvPostProcess(file, "https://example.com", "/api");
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
-    void csvGet() {
-        // TODO Michael
+    void csvPostGet() throws IOException {
+        CsvTestFile file = new CsvTestFile("test");
+        file.setHeaders(List.of("Node"));
+        file.addRow(List.of("hello"));
+
+        ResponseEntity<Map<String, String>> postResponse = controller.csvPostProcess(file, "https://example.com", "/api");
+        assertThat(postResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(postResponse.getBody()).isNotNull();
+        assertThat(postResponse.getBody().size()).isEqualTo(1);
+        String fileId = postResponse.getBody().keySet().iterator().next();
+        assertThat(postResponse.getBody()).containsValue("test_hello");
+
+        ResponseEntity<InputStreamResource> getResponse = controller.csvGet(fileId);
+        assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(getResponse.getBody()).isNotNull();
+        String contents = new String(getResponse.getBody().getInputStream().readAllBytes());
+        assertThat(contents).isEqualTo("hello\n");
     }
 
     @Test
@@ -190,7 +216,6 @@ class CsvTests {
         CsvService csvService2 = CsvService.getInstance();
         assertThatObject(csvService1).isSameAs(csvService2);
     }
-
 
     @Test
     void csvServiceSimpleCsv() {
