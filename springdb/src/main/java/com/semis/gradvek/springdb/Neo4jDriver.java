@@ -239,7 +239,6 @@ public class Neo4jDriver implements DBDriver {
         }
     }
 
-
 	public List<CytoscapeEntity> getAEPathByTarget (String target) {
 		mLogger.info ("Getting adverse event paths by target " + target);
 		try (Session session = mDriver.session ()) {
@@ -256,36 +255,38 @@ public class Neo4jDriver implements DBDriver {
                             Map<String, String> dataMap = new HashMap<>();
 							if (node.hasLabel("AdverseEvent")) {
 
-                                dataMap.put("id", node.asMap().get("adverseEventId").toString());
+                                dataMap.put("id", String.valueOf(node.id()));
                                 dataMap.put("adverseEventId", node.asMap().get("adverseEventId").toString());
                                 dataMap.put("meddraCode", node.asMap().get("meddraCode").toString());
+                                dataMap.put("name", node.asMap().get("adverseEventId").toString());
 
-								CytoscapeEntity entity = new Node(node.asMap().get("adverseEventId").toString(),"adverse event", dataMap);
+								CytoscapeEntity entity = new Node(node.id(),"adverse event", dataMap);
 								entitiesInvolved.put(node.id(), entity);
 							} else if (node.hasLabel("Drug")) {
 
-                                dataMap.put("id", node.asMap().get("drugId").toString());
+                                dataMap.put("id", String.valueOf(node.id()));
                                 dataMap.put("drugId", node.asMap().get("drugId").toString());
                                 dataMap.put("chembl_code", node.asMap().get("chembl_code").toString());
+                                dataMap.put("name", node.asMap().get("drugId").toString());
 
-                                CytoscapeEntity entity = new Node(node.asMap().get("drugId").toString(), "drug", dataMap);
+                                CytoscapeEntity entity = new Node(node.id(), "drug", dataMap);
 								entitiesInvolved.put(node.id(), entity);
 							} else if (node.hasLabel("Target")) {
 
-                                dataMap.put("id", node.asMap().get("symbol").toString());
+                                dataMap.put("id", String.valueOf(node.id()));
                                 dataMap.put("targetId", node.asMap().get("targetId").toString());
                                 dataMap.put("name", node.asMap().get("name").toString());
                                 dataMap.put("symbol", node.asMap().get("symbol").toString());
 
-                                CytoscapeEntity entity = new Node(node.asMap().get("symbol").toString(), "target", dataMap);
+                                CytoscapeEntity entity = new Node(node.id(), "target", dataMap);
                                 entitiesInvolved.put(node.id(), entity);
 							} else if (node.hasLabel("Pathway")) {
-                                dataMap.put("id", node.asMap().get("pathwayCode").toString());
+                                dataMap.put("id", String.valueOf(node.id()));
                                 dataMap.put("pathwayId", node.asMap().get("pathwayId").toString());
                                 dataMap.put("name", node.asMap().get("pathwayCode").toString());
                                 dataMap.put("term", node.asMap().get("topLevelTerm").toString());
 
-                                CytoscapeEntity entity = new Node(node.asMap().get("pathwayCode").toString(), "pathway", dataMap);
+                                CytoscapeEntity entity = new Node(node.id(), "pathway", dataMap);
 								entitiesInvolved.put(node.id(), entity);
 							}
 						}
@@ -300,13 +301,14 @@ public class Neo4jDriver implements DBDriver {
                                 Node drug = (Node) entitiesInvolved.get(relationship.startNodeId());
                                 Node ae = (Node) entitiesInvolved.get(relationship.endNodeId());
                                 ae.getData().put("llr", relationshipMap.get("llr"));
+
                                 relationshipMap.put("id", String.valueOf(relationship.id()));
                                 relationshipMap.put("source", drug.getId().toString());
                                 relationshipMap.put("target", ae.getId().toString());
                                 relationshipMap.put("arrow", "vee");
                                 relationshipMap.put("action", relationship.type());
 
-                                entity = new Relationship(String.valueOf(relationship.id()), relationshipMap);
+                                entity = new Relationship(relationship.id(), relationshipMap);
 
                             } else if (relationship.hasType("TARGETS")) {
                                 Node relatedDrug = (Node) entitiesInvolved.get(relationship.startNodeId());
@@ -318,7 +320,7 @@ public class Neo4jDriver implements DBDriver {
                                 relationshipMap.put("arrow", "vee");
                                 relationshipMap.put("action", relationship.type());
 
-                                entity = new Relationship(String.valueOf(relationship.id()), "drug_target", relationshipMap);
+                                entity = new Relationship(relationship.id(), "drug_target", relationshipMap);
                             }
                             entitiesInvolved.put(relationship.id(), entity);
                         }

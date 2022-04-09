@@ -5,26 +5,26 @@ import java.util.Map;
 
 public class Relationship extends CytoscapeEntity {
 
-    private String id;
-    String group = "edges";
-    ArrayList<String> classes = new ArrayList<>();
+    private Long id;
+    private String group = "edges";
+    private ArrayList<String> classes = new ArrayList<>();
 
-    public Relationship(String id, Map<String, String> data) {
+    public Relationship(Long id, Map<String, String> data) {
         super(id, data);
     }
 
-    public Relationship(String id, String classes, Map<String, String> data) {
+    public Relationship(Long id, String classes, Map<String, String> data) {
         super(id, data);
         this.classes.add(classes);
     }
 
     @Override
-    public String getId() {
+    public Long getId() {
         return super.getId();
     }
 
     @Override
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
         super.setId(id);
     }

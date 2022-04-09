@@ -64,7 +64,7 @@ export default class CytoCanvas extends Component {
             style: {
                 'background-color': '#8b786d',
                 "color": "#8b786d",
-                'label': 'data(id)',
+                'label': 'data(name)',
             }
         },
         {

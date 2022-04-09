@@ -4,20 +4,20 @@ import java.util.Map;
 
 public abstract class CytoscapeEntity {
 
-    private String id;
+    private Long id;
     private String group;
     private Map<String, String> data;
 
-    protected CytoscapeEntity(String id, Map<String, String> data) {
+    protected CytoscapeEntity(Long id, Map<String, String> data) {
         this.id = id;
         this.data = data;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

@@ -7,23 +7,23 @@ import java.util.Map;
 
 public class Node extends CytoscapeEntity {
 
-    String id;
+    Long id;
     String group = "nodes";
     ArrayList<String> classes = new ArrayList<>();
 //    Map<String, String> data = new HashMap<>();
 
-    public Node(String id, String classes, Map<String, String> data) {
+    public Node(Long id, String classes, Map<String, String> data) {
         super(id, data);
         this.classes.add(classes);
     }
 
     @Override
-    public String getId() {
+    public Long getId() {
         return super.getId();
     }
 
     @Override
-    public void setId(String id) {
+    public void setId(Long id) {
 //        this.id = id;
         super.setId(id);
     }

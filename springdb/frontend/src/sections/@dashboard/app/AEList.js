@@ -32,7 +32,7 @@ export default function AEList({ graphNodes, filterHandler}) {
                         {AEs.sort((a,b) => b.data.llr - a.data.llr).map( (AE) => (
                             <TableRow key={AE.data.id} onClick={(e) => filterHandler(AE.data.id)}>
                                 <TableCell>
-                                    {AE.data.id}
+                                    {AE.data.name}
                                 </TableCell>
                                 <TableCell>
                                     {AE.data.llr}

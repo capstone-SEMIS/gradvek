@@ -6,8 +6,6 @@ import Page from '../components/Page';
 
 import CytoCard from '../sections/@dashboard/app/CytoCard';
 import AEList from '../sections/@dashboard/app/AEList';
-import dummyNodes from '../utils/dummyNodes';
-import AEResults from "../sections/@dashboard/app/AEResults";
 import Searchbar from "../layouts/dashboard/Searchbar";
 
 // ----------------------------------------------------------------------
@@ -19,36 +17,19 @@ export default class DashboardApp extends Component {
     this.state = {
       "nodeFilter": '*', //initially, all nodes are visible
       "focusNode": {},
-      "adverseEvents": [],
       "resultNodes": []
     };
     this.AEfilterCallback = this.AEfilterCallback.bind(this);
   }
 
   handleResultsChange(results) {
-    // this.parseJsonToCytoscapeNodes(results);
-    // this.setState({adverseEvents: results});
     this.setState({resultNodes: results})
   }
-
-  // parseJsonToCytoscapeNodes(results) {
-  //   const obj = JSON.parse(results);
-  // }
   
   AEfilterCallback(AE_id) {
     this.setState({
       "focusNode": {"AE": AE_id}
     });
-  }
-
-  renderAETable() {
-    if (this.state.adverseEvents.length > 0) {
-      return (
-          <Grid item xs={12} md={6} lg={8}>
-            <AEResults results={this.state.adverseEvents} onResultsChange={this.handleResultsChange}/>
-          </Grid>
-          )
-    }
   }
 
   render(){
@@ -58,7 +39,6 @@ export default class DashboardApp extends Component {
           <Searchbar onResultsChange={this.handleResultsChange}/>
 
           <Grid container spacing={3}>
-            {this.renderAETable()}
             <Grid item xs={12} md={6} lg={8}>
               <AEList graphNodes={this.state.resultNodes} filterHandler={this.AEfilterCallback}/>
             </Grid>
