@@ -241,6 +241,9 @@ public class Neo4jDriver implements DBDriver {
             session.run(command);
         }
 
+        // the id of this entity's dataset is the file name
+        add(new Dataset(csvFile.getName(), csvFile.getType() + " : " + csvFile.getLabel(), csvFile.getOriginalName(), System.currentTimeMillis()));
+
         long stopTime = System.currentTimeMillis();
         mLogger.info("CSV " + csvFile.getName() + " loaded in " + (stopTime - startTime) / 1000.0 + " seconds");
     }
@@ -263,17 +266,12 @@ public class Neo4jDriver implements DBDriver {
 
         // Build the property string
         StringBuilder propBuilder = new StringBuilder();
+        propBuilder.append(" { dataset: '" + csvFile.getName() + "'");  // add dataset reference
         for (int i = propStartIdx; i < columns.size(); ++i) {
-            if (propBuilder.length() == 0) {
-                propBuilder.append(" { ");
-            } else {
-                propBuilder.append(", ");
-            }
-            String prop = columns.get(i);
-            propBuilder.append(prop).append(": line[").append(i).append("]");
+            propBuilder.append(", ").append(columns.get(i)).append(": line[").append(i).append("]");
         }
         propBuilder.append(" }");
-        String properties = columns.size() > propStartIdx ? propBuilder.toString() : "";
+        String properties = propBuilder.toString();
 
         // Build the command string
         String commandPattern = "LOAD CSV FROM '" + url + "' AS line CALL { WITH line %s } IN TRANSACTIONS";

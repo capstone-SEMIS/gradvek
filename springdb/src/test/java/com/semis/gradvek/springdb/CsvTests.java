@@ -46,7 +46,7 @@ class CsvTests {
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line CREATE (:hello) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line CREATE (:hello { dataset: 'test_hello' }) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 
@@ -61,7 +61,7 @@ class CsvTests {
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line CREATE (:hello { firstProp: line[1] }) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line CREATE (:hello { dataset: 'test_hello', firstProp: line[1] }) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 
@@ -76,7 +76,7 @@ class CsvTests {
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line CREATE (:hello { firstProp: line[1], secondProp: line[2] }) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line CREATE (:hello { dataset: 'test_hello', firstProp: line[1], secondProp: line[2] }) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 
@@ -134,7 +134,7 @@ class CsvTests {
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Drug {chembl_code: line[1]}), (toNode:Gene {geneId: line[2]}) CREATE (fromNode)-[:hello]->(toNode) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Drug {chembl_code: line[1]}), (toNode:Gene {geneId: line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello' }]->(toNode) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 
@@ -149,7 +149,7 @@ class CsvTests {
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Target {targetId: line[1]}), (toNode:Pathway {pathwayId: line[2]}) CREATE (fromNode)-[:hello { firstProp: line[3] }]->(toNode) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Target {targetId: line[1]}), (toNode:Pathway {pathwayId: line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello', firstProp: line[3] }]->(toNode) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 
@@ -164,7 +164,7 @@ class CsvTests {
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:AdverseEvent {meddraCode: line[1]}), (toNode:AdverseEvent {meddraCode: line[2]}) CREATE (fromNode)-[:hello { firstProp: line[3], secondProp: line[4] }]->(toNode) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:AdverseEvent {meddraCode: line[1]}), (toNode:AdverseEvent {meddraCode: line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello', firstProp: line[3], secondProp: line[4] }]->(toNode) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 
@@ -180,7 +180,7 @@ class CsvTests {
 
     @Test
     void csvFileNull() {
-        CsvFile file = new CsvFile(null, "name", "type", "label", List.of(""));
+        CsvFile file = new CsvFile(null, "name", "originalName.csv", "type", "label", List.of(""));
         assertThat(file.getInputStream()).isNull();
     }
 
@@ -226,6 +226,7 @@ class CsvTests {
         assertThat(copy.getColumns()).containsExactly(header1, header2);
         assertThat(copy.getType()).isEqualTo(header1);
         assertThat(copy.getLabel()).isEqualTo(col1);
+        assertThat(copy.getOriginalName()).isEqualTo(name + ".csv");
     }
 
     @Test
