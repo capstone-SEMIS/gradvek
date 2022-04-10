@@ -1,14 +1,12 @@
 package com.semis.gradvek.springdb;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDriverBuilder;
-import org.springframework.web.context.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,12 +15,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EndToEndTests {
 
     WebDriver driver;
+    String baseUrl;
+
+    @Autowired
+    private Environment environment;
 
     @BeforeEach
-    void setup(WebApplicationContext context) {
-        driver = MockMvcHtmlUnitDriverBuilder
-                .webAppContextSetup(context)
-                .build();
+    void setupEach() {
+        driver = new ChromeDriver();
+
+        if (baseUrl == null) {
+            baseUrl = environment.getProperty("BASE_URL");
+            if (baseUrl == null || !baseUrl.startsWith("http")) {
+                baseUrl = "http://localhost";
+            }
+
+            String chromeDriverPath = environment.getProperty("CHROMEDRIVER_PATH");
+            if (chromeDriverPath == null) {
+                chromeDriverPath = "/usr/local/bin/chromedriver";
+            }
+            System.setProperty("webdriver.chrome.driver", chromeDriverPath);
+        }
     }
 
     @AfterEach
@@ -38,22 +51,9 @@ class EndToEndTests {
     }
 
     @Test
-    @Disabled
-    void TestsAreFailing() {
-        assertThat(1).isEqualTo(2);
-    }
-
-    @Test
     void InfoSaysHello() {
-        driver.get("http://localhost/info");
+        driver.get(baseUrl + "/api/info");
         assertThat(driver.getPageSource()).contains("Hello Gradvek");
-    }
-
-    @Test
-    @Disabled
-    void InfoSaysGoodbye() {
-        driver.get("http://localhost/info");
-        assertThat(driver.getPageSource()).contains("Goodbye Gradvek");
     }
 
     @Test
