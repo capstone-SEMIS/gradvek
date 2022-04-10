@@ -39,16 +39,26 @@ jobs:
         cache: 'npm'
         cache-dependency-path: 'springdb/frontend/**/package-lock.json'
 
+    - name: "Build for tests"
+      run: |
+        cd springdb
+        mvn -DskipTests install
+
+    - name: "Start back end"
+      run: |
+        cd springdb
+        java -jar target/*.jar &
+
     - name: "Start front end"
       run: |
         cd springdb/frontend
         npm install
         npm run start &
 
-    - name: Run all tests
+    - name: "Run all tests"
       run: |
         cd springdb
-        mvn test
+        mvn surefire:test
 
   build:
     if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
