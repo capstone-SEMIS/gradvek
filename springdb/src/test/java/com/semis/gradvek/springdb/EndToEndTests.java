@@ -27,7 +27,7 @@ class EndToEndTests {
         if (baseUrl == null) {
             baseUrl = environment.getProperty("BASE_URL");
             if (baseUrl == null || !baseUrl.startsWith("http")) {
-                baseUrl = "http://localhost";
+                baseUrl = "http://localhost:3000";
             }
 
             String chromeDriverPath = environment.getProperty("CHROMEDRIVER_PATH");
