@@ -11,13 +11,15 @@ public class CsvFile {
     private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
     private final File file;
     private final String name;
+    private final String originalName;
     private final String type;
     private final String label;
     private final List<String> columns;
 
-    public CsvFile(File file, String name, String type, String label, List<String> columns) {
+    public CsvFile(File file, String name, String originalName, String type, String label, List<String> columns) {
         this.file = file;
         this.name = name;
+        this.originalName= originalName;
         this.type = type;
         this.label = label;
         this.columns = columns;
@@ -48,6 +50,13 @@ public class CsvFile {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * The name of the file uploaded to create this CSV.
+     */
+    public String getOriginalName() {
+        return originalName;
     }
 
     /**
