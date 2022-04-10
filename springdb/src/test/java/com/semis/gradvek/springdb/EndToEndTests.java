@@ -15,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource(properties = "neo4j.init=false")
 class EndToEndTests {
 
+    boolean setupDone = false;
     WebDriver driver;
     String baseUrl;
     ChromeOptions options;
@@ -24,21 +25,20 @@ class EndToEndTests {
 
     @BeforeEach
     void setupEach() {
-        if (baseUrl == null) {
-            baseUrl = environment.getProperty("BASE_URL");
-            if (baseUrl == null || !baseUrl.startsWith("http")) {
-                baseUrl = "http://localhost:3000";
-            }
-
+        if (!setupDone) {
             String chromeDriverPath = environment.getProperty("CHROMEDRIVER_PATH");
             if (chromeDriverPath == null) {
                 chromeDriverPath = "/usr/local/bin/chromedriver";
             }
             System.setProperty("webdriver.chrome.driver", chromeDriverPath);
 
+            baseUrl = "http://localhost:3000";
+
             options = new ChromeOptions();
             options.addArguments("--no-sandbox");
             options.setHeadless(true);
+
+            setupDone = true;
         }
 
         driver = new ChromeDriver(options);
