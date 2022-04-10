@@ -42,6 +42,7 @@ jobs:
     - name: "Start front end"
       run: |
         cd springdb/frontend
+        npm install
         npm run start
 
     - name: Run all tests
