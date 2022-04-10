@@ -93,7 +93,7 @@ public class CsvService {
 
                     // Register the file
                     String filename = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + label;
-                    files.add(new CsvFile(tmpFile, filename, datatype, label, Arrays.asList(columns)));
+                    files.add(new CsvFile(tmpFile, filename, file.getOriginalFilename(), datatype, label, Arrays.asList(columns)));
                     indexList.add(Integer.toString(index++));
                 }
 
