@@ -34,23 +34,12 @@ class CheckboxParent extends Component {
 
     console.log(newArr);
 
-    // for (const checkbox of this.selectedCheckboxes) {
-    //   // console.log(checkbox, "is selected.");
-    // }
     const url = "/api/datasets";
-    await fetch(url, {
+    const datapost = fetch(url, {
       method: "POST",
       body: JSON.stringify(newArr)
     });
   };
-
-  // createCheckbox = label => (
-  //   <Checkbox
-  //     label={label}
-  //     handleCheckboxChange={this.toggleCheckbox}
-  //     key={label}
-  //   />
-  // );
 
   createCheckboxes = () =>
     this.props.data_array.map((descr, index) => {
