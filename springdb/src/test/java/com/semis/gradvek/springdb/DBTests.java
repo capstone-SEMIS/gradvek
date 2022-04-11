@@ -3,16 +3,12 @@ package com.semis.gradvek.springdb;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,10 +60,31 @@ public class DBTests {
 		assertThat (datasets != null);
 		assertThat (datasets.length == 1);
 		assertThat (!datasets[0].isEnabled ());
-		
 		// put it back
 		toEnable = List.of (				
 				Map.of("dataset", datasets[0].getDataset (), "include", "true")
+			);
+		mController.enableDatasets (toEnable.stream ().toArray (Map[]::new));
+	}
+	
+	@SuppressWarnings ("unchecked")
+	@Test
+	public void testAEByTarget () {
+		List<AdverseEventIntObj> ae = mController.getAdverseEvent ("ENST00000310522").getBody ();
+		
+		assertThat (ae.size () == 2);
+		assertThat (ae.get (0).getMeddraCode ().equals ("10000804"));
+		
+		List<Map<String, String>> toEnable = List.of (				
+			Map.of("dataset", "demo", "include", "false")
+		);
+		mController.enableDatasets (toEnable.stream ().toArray (Map[]::new));
+		
+		ae = mController.getAdverseEvent ("ENST00000310522").getBody ();
+		assertThat (ae.size () == 0);
+		
+		toEnable = List.of (				
+				Map.of("dataset", "demo", "include", "true")
 			);
 		mController.enableDatasets (toEnable.stream ().toArray (Map[]::new));
 	}

@@ -43,6 +43,7 @@ public class AdverseEvent extends NamedEntity {
 	public final List<String> addCommands () {
 		return Collections.singletonList("CREATE (:AdverseEvent " 
 				+ " {" + "meddraCode:\'" + mMeddraCode + "\', "
+				+ "dataset: \'" + getDataset () + "\', "
 				+ "adverseEventId:\'" + StringEscapeUtils.escapeEcmaScript (getName ()) + "\'"
 				+ "})");
 	}

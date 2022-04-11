@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDriverBuilder;
+import org.springframework.web.context.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,7 +26,7 @@ class EndToEndTests {
     private Environment environment;
 
     @BeforeEach
-    void setupEach() {
+    void setupEach(WebApplicationContext context) {
         if (!setupDone) {
             String chromeDriverPath = environment.getProperty("CHROMEDRIVER_PATH");
             if (chromeDriverPath == null) {
@@ -41,7 +43,13 @@ class EndToEndTests {
             setupDone = true;
         }
 
-        driver = new ChromeDriver(options);
+        try {
+        	driver = new ChromeDriver(options);
+        } catch (IllegalStateException isx) { // fallback - chrome driver not installed
+            driver = MockMvcHtmlUnitDriverBuilder
+                    .webAppContextSetup(context)
+                    .build();
+        }
     }
 
     @AfterEach
@@ -54,12 +62,6 @@ class EndToEndTests {
     @Test
     void TestsArePassing() {
         assertThat(true).isTrue();
-    }
-
-    @Test
-    void InfoSaysHello() {
-        driver.get(baseUrl + "/api/info");
-        assertThat(driver.getPageSource()).contains("Hello Gradvek");
     }
 
     @Test

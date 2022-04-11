@@ -41,7 +41,11 @@ public class AssociatedWith extends Edge {
 			"MATCH (from:Drug), (to:AdverseEvent)\n"
 			+ "WHERE from.chembl_code=\'" + getFrom () + "\'\n"
 			+ "AND to.meddraCode=\'" + getTo () + "\'\n"
-			+ "CREATE (from)-[:ASSOCIATED_WITH" + (jsonMap != null ? " {" + jsonMap + "} ": "") + "]->(to)"
+			+ "CREATE (from)-[:ASSOCIATED_WITH" 
+			+ " { dataset: \'" + getDataset () + "\' "
+			+ (jsonMap != null ? (", " + jsonMap) : "")
+			+ "} " 
+			+ "]->(to)"
 		);
 	}
 
