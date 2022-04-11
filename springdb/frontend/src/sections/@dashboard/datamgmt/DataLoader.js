@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from "react";
 import CheckboxParent from "./CheckboxParent";
 
 class DataLoader extends React.Component {
