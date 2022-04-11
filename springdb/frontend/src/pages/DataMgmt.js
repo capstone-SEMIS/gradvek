@@ -16,7 +16,7 @@ export default function DataMgmtPage() {
       <Typography variant="h6" sx={{ mb: 0 }}>
         Import CSV Data into Gradvek:
       </Typography>
-      <EntityCsvImporter />
+      <CsvImporter />
       <br />
       <br />
       <Typography variant="h6" sx={{ mb: 0 }}>
