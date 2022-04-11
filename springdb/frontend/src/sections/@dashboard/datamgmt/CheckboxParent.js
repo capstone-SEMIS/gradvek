@@ -22,43 +22,47 @@ class CheckboxParent extends Component {
 
   handleFormSubmit = formSubmitEvent => {
     formSubmitEvent.preventDefault();
-    console.log("selcb", this.selectedCheckboxes);
 
-    let body = {
-      include: true,
-      selectedCheckboxes: this.selectedCheckboxes
-    };
+    const myselected = document.querySelectorAll("input[type=checkbox]");
+    const newArr = [];
+    myselected.forEach(item => {
+      newArr.push({
+        dataset: item.getAttribute("dataset"),
+        enabled: item.checked
+      });
+    });
+
+    console.log(newArr);
 
     for (const checkbox of this.selectedCheckboxes) {
-      console.log(checkbox, "is selected.");
+      // console.log(checkbox, "is selected.");
     }
     const url = "/api/datasets";
     const objectFromUrl = fetch(url, {
       method: "POST",
-      body: JSON.stringify(body)
+      body: JSON.stringify(newArr)
     });
   };
 
-  createCheckbox = label => (
-    <Checkbox
-      label={label}
-      handleCheckboxChange={this.toggleCheckbox}
-      key={label}
-    />
-  );
-  // createCheckboxes = () => items.map(this.createCheckbox);
+  // createCheckbox = label => (
+  //   <Checkbox
+  //     label={label}
+  //     handleCheckboxChange={this.toggleCheckbox}
+  //     key={label}
+  //   />
+  // );
 
   createCheckboxes = () =>
     this.props.data_array.map((descr, index) => {
-      if (descr.enabled) {
-        return (
-          <Checkbox
-            label={descr.description}
-            handleCheckboxChange={this.toggleCheckbox}
-            key={index}
-          />
-        );
-      }
+      return (
+        <Checkbox
+          label={descr.description}
+          handleCheckboxChange={this.toggleCheckbox}
+          key={index}
+          enabled={descr.enabled}
+          dataset={descr.dataset}
+        />
+      );
     });
 
   render() {
@@ -69,7 +73,7 @@ class CheckboxParent extends Component {
             <form onSubmit={this.handleFormSubmit}>
               {this.createCheckboxes()}
 
-              <Button variant="contained" component="span" type="submit">
+              <Button variant="contained" type="submit">
                 Update Datasets
               </Button>
             </form>

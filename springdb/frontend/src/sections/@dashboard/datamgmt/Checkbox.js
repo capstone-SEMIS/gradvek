@@ -22,16 +22,27 @@ class Checkbox extends Component {
 
     return (
       <div className="checkbox">
-        <label>
-          <input
-            type="checkbox"
-            value={label}
-            checked={isChecked}
-            onChange={this.toggleCheckboxChange}
-          />
-
-          {label}
-        </label>
+        {this.props.enabled ? (
+          <label>
+            <input
+              type="checkbox"
+              value={label}
+              defaultChecked={!isChecked}
+              onChange={this.toggleCheckboxChange}
+              dataset={this.props.dataset}
+            />
+            {label}
+          </label>
+        ) : (
+          <label>
+            <input
+              type="checkbox"
+              value={label}
+              onChange={this.toggleCheckboxChange}
+            />
+            {label}
+          </label>
+        )}
       </div>
     );
   }

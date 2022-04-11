@@ -13,7 +13,7 @@ class DataLoader extends React.Component {
     const url = "/api/datasets";
     const objectFromUrl = await fetch(url);
     const data = await objectFromUrl.json();
-    console.log("data", data);
+    //console.log("data", data);
     this.setState({
       data_array: data
     });
