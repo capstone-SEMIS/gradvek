@@ -34,7 +34,7 @@ class EndToEndTests {
             }
             System.setProperty("webdriver.chrome.driver", chromeDriverPath);
 
-            baseUrl = "http://localhost:3000";
+            baseUrl = "http://localhost:3000/api";
 
             options = new ChromeOptions();
             options.addArguments("--no-sandbox");
@@ -46,6 +46,7 @@ class EndToEndTests {
         try {
         	driver = new ChromeDriver(options);
         } catch (IllegalStateException isx) { // fallback - chrome driver not installed
+            baseUrl = "http://localhost";
             driver = MockMvcHtmlUnitDriverBuilder
                     .webAppContextSetup(context)
                     .build();
@@ -65,12 +66,8 @@ class EndToEndTests {
     }
 
     @Test
-    void csvPost() {
-        // TODO Michael
-    }
-
-    @Test
-    void csvGet() {
-        // TODO Michael
+    void InfoSaysHello() {
+        driver.get(baseUrl + "/info");
+        assertThat(driver.getPageSource()).contains("Hello Gradvek");
     }
 }
