@@ -34,11 +34,11 @@ class CheckboxParent extends Component {
 
     console.log(newArr);
 
-    for (const checkbox of this.selectedCheckboxes) {
-      // console.log(checkbox, "is selected.");
-    }
+    // for (const checkbox of this.selectedCheckboxes) {
+    //   // console.log(checkbox, "is selected.");
+    // }
     const url = "/api/datasets";
-    const objectFromUrl = fetch(url, {
+    await fetch(url, {
       method: "POST",
       body: JSON.stringify(newArr)
     });
