@@ -3,8 +3,8 @@ import { Typography } from "@mui/material";
 
 // components
 import Page from "../components/Page";
-import EntityCsvImporter from "../sections/@dashboard/datamgmt/EntityCsvImporter";
 import DataLoader from "../sections/@dashboard/datamgmt/DataLoader";
+import CsvImporter from "../sections/@dashboard/datamgmt/CsvImporter";
 
 export default function DataMgmtPage() {
   return (

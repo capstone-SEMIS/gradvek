@@ -16,14 +16,21 @@ public class Importer {
 		mDriver = driver;
 	}
 	
-	public final void importParquet (Parquet parquet, EntityType type) {
+	public static final List<Entity> readEntities (Parquet parquet, EntityType type) {
+		Class<? extends Entity> entityClass = type.getEntityClass ();
 		final List<Entity> toImport = new ArrayList<> ();
 		parquet.getData ().stream ().forEach (p -> {
-			Entity entity = EntityFactory.fromParquet (type.getEntityClass (), p);
+			Entity entity = EntityFactory.fromParquet (entityClass, p);
 			if (entity != null) {
 				toImport.add (entity);
 			}
 		});
+	
+		return (toImport);
+	}
+	
+	public final void importParquet (Parquet parquet, EntityType type) {
+		final List<Entity> toImport = readEntities (parquet, type);
 		
 		if (toImport.size () >= 0) {
 			mDriver.add (toImport, type.canCombine ());

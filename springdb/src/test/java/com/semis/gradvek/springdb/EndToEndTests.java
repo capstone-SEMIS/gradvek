@@ -1,14 +1,13 @@
 package com.semis.gradvek.springdb;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDriverBuilder;
-import org.springframework.web.context.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,13 +15,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource(properties = "neo4j.init=false")
 class EndToEndTests {
 
+    boolean setupDone = false;
     WebDriver driver;
+    String baseUrl;
+    ChromeOptions options;
+
+    @Autowired
+    private Environment environment;
 
     @BeforeEach
-    void setup(WebApplicationContext context) {
-        driver = MockMvcHtmlUnitDriverBuilder
-                .webAppContextSetup(context)
-                .build();
+    void setupEach() {
+        if (!setupDone) {
+            String chromeDriverPath = environment.getProperty("CHROMEDRIVER_PATH");
+            if (chromeDriverPath == null) {
+                chromeDriverPath = "/usr/local/bin/chromedriver";
+            }
+            System.setProperty("webdriver.chrome.driver", chromeDriverPath);
+
+            baseUrl = "http://localhost:3000";
+
+            options = new ChromeOptions();
+            options.addArguments("--no-sandbox");
+            options.setHeadless(true);
+
+            setupDone = true;
+        }
+
+        driver = new ChromeDriver(options);
     }
 
     @AfterEach
@@ -38,21 +57,8 @@ class EndToEndTests {
     }
 
     @Test
-    @Disabled
-    void TestsAreFailing() {
-        assertThat(1).isEqualTo(2);
-    }
-
-    @Test
     void InfoSaysHello() {
-        driver.get("http://localhost/info");
+        driver.get(baseUrl + "/api/info");
         assertThat(driver.getPageSource()).contains("Hello Gradvek");
-    }
-
-    @Test
-    @Disabled
-    void InfoSaysGoodbye() {
-        driver.get("http://localhost/info");
-        assertThat(driver.getPageSource()).contains("Goodbye Gradvek");
     }
 }
