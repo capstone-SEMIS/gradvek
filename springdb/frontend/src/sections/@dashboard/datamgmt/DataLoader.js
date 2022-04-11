@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import CheckboxParent from "./CheckboxParent";
 
-class DataLoader extends React.Component {
+class DataLoader extends Component {
   constructor(props) {
     super(props);
     this.state = {

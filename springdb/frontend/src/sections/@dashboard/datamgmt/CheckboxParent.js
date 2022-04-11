@@ -39,6 +39,7 @@ class CheckboxParent extends Component {
       method: "POST",
       body: JSON.stringify(newArr)
     });
+    console.log("datapost", datapost);
   };
 
   createCheckboxes = () =>
