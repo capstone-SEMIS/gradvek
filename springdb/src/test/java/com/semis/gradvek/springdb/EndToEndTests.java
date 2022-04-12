@@ -1,5 +1,6 @@
 package com.semis.gradvek.springdb;
 
+import com.semis.gradvek.springdb.E2ETesting.DashboardPage;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -81,7 +82,7 @@ class EndToEndTests {
         WebDriverWait wait = new WebDriverWait(driver, 5);
 
         driver.get(clientBaseUrl + "/app");
-//        DashboardPage page = new DashboardPage(driver);
+        DashboardPage page = new DashboardPage(driver);
         page.clickSearchIcon();
         page.enterSearchText();
         page.clickSearchBtn();
