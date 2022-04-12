@@ -9,13 +9,13 @@ import com.semis.gradvek.entity.*;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
+
 import org.neo4j.driver.Record;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
+import org.neo4j.driver.*;
 import org.springframework.core.env.Environment;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -34,15 +34,15 @@ public class Neo4jDriver implements DBDriver {
     private final Environment mEnv;
     private String mUri;
 
-	private Neo4jDriver (Environment env, String uri) {
-		mEnv = env;
-		String user = env.getProperty ("neo4j.user");
-		String password = env.getProperty ("neo4j.password");
+    private Neo4jDriver(Environment env, String uri) {
+        mEnv = env;
+        String user = env.getProperty("neo4j.user");
+        String password = env.getProperty("neo4j.password");
 
         mUri = uri;
-		mDriver = GraphDatabase.driver (mUri, AuthTokens.basic (user, password));
+        mDriver = GraphDatabase.driver(mUri, AuthTokens.basic(user, password));
         mLogger.info("Neo4jDriver initialized with URL " + getUri());
-	}
+    }
 
     @Override
     public String getUri() {
@@ -94,7 +94,7 @@ public class Neo4jDriver implements DBDriver {
             final AtomicInteger counter = new AtomicInteger(); // because lambda requires effectively final
             return cmds.stream().collect(Collectors.groupingBy(e -> counter.getAndIncrement() / batchSize)).values();
         } else {
-        	// no chunking
+            // no chunking
             return (Collections.singletonList(cmds));
         }
     }
@@ -215,24 +215,49 @@ public class Neo4jDriver implements DBDriver {
         }
     }
 
+    private final boolean checkDatasets (String... datasetNames) {
+    	List<Dataset> datasets = getDatasets ();
+    	Map<String, Boolean> enabled = new HashMap<> ();
+    	datasets.forEach (d -> enabled.put (d.getDataset (), d.isEnabled ()));
+    	boolean ret = true;
+    	
+    	for (String name: datasetNames) {
+    		if (name != null && !name.isEmpty ()) {
+    			ret = ret && enabled.getOrDefault (name, true);
+    		}
+    	}
+    	
+    	return (ret);
+    }
+    
     @Override
     public List<AdverseEventIntObj> getAEByTarget(String target) {
         mLogger.info("Getting adverse event by target " + target);
         try (Session session = mDriver.session()) {
             return session.readTransaction(tx -> {
-                String cmd = "match n=(e:AdverseEvent)-[c:ASSOCIATED_WITH]-(:Drug)-[:TARGETS]-(:Target {symbol:'"
-						+ target + "'}) return e, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc";
-				Result result = tx.run (cmd);
+                String cmd = "match n=(e:AdverseEvent)-[c:ASSOCIATED_WITH]-(d:Drug)-[r:TARGETS]-(t:Target {symbol:'"
+                        + target + "'}) return e.dataset, c.dataset, d.dataset, r.dataset, t.dataset, e, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc";
+                Result result = tx.run(cmd);
                 List<AdverseEventIntObj> finalMap = new LinkedList<>();
                 while (result.hasNext()) {
-                    Record record = result.next();
-                    String name = record.fields().get(0).value().asEntity().get("adverseEventId").asString();
-                    String id = record.fields().get(0).value().asEntity().get("adverseEventId").asString();
-                    String code = record.fields().get(0).value().asEntity().get("meddraCode").asString();
-
-                    AdverseEventIntObj ae = new AdverseEventIntObj(name, name, code);
-                    ae.setLlr(record.fields().get(1).value().asDouble());
-                    finalMap.add (ae);
+                  Record record = result.next();
+ 
+                	boolean allEnabled = checkDatasets (
+                    		record.fields ().get (0).value ().asString (),
+                    		record.fields ().get (1).value ().asString (),
+                    		record.fields ().get (2).value ().asString (),
+                    		record.fields ().get (3).value ().asString (),
+                    		record.fields ().get (4).value ().asString ()
+                    	);
+                	
+                	if (allEnabled) {
+	                    String id = record.fields().get(5).value().asEntity().get("adverseEventId").asString();
+	                    String code = record.fields().get(5).value().asEntity().get("meddraCode").asString();
+	                    AdverseEventIntObj ae = new AdverseEventIntObj(id, id, code);
+	                    ae.setLlr(record.fields().get(6).value().asDouble());
+	
+	                    finalMap.add(ae);
+                	}
                 }
                 return finalMap;
             });
@@ -342,12 +367,20 @@ public class Neo4jDriver implements DBDriver {
         }
 
         // the id of this entity's dataset is the file name
+        add(new Dataset(csvFile.getName(), csvFile.getType() + " : " + csvFile.getLabel(), csvFile.getOriginalName(), System.currentTimeMillis()));
+
         long stopTime = System.currentTimeMillis();
-        add (new Dataset (url.substring (url.lastIndexOf ('/') + 1), csvFile.getColumns().get (0), url, stopTime));
         mLogger.info("CSV " + csvFile.getName() + " loaded in " + (stopTime - startTime) / 1000.0 + " seconds");
     }
 
     public static String loadCsvCommand(String url, CsvFile csvFile) {
+        String csvType = csvFile.getType();
+        if (!csvType.equalsIgnoreCase("Node") && !csvType.equalsIgnoreCase("Relationship")) {
+            mLogger.severe("CSV file " + csvFile.getName() +
+                    " has type " + csvType + " instead of Node or Relationship");
+            return null;
+        }
+
         List<String> columns = csvFile.getColumns();
 
         // Properties start at column 1 for nodes, 3 for relationships
@@ -358,97 +391,82 @@ public class Neo4jDriver implements DBDriver {
 
         // Build the property string
         StringBuilder propBuilder = new StringBuilder();
+        propBuilder.append(" { dataset: '").append(csvFile.getName()).append("'");  // add dataset reference
         for (int i = propStartIdx; i < columns.size(); ++i) {
-            if (propBuilder.length() == 0) {
-                propBuilder.append("{");
-            } else {
-                propBuilder.append(", ");
-            }
-            String prop = columns.get(i);
-            propBuilder.append(prop + ": line[" + i + "]");
+            propBuilder.append(", ").append(columns.get(i)).append(": line[").append(i).append("]");
         }
-        // add dataset reference
-		propBuilder.append (", dataset: '" + url.substring (url.lastIndexOf ('/') + 1) + "'");
-		
-        propBuilder.append("}");
-        String properties = columns.size() > propStartIdx ? propBuilder.toString() : "";
+        propBuilder.append(" }");
+        String properties = propBuilder.toString();
 
         // Build the command string
         String commandPattern = "LOAD CSV FROM '" + url + "' AS line CALL { WITH line %s } IN TRANSACTIONS";
         String commandCore = null;
         if (csvFile.getType().equalsIgnoreCase("Relationship")) {
+            if (columns.size() < 3) {
+                mLogger.severe("Relationship file " + csvFile.getName() + " requires both FROM and TO ids");
+                return null;
+            }
             String fromIdProp = columns.get(1);
             String toIdProp = columns.get(2);
-            String fromIdLabel = EntityType.fromIndex(fromIdProp).name();
-            String toIdLabel = EntityType.fromIndex(toIdProp).name();
+            EntityType fromEntityType = EntityType.fromIndex(fromIdProp);
+            if (fromEntityType == null) {
+                mLogger.severe("Unrecognized FROM id " + fromIdProp + " in file " + csvFile.getName());
+                return null;
+            }
+            String fromIdLabel = fromEntityType.name();
+            EntityType toEntityType = EntityType.fromIndex(toIdProp);
+            if (toEntityType == null) {
+                mLogger.severe("Unrecognized TO id " + toIdProp + " in file " + csvFile.getName());
+                return null;
+            }
+            String toIdLabel = toEntityType.name();
             commandCore =
                     "MATCH (fromNode:" + fromIdLabel + " {" + fromIdProp + ": line[1]}),"
                             + " (toNode:" + toIdLabel + " {" + toIdProp + ": line[2]})"
-                            + " CREATE (fromNode)-[:" + csvFile.getLabel() + " " + properties + "]->(toNode)";
+                            + " CREATE (fromNode)-[:" + csvFile.getLabel() + properties + "]->(toNode)";
         } else if (csvFile.getType().equalsIgnoreCase("Node")) {
-            commandCore = String.format("CREATE (:%s %s)", csvFile.getLabel(), properties);
+            commandCore = String.format("CREATE (:%s%s)", csvFile.getLabel(), properties);
         }
-        String command = String.format(commandPattern, commandCore);
 
-        return command;
+        return String.format(commandPattern, commandCore);
     }
 
-	@Override
-	public List<Dataset> getDatasets () {
+    @Override
+    public List<Dataset> getDatasets() {
         try (Session session = mDriver.session()) {
             return session.readTransaction(tx -> {
                 Result result = tx.run(
-                		"MATCH (d:Dataset) RETURN d.dataset, d.description, d.source, d.timestamp, d.enabled ORDER BY d.identity DESC"
-                		);
+                        "MATCH (d:Dataset) RETURN d.dataset, d.description, d.source, d.timestamp, d.enabled ORDER BY d.identity DESC"
+                );
                 List<Dataset> ret = new LinkedList<>();
                 while (result.hasNext()) {
                     Record record = result.next();
-                    Dataset d = new Dataset (
-                    		record.get ("d.dataset").asString (),
-                    		record.get ("d.description").asString (),
-                    		record.get ("d.source").asString (),
-                    		record.get ("d.timestamp").asLong ()
-                    		);
-                    d.setEnabled (record.get ("d.enabled", true));
-                    ret.add (d);
+                    Dataset d = new Dataset(
+                            record.get("d.dataset").asString(),
+                            record.get("d.description").asString(),
+                            record.get("d.source").asString(),
+                            record.get("d.timestamp").asLong()
+                    );
+                    d.setEnabled(record.get("d.enabled", true));
+                    ret.add(d);
                 }
                 return ret;
             });
         }
-	}
+    }
 
-//		return (List.of (
-//				new Dataset (
-//						"Target", "Core annotation for targets",
-//						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
-//						1647831895L
-//						),
-//				new Dataset (
-//						"Drug", "Core annotation for drugs",
-//						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
-//						1647831895L
-//						),
-//				new Dataset (
-//						"AdverseEvent", "Significant adverse events for drug molecules",
-//						"ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/latest/output/etl/parquet/targets",
-//						1647831895L
-//						)
-//				)
-//		);
-//	}
-
-	@Override
-	public void enableDataset (String datasetName, boolean enable) {
+    @Override
+    public void enableDataset(String datasetName, boolean enable) {
         try (final Session session = mDriver.session()) {
             try (Transaction tx = session.beginTransaction()) {
-                tx.run (
-                		"MATCH (d:Dataset { dataset: \'"
-                		+ datasetName
-                		+ "\' }) SET d.enabled="
-                		+ enable
+                tx.run(
+                        "MATCH (d:Dataset { dataset: \'"
+                                + datasetName
+                                + "\' }) SET d.enabled="
+                                + enable
                 );
                 tx.commit();
             }
         }
-	}
+    }
 }

@@ -4,7 +4,11 @@ import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.csv.CsvService;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,21 +18,195 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatObject;
 
 @SpringBootTest
-@TestPropertySource(properties = "neo4j.init=false")
+@TestPropertySource(properties = "db.type=inmem")
 class CsvTests {
+    @Autowired
+    private Controller controller;
+
     @Test
-    void loadCsvCommand() {
-        // TODO Michael
+    void loadCsvNeitherNodeNorRelationship() {
+        CsvService csvService = CsvService.getInstance();
+
+        CsvTestFile csvTest = new CsvTestFile("test");
+        csvTest.setHeaders(List.of("greeting", "object"));
+        csvTest.addRow(List.of("hello", "world"));
+
+        CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
+
+        String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
+        assertThat(command).isNull();
+    }
+
+    @Test
+    void loadCsvPlainNode() {
+        CsvService csvService = CsvService.getInstance();
+
+        CsvTestFile csvTest = new CsvTestFile("test");
+        csvTest.setHeaders(List.of("Node"));
+        csvTest.addRow(List.of("hello"));
+
+        CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
+
+        String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line CREATE (:hello { dataset: 'test_hello' }) } IN TRANSACTIONS";
+        assertThat(command).isEqualTo(expected);
+    }
+
+    @Test
+    void loadCsv1PropNode() {
+        CsvService csvService = CsvService.getInstance();
+
+        CsvTestFile csvTest = new CsvTestFile("test");
+        csvTest.setHeaders(List.of("Node", "firstProp"));
+        csvTest.addRow(List.of("hello", "world"));
+
+        CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
+
+        String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line CREATE (:hello { dataset: 'test_hello', firstProp: line[1] }) } IN TRANSACTIONS";
+        assertThat(command).isEqualTo(expected);
+    }
+
+    @Test
+    void loadCsv2PropNode() {
+        CsvService csvService = CsvService.getInstance();
+
+        CsvTestFile csvTest = new CsvTestFile("test");
+        csvTest.setHeaders(List.of("Node", "firstProp", "secondProp"));
+        csvTest.addRow(List.of("hello", "beautiful", "world"));
+
+        CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
+
+        String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line CREATE (:hello { dataset: 'test_hello', firstProp: line[1], secondProp: line[2] }) } IN TRANSACTIONS";
+        assertThat(command).isEqualTo(expected);
+    }
+
+    @Test
+    void loadCsvRelationshipNoIds() {
+        CsvService csvService = CsvService.getInstance();
+
+        CsvTestFile csvTest = new CsvTestFile("test");
+        csvTest.setHeaders(List.of("Relationship"));
+        csvTest.addRow(List.of("hello"));
+
+        CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
+
+        String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
+        assertThat(command).isNull();
+    }
+
+
+    @Test
+    void loadCsvRelationshipBadFirstId() {
+        CsvService csvService = CsvService.getInstance();
+
+        CsvTestFile csvTest = new CsvTestFile("test");
+        csvTest.setHeaders(List.of("Relationship", "not_a_meddraCode", "chembl_code"));
+        csvTest.addRow(List.of("hello", "beautiful", "world"));
+
+        CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
+
+        String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
+        assertThat(command).isNull();
+    }
+
+    @Test
+    void loadCsvRelationshipBadSecondId() {
+        CsvService csvService = CsvService.getInstance();
+
+        CsvTestFile csvTest = new CsvTestFile("test");
+        csvTest.setHeaders(List.of("Relationship", "meddraCode", "not_a_chembl_code"));
+        csvTest.addRow(List.of("hello", "beautiful", "world"));
+
+        CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
+
+        String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
+        assertThat(command).isNull();
+    }
+
+    @Test
+    void loadCsvRelationshipDrugGene() {
+        CsvService csvService = CsvService.getInstance();
+
+        CsvTestFile csvTest = new CsvTestFile("test");
+        csvTest.setHeaders(List.of("Relationship", "chembl_code", "geneId"));
+        csvTest.addRow(List.of("hello", "beautiful", "world"));
+
+        CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
+
+        String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Drug {chembl_code: line[1]}), (toNode:Gene {geneId: line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello' }]->(toNode) } IN TRANSACTIONS";
+        assertThat(command).isEqualTo(expected);
+    }
+
+    @Test
+    void loadCsvRelationshipTargetPathway1Prop() {
+        CsvService csvService = CsvService.getInstance();
+
+        CsvTestFile csvTest = new CsvTestFile("test");
+        csvTest.setHeaders(List.of("Relationship", "targetId", "pathwayId", "firstProp"));
+        csvTest.addRow(List.of("hello", "strange", "beautiful", "world"));
+
+        CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
+
+        String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Target {targetId: line[1]}), (toNode:Pathway {pathwayId: line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello', firstProp: line[3] }]->(toNode) } IN TRANSACTIONS";
+        assertThat(command).isEqualTo(expected);
+    }
+
+    @Test
+    void loadCsvRelationshipAeAe2Prop() {
+        CsvService csvService = CsvService.getInstance();
+
+        CsvTestFile csvTest = new CsvTestFile("test");
+        csvTest.setHeaders(List.of("Relationship", "meddraCode", "meddraCode", "firstProp", "secondProp"));
+        csvTest.addRow(List.of("hello", "strange", "beautiful", "bittersweet", "world"));
+
+        CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
+
+        String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:AdverseEvent {meddraCode: line[1]}), (toNode:AdverseEvent {meddraCode: line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello', firstProp: line[3], secondProp: line[4] }]->(toNode) } IN TRANSACTIONS";
+        assertThat(command).isEqualTo(expected);
+    }
+
+    @Test
+    void csvPostBadRequest() {
+        CsvTestFile file = new CsvTestFile("test");
+        file.setHeaders(List.of("hello"));
+        ResponseEntity<Map<String, String>> response = controller.csvPostProcess(file, "https://example.com", "/api");
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void csvPostGet() throws IOException {
+        CsvTestFile file = new CsvTestFile("test");
+        file.setHeaders(List.of("Node"));
+        file.addRow(List.of("hello"));
+
+        ResponseEntity<Map<String, String>> postResponse = controller.csvPostProcess(file, "https://example.com", "/api");
+        assertThat(postResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(postResponse.getBody()).isNotNull();
+        assertThat(postResponse.getBody().size()).isEqualTo(1);
+        String fileId = postResponse.getBody().keySet().iterator().next();
+        assertThat(postResponse.getBody()).containsValue("test_hello");
+
+        ResponseEntity<InputStreamResource> getResponse = controller.csvGet(fileId);
+        assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(getResponse.getBody()).isNotNull();
+        String contents = new String(getResponse.getBody().getInputStream().readAllBytes());
+        assertThat(contents).isEqualTo("hello\n");
     }
 
     @Test
     void csvFileNull() {
-        CsvFile file = new CsvFile(null, "name", "type", "label", List.of(""));
+        CsvFile file = new CsvFile(null, "name", "originalName.csv", "type", "label", List.of(""));
         assertThat(file.getInputStream()).isNull();
     }
 
@@ -38,7 +216,6 @@ class CsvTests {
         CsvService csvService2 = CsvService.getInstance();
         assertThatObject(csvService1).isSameAs(csvService2);
     }
-
 
     @Test
     void csvServiceSimpleCsv() {
@@ -74,6 +251,7 @@ class CsvTests {
         assertThat(copy.getColumns()).containsExactly(header1, header2);
         assertThat(copy.getType()).isEqualTo(header1);
         assertThat(copy.getLabel()).isEqualTo(col1);
+        assertThat(copy.getOriginalName()).isEqualTo(name + ".csv");
     }
 
     @Test
@@ -157,7 +335,34 @@ class CsvTests {
 
 class CsvTestFile implements MultipartFile {
     private final String name;
-    private final String contents;
+    private String contents;
+
+    CsvTestFile(String name) {
+        this.name = name;
+    }
+
+    public void setHeaders(List<String> headers) {
+        contents = "";
+        for (int i = 0; i < headers.size(); ++i) {
+            if (i == 0) {
+                contents += headers.get(i);
+            } else {
+                contents = contents.concat("," + headers.get(i));
+            }
+        }
+        contents += "\n";
+    }
+
+    public void addRow(List<String> elements) {
+        for (int i = 0; i < elements.size(); ++i) {
+            if (i == 0) {
+                contents += elements.get(i);
+            } else {
+                contents = contents.concat("," + elements.get(i));
+            }
+        }
+        contents += "\n";
+    }
 
     CsvTestFile(String name, String contents) {
         this.name = name;

@@ -55,6 +55,7 @@ public class Pathway extends NamedEntity {
 				+ " {" 
 				+ "pathwayCode:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
 				+ "pathwayId:\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\', "
+				+ "dataset: \'" + getDataset () + "\', "
 				+ "topLevelTerm:\'" + StringEscapeUtils.escapeEcmaScript (mTerm) + "\'"
 				+ "})");
 

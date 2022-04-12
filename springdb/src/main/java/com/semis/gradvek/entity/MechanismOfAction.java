@@ -85,7 +85,12 @@ public class MechanismOfAction extends Edges {
 				String cmd = "MATCH (from:Drug), (to:Target)\n"
 						+ "WHERE from.chembl_code=\'" + from + "\'\n"
 						+ "AND to.targetId=\'" + to + "\'\n"
-						+ "CREATE (from)-[:TARGETS" + (jsonMap != null ? " {" + jsonMap + "} ": "") + "]->(to)";
+						+ "CREATE (from)-[:TARGETS"
+						+ " { dataset: \'" + getDataset () + "\' "
+						+ (jsonMap != null ? (", " + jsonMap) : "")
+						+ "} " 
+						+ "]->(to)";
+
 				commands.add (cmd.toString());
 			});
 		});

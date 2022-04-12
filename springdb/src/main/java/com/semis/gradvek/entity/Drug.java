@@ -98,6 +98,7 @@ message spark_schema {
 	@Override
 	public final List<String> addCommands () {
 		return Collections.singletonList("CREATE (:Drug" + " {" + "drugId:\'" + StringEscapeUtils.escapeEcmaScript (getName ()) + "\', "
+				+ "dataset: \'" + getDataset () + "\', "
 				+ "chembl_code:\'" + StringEscapeUtils.escapeEcmaScript (mChemblCode) + "\'})");
 	}
 	
