@@ -1,9 +1,12 @@
 package com.semis.gradvek.springdb;
 
 import org.junit.jupiter.api.*;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
@@ -20,6 +23,7 @@ class EndToEndTests {
     boolean setupDone = false;
     WebDriver driver;
     String baseUrl;
+    String clientBaseUrl;
     ChromeOptions options;
 
     @Autowired
@@ -35,6 +39,7 @@ class EndToEndTests {
             System.setProperty("webdriver.chrome.driver", chromeDriverPath);
 
             baseUrl = "http://localhost:3000/api";
+            clientBaseUrl = "http://localhost:3000/dashboard";
 
             options = new ChromeOptions();
             options.addArguments("--no-sandbox");
@@ -69,5 +74,19 @@ class EndToEndTests {
     void InfoSaysHello() {
         driver.get(baseUrl + "/info");
         assertThat(driver.getPageSource()).contains("Hello Gradvek");
+    }
+
+    @Test
+    void queryReturnsResults() {
+        WebDriverWait wait = new WebDriverWait(driver, 5);
+
+        driver.get(clientBaseUrl + "/app");
+//        DashboardPage page = new DashboardPage(driver);
+        page.clickSearchIcon();
+        page.enterSearchText();
+        page.clickSearchBtn();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("results-table")));
+        assertThat(driver.findElement(By.id("results-table")).getText()).contains("liver injury");
     }
 }
