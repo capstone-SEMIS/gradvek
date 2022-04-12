@@ -1,13 +1,11 @@
 package com.semis.gradvek.cytoscape;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 public class Relationship extends CytoscapeEntity {
 
-    private Long id;
     private String group = "edges";
-    private ArrayList<String> classes = new ArrayList<>();
+//    private ArrayList<String> classes = new ArrayList<>();
 
     public Relationship(Long id, Map<String, String> data) {
         super(id, data);
@@ -15,7 +13,7 @@ public class Relationship extends CytoscapeEntity {
 
     public Relationship(Long id, String classes, Map<String, String> data) {
         super(id, data);
-        this.classes.add(classes);
+        super.getClasses().add(classes);
     }
 
     @Override
@@ -25,7 +23,6 @@ public class Relationship extends CytoscapeEntity {
 
     @Override
     public void setId(Long id) {
-        this.id = id;
         super.setId(id);
     }
 
@@ -39,11 +36,11 @@ public class Relationship extends CytoscapeEntity {
         this.group = group;
     }
 
-    public ArrayList<String> getClasses() {
-        return classes;
-    }
-
-    public void setClasses(ArrayList<String> classes) {
-        this.classes = classes;
-    }
+//    public ArrayList<String> getClasses() {
+//        return classes;
+//    }
+//
+//    public void setClasses(ArrayList<String> classes) {
+//        super.setClasses(classes);
+//    }
 }

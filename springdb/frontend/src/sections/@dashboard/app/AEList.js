@@ -12,7 +12,7 @@ AEList.propTypes = {
 
 export default function AEList({ graphNodes, filterHandler}) {
     let AEs = graphNodes.filter( (graphNode) => {
-        return graphNode.classes?.includes("adverse event");
+        return graphNode.classes?.includes("adverse-event");
     });
     return (
         <Card>
@@ -21,7 +21,7 @@ export default function AEList({ graphNodes, filterHandler}) {
                     <TableHead>
                         <TableRow>
                             <TableCell>
-                                ID
+                                Adverse Event
                             </TableCell>
                             <TableCell>
                                 Weight

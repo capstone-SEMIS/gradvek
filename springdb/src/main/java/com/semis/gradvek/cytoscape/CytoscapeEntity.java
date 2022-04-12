@@ -1,5 +1,6 @@
 package com.semis.gradvek.cytoscape;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public abstract class CytoscapeEntity {
@@ -7,6 +8,7 @@ public abstract class CytoscapeEntity {
     private Long id;
     private String group;
     private Map<String, String> data;
+    private ArrayList<String> classes = new ArrayList<>();
 
     protected CytoscapeEntity(Long id, Map<String, String> data) {
         this.id = id;
@@ -35,5 +37,13 @@ public abstract class CytoscapeEntity {
 
     public void setData(Map<String, String> data) {
         this.data = data;
+    }
+
+    public ArrayList<String> getClasses() {
+        return classes;
+    }
+
+    public void setClasses(ArrayList<String> classes) {
+        this.classes = classes;
     }
 }

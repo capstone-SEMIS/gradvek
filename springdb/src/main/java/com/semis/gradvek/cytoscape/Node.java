@@ -1,20 +1,16 @@
 package com.semis.gradvek.cytoscape;
 
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class Node extends CytoscapeEntity {
 
-    Long id;
     String group = "nodes";
-    ArrayList<String> classes = new ArrayList<>();
-//    Map<String, String> data = new HashMap<>();
+//    ArrayList<String> classes = new ArrayList<>();
 
     public Node(Long id, String classes, Map<String, String> data) {
         super(id, data);
-        this.classes.add(classes);
+        super.getClasses().add(classes);
     }
 
     @Override
@@ -24,7 +20,6 @@ public class Node extends CytoscapeEntity {
 
     @Override
     public void setId(Long id) {
-//        this.id = id;
         super.setId(id);
     }
 
@@ -39,12 +34,12 @@ public class Node extends CytoscapeEntity {
     }
 
     public ArrayList<String> getClasses() {
-        return classes;
+        return super.getClasses();
     }
-
-    public void setClasses(ArrayList<String> classes) {
-        this.classes = classes;
-    }
+//
+//    public void setClasses(ArrayList<String> classes) {
+//        this.classes = classes;
+//    }
 
     public Map<String, String> getData() {
         return super.getData();

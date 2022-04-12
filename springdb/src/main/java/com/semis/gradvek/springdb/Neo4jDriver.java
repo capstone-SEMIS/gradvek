@@ -260,7 +260,7 @@ public class Neo4jDriver implements DBDriver {
                                 dataMap.put("meddraCode", node.asMap().get("meddraCode").toString());
                                 dataMap.put("name", node.asMap().get("adverseEventId").toString());
 
-								CytoscapeEntity entity = new Node(node.id(),"adverse event", dataMap);
+								CytoscapeEntity entity = new Node(node.id(),"adverse-event", dataMap);
 								entitiesInvolved.put(node.id(), entity);
 							} else if (node.hasLabel("Drug")) {
 
@@ -275,7 +275,7 @@ public class Neo4jDriver implements DBDriver {
 
                                 dataMap.put("id", String.valueOf(node.id()));
                                 dataMap.put("targetId", node.asMap().get("targetId").toString());
-                                dataMap.put("name", node.asMap().get("name").toString());
+                                dataMap.put("name", node.asMap().get("symbol").toString());
                                 dataMap.put("symbol", node.asMap().get("symbol").toString());
 
                                 CytoscapeEntity entity = new Node(node.id(), "target", dataMap);
@@ -306,7 +306,7 @@ public class Neo4jDriver implements DBDriver {
                                 relationshipMap.put("source", drug.getId().toString());
                                 relationshipMap.put("target", ae.getId().toString());
                                 relationshipMap.put("arrow", "vee");
-                                relationshipMap.put("action", relationship.type());
+                                relationshipMap.put("action", relationship.type().replace("_", " "));
 
                                 entity = new Relationship(relationship.id(), relationshipMap);
 

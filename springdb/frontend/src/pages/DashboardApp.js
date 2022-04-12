@@ -23,7 +23,8 @@ export default class DashboardApp extends Component {
   }
 
   handleResultsChange(results) {
-    this.setState({resultNodes: results})
+    this.setState({focusNode:{}});
+    this.setState({resultNodes: results});
   }
   
   AEfilterCallback(AE_id) {

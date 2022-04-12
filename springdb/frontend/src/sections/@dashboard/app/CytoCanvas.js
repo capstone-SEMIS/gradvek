@@ -48,6 +48,7 @@ export default class CytoCanvas extends Component {
             // show neighbouring elements only
             neighbouringNodes.style("display", "element");
             neighbouringNodes.layout({name:"breadthfirst"}).run();
+            // neighbouringNodes.layout({name:"circle"}).run();
             this.state.cytoInstance.fit(neighbouringNodes);
         }
         else {
@@ -65,10 +66,17 @@ export default class CytoCanvas extends Component {
                 'background-color': '#8b786d',
                 "color": "#8b786d",
                 'label': 'data(name)',
+                'text-valign': 'center',
+                'text-outline-color': 'white',
+                // 'text-outline-opacity': '50%',
+                'text-outline-width' : '2px',
+                // 'text-background-padding' : '2px',
+                // 'text-border-width': '1px',
+                // 'text-border-color': 'white',
             }
         },
         {
-            selector: '.pathway[:compound]',
+            selector: '.pathway',
             style: {
                 "background-color": "#78a1bb",
                 "background-opacity": "0.15"
@@ -99,7 +107,8 @@ export default class CytoCanvas extends Component {
                 'target-arrow-color': '#ccc',
                 'target-arrow-shape': 'triangle',
                 'curve-style': 'bezier',
-                "label": "data(action)"
+                "label": "data(action)",
+                "text-rotation": "autorotate",
             }
         },
 
