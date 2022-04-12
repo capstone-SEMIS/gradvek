@@ -98,7 +98,7 @@ export default function Searchbar({onResultsChange}) {
               <ClickAwayListener onClickAway={handleClose}>
                   <div>
                       {!isOpen && (
-                          <IconButton onClick={handleOpen}>
+                          <IconButton id="search-icon" onClick={handleOpen}>
                               <Iconify icon="eva:search-fill" width={20} height={20} />
                           </IconButton>
                       )}
@@ -108,6 +108,7 @@ export default function Searchbar({onResultsChange}) {
                               <FormikProvider value={formik}>
                                   <Form autoComplete="off" noValidate onSubmit={formik.handleSubmit}>
                                       <Input
+                                          id="search-input"
                                           autoFocus
                                           fullWidth
                                           {...getFieldProps('searchText')}
@@ -125,6 +126,7 @@ export default function Searchbar({onResultsChange}) {
                                       />
                                       <LoadingButton
                                           type="submit"
+                                          id="submit-btn"
                                           variant="contained"
                                           loading={isSubmitting}
                                       >

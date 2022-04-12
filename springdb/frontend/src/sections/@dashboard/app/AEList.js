@@ -18,7 +18,7 @@ export default function AEList({ graphNodes, filterHandler}) {
     return (
         <Card>
             <TableContainer>
-                <Table>
+                <Table id="results-table">
                     <TableHead>
                         <TableRow>
                             <TableCell>
