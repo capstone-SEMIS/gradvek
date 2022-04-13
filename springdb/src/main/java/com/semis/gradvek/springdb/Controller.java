@@ -279,7 +279,7 @@ public class Controller {
 	@PostMapping ("/datasets")
 	public ResponseEntity<Void>  enableDatasets (@RequestBody Map<String, String>[] datasets) {
 		for (Map<String, String> dataset: datasets) {
-			mDriver.enableDataset (dataset.get ("dataset"), Boolean.valueOf (dataset.get ("include")));
+			mDriver.enableDataset (dataset.get ("dataset"), Boolean.valueOf (dataset.get ("enabled")));
 		}
 		return new ResponseEntity<Void> (HttpStatus.OK);		
 	}
