@@ -79,6 +79,22 @@ public class TestDBDriver implements DBDriver {
 		
 	}
 	
+	private boolean checkDataset (EntityType type, String... ids) {
+		boolean ret = true;
+				
+		for (String id: ids) {
+			Entity e = getEntity (type.getEntityClass (), id);
+			if (e != null) {
+				Dataset ds = getEntity (Dataset.class, e.getDataset ());
+				if (ds != null) {
+					ret = ret && ds.isEnabled ();
+				}
+			}
+		}
+		
+		return (ret);
+	}
+	
 	@Override
 	public List<AdverseEventIntObj> getAEByTarget (String target) {
 		final List<AdverseEventIntObj> ret = new ArrayList<> ();
@@ -99,18 +115,22 @@ public class TestDBDriver implements DBDriver {
 		final Set<String> drugs = new HashSet<> ();
 		mechanisms.stream ().forEach (m -> {
 			if (m.getTo ().contains (target)) {
-				drugs.addAll (m.getFrom ());
+				if (checkDataset (EntityType.Target, target)) {
+					drugs.addAll (m.getFrom ());
+				}
 			}
 		});
 
 		associations.stream ().forEach (a -> {
 			String drugId = a.getFrom ();
 			if (drugs.contains (drugId)) {
-				AdverseEventIntObj ae = new AdverseEventIntObj (
-						getEntity (AdverseEvent.class, a.getTo ()),
-						a.getParams ().get ("llr")
-				);
-				ret.add (ae);
+				if (checkDataset (EntityType.Drug, drugId) && checkDataset (EntityType.AdverseEvent, a.getTo ())) {
+					AdverseEventIntObj ae = new AdverseEventIntObj (
+							getEntity (AdverseEvent.class, a.getTo ()),
+							a.getParams ().get ("llr")
+					);
+					ret.add (ae);
+				}
 			}
 		});
 		

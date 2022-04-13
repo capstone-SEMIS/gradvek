@@ -3,8 +3,6 @@ package com.semis.gradvek.entity;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import javax.management.RuntimeErrorException;
-
 import org.apache.parquet.example.data.Group;
 
 import com.google.gson.FieldNamingStrategy;
@@ -22,7 +20,7 @@ public abstract class Entity {
 	private String mFromDataset = null;
 	
 	public String getDataset () {
-		return (mFromDataset != null ? mFromDataset : getType ().toString ());
+		return (mFromDataset);
 	}
 
 	public void setDataset (String dataset) {

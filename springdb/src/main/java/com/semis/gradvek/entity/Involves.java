@@ -32,7 +32,12 @@ public class Involves extends Edges {
 			String cmd = "MATCH (from:Target), (to:Gene)\n"
 					+ "WHERE from.targetId=\'" + from + "\'\n"
 					+ "AND to.geneId=\'" + to + "\'\n"
-					+ "CREATE (from)-[:INVOLVES" + (jsonMap != null ? " {" + jsonMap + "} ": "") + "]->(to)";
+					+ "CREATE (from)-[:INVOLVES"
+					+ " { dataset: \'" + getDataset () + "\' "
+					+ (jsonMap != null ? (", " + jsonMap) : "")
+					+ "} " 
+					+ "]->(to)";
+
 			commands.add (cmd.toString());
 		});
 

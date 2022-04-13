@@ -314,6 +314,7 @@ message spark_schema {
 		ret.add ("CREATE (:Target" 
 				+ " {" + "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
 				+ "targetId:\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\', "
+				+ "dataset: \'" + getDataset () + "\', "
 				+ "symbol:\'" + StringEscapeUtils.escapeEcmaScript (mSymbol) + "\'"
 				+ "})");
 

@@ -1,7 +1,6 @@
 package com.semis.gradvek.springdb;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.gson.JsonObject;
 import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.csv.CsvService;
 import com.semis.gradvek.entity.AdverseEvent;
@@ -242,7 +241,10 @@ public class Controller {
 		demoEntities.add (new Participates (
 				Collections.singletonList ("ENSG00000073756"),
 				Collections.singletonList ("R-HSA-2162123"), null));
-		demoEntities.add (new Dataset ("demo", "demo entities", "hardcoded", System.currentTimeMillis ()));
+		
+		Dataset demoDataset = new Dataset ("demo", "demo entities", "hardcoded", System.currentTimeMillis ());
+		demoEntities.forEach (e -> e.setDataset ("demo"));
+		demoEntities.add (demoDataset);
 
 		mDriver.add (demoEntities, false);
 		return new ResponseEntity<Void> (HttpStatus.OK);
@@ -277,7 +279,7 @@ public class Controller {
 	@PostMapping ("/datasets")
 	public ResponseEntity<Void>  enableDatasets (@RequestBody Map<String, String>[] datasets) {
 		for (Map<String, String> dataset: datasets) {
-			mDriver.enableDataset (dataset.get ("dataset"), Boolean.valueOf (dataset.get ("include")));
+			mDriver.enableDataset (dataset.get ("dataset"), Boolean.valueOf (dataset.get ("enabled")));
 		}
 		return new ResponseEntity<Void> (HttpStatus.OK);		
 	}
