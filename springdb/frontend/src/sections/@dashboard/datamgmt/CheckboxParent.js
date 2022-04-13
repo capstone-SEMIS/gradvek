@@ -32,14 +32,30 @@ class CheckboxParent extends Component {
       });
     });
 
-    console.log(newArr);
+    console.log("newArr", newArr);
 
     const url = "/api/datasets";
     const datapost = fetch(url, {
       method: "POST",
+      headers: { contentType: "application/json; charset=UTF-8" },
       body: JSON.stringify(newArr)
     });
     console.log("datapost", datapost);
+
+    datapost
+      .then(response => {
+        if (response.status >= 200 && response.status < 300) {
+          return Promise.resolve(response);
+        }
+        return Promise.reject(new Error(response.statusText));
+      })
+      .then(result => {
+        console.log(result);
+      })
+      .catch(error => {
+        // common error
+        return null;
+      });
   };
 
   createCheckboxes = () =>
