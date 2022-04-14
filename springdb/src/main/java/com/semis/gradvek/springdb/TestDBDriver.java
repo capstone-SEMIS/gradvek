@@ -114,13 +114,13 @@ public class TestDBDriver implements DBDriver {
 
 		// retrieve all drugs acting this target
 		final Set<String> drugs = new HashSet<> ();
-		mechanisms.stream ().forEach (m -> {
+		for (MechanismOfAction m: mechanisms) {
 			if (m.getTo ().contains (target)) {
 				if (checkDataset (EntityType.Target, target)) {
 					drugs.addAll (m.getFrom ());
 				}
 			}
-		});
+		};
 
 		associations.stream ().forEach (a -> {
 			String drugId = a.getFrom ();
