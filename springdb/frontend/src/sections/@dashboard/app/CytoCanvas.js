@@ -1,9 +1,10 @@
 import cytoscape from 'cytoscape';
+import avsdf from 'cytoscape-avsdf';
 
 import {Component} from 'react';
 
 // ----------------------------------------------------------------------
-
+cytoscape.use( avsdf );
 export default class CytoCanvas extends Component {
     constructor(props) {
         super(props);
@@ -47,13 +48,14 @@ export default class CytoCanvas extends Component {
             // show neighbouring elements only
             neighbouringNodes.style("display", "element");
             neighbouringNodes.layout({name:"breadthfirst"}).run();
+            // neighbouringNodes.layout({name:"circle"}).run();
             this.state.cytoInstance.fit(neighbouringNodes);
         }
         else {
             // no focusNode, so show all nodes
             this.state.cytoInstance.elements(this.props.nodeFilter).style("display", "element");
             // lay all elements out in a circle
-            this.state.cytoInstance.layout({ name: "breadthfirst" }).run();
+            this.state.cytoInstance.layout({ name: "avsdf" }).run();
         }
     }
  
@@ -63,18 +65,25 @@ export default class CytoCanvas extends Component {
             style: {
                 'background-color': '#8b786d',
                 "color": "#8b786d",
-                'label': 'data(id)',
+                'label': 'data(name)',
+                'text-valign': 'center',
+                'text-outline-color': 'white',
+                // 'text-outline-opacity': '50%',
+                'text-outline-width' : '2px',
+                // 'text-background-padding' : '2px',
+                // 'text-border-width': '1px',
+                // 'text-border-color': 'white',
             }
         },
         {
-            selector: '.pathway[:compound]',
+            selector: '.pathway',
             style: {
                 "background-color": "#78a1bb",
                 "background-opacity": "0.15"
             }
         },
         {
-            selector: '.proteinTarget',
+            selector: '.target',
             style: {
                 "background-color": "#78a1bb",
                 "color": "#78a1bb",
@@ -98,16 +107,17 @@ export default class CytoCanvas extends Component {
                 'target-arrow-color': '#ccc',
                 'target-arrow-shape': 'triangle',
                 'curve-style': 'bezier',
-                "label": "causes",
+                "label": "data(action)",
+                "text-rotation": "autorotate",
             }
         },
 
-        {
-            selector: '.drug_target',
-            style: {
-                "label": "data(action)",
-            }
-        },
+        // {
+        //     selector: '.drug_target',
+        //     style: {
+        //         "label": "data(action)",
+        //     }
+        // },
         {
             selector: '*',
             style: {

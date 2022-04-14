@@ -1,8 +1,13 @@
 package com.semis.gradvek.springdb;
 
+import com.google.gson.JsonObject;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.csv.CsvService;
+import com.semis.gradvek.cytoscape.CytoscapeEntity;
 import com.semis.gradvek.entity.AdverseEvent;
 import com.semis.gradvek.entity.AssociatedWith;
 import com.semis.gradvek.entity.Dataset;
@@ -91,7 +96,7 @@ public class Controller {
 					mLogger.info ("Database contains " + alreadyThere + " entries of type " + typeString + ", skipping import");
 
 				}
-				
+
 				mDriver.add (ParquetUtils.datasetFromType (type));
 			} catch (IOException iox) {
 			}
@@ -289,8 +294,22 @@ public class Controller {
 
 	@GetMapping("/ae/{target}")
 	public ResponseEntity<List<AdverseEventIntObj>> getAdverseEvent(@PathVariable(value="target") final String target) {
+		List<CytoscapeEntity> entities = mDriver.getAEPathByTarget(target);
 		List<AdverseEventIntObj> adverseEvents = mDriver.getAEByTarget(target);
 		return ResponseEntity.ok(adverseEvents);
+	}
+
+	@GetMapping("/ae/path/{target}")
+	@ResponseBody
+	public ResponseEntity<String> getAdverseEventPath(@PathVariable(value="target") final String target) {
+		List<CytoscapeEntity> entities = mDriver.getAEPathByTarget(target);
+		try {
+			String json = new ObjectMapper().writeValueAsString(entities);
+			return ResponseEntity.ok(json);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	@GetMapping("count/{type}")

@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.semis.gradvek.csv.CsvFile;
+import com.semis.gradvek.cytoscape.CytoscapeEntity;
 import com.semis.gradvek.entity.AdverseEvent;
 import com.semis.gradvek.entity.AssociatedWith;
 import com.semis.gradvek.entity.Dataset;
@@ -157,5 +158,11 @@ public class TestDBDriver implements DBDriver {
 	@Override
 	public String getUri() {
 		return null;
+	}
+
+	@Override
+	public List<CytoscapeEntity> getAEPathByTarget(String target) {
+		final List<CytoscapeEntity> ret = new ArrayList<> ();
+		return ret; // TODO Yan
 	}
 }

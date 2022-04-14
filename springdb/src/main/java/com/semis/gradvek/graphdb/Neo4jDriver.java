@@ -1,12 +1,16 @@
 package com.semis.gradvek.graphdb;
 
 import com.semis.gradvek.csv.CsvFile;
+import com.semis.gradvek.cytoscape.CytoscapeEntity;
+import com.semis.gradvek.cytoscape.Node;
+import com.semis.gradvek.cytoscape.Relationship;
 import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
 import com.semis.gradvek.springdb.AdverseEventIntObj;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.*;
+import org.neo4j.driver.types.Path;
 import org.springframework.core.env.Environment;
 
 import java.util.*;
@@ -233,7 +237,7 @@ public class Neo4jDriver implements DBDriver {
                 Result result = tx.run(cmd);
                 List<AdverseEventIntObj> finalMap = new LinkedList<>();
                 while (result.hasNext()) {
-                    Record record = result.next();
+                  Record record = result.next();
  
                 	boolean allEnabled = checkDatasets (
                     		record.fields ().get (0).value ().asString (),
@@ -253,6 +257,98 @@ public class Neo4jDriver implements DBDriver {
                 	}
                 }
                 return finalMap;
+            });
+        }
+    }
+
+	public List<CytoscapeEntity> getAEPathByTarget (String target) {
+		mLogger.info ("Getting adverse event paths by target " + target);
+		try (Session session = mDriver.session ()) {
+			return session.readTransaction (tx -> {
+				String cmd = "match n=(e:AdverseEvent)-[c:ASSOCIATED_WITH]-(:Drug)-[:TARGETS]-(:Target {symbol:'"
+						+ target + "'}) return n, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc limit 10";
+				Result result = tx.run (cmd);
+				Map<Long, CytoscapeEntity> entitiesInvolved = new HashMap<>();
+				while (result.hasNext ()) {
+					Record record = result.next();
+					Path path = record.fields().get(0).value().asPath();
+					path.nodes().forEach( node -> {
+						if (!entitiesInvolved.containsKey(node.id())) {
+                            Map<String, String> dataMap = new HashMap<>();
+							if (node.hasLabel("AdverseEvent")) {
+
+                                dataMap.put("id", String.valueOf(node.id()));
+                                dataMap.put("adverseEventId", node.asMap().get("adverseEventId").toString());
+                                dataMap.put("meddraCode", node.asMap().get("meddraCode").toString());
+                                dataMap.put("name", node.asMap().get("adverseEventId").toString());
+
+								CytoscapeEntity entity = new Node(node.id(),"adverse-event", dataMap);
+								entitiesInvolved.put(node.id(), entity);
+							} else if (node.hasLabel("Drug")) {
+
+                                dataMap.put("id", String.valueOf(node.id()));
+                                dataMap.put("drugId", node.asMap().get("drugId").toString());
+                                dataMap.put("chembl_code", node.asMap().get("chembl_code").toString());
+                                dataMap.put("name", node.asMap().get("drugId").toString());
+
+                                CytoscapeEntity entity = new Node(node.id(), "drug", dataMap);
+								entitiesInvolved.put(node.id(), entity);
+							} else if (node.hasLabel("Target")) {
+
+                                dataMap.put("id", String.valueOf(node.id()));
+                                dataMap.put("targetId", node.asMap().get("targetId").toString());
+                                dataMap.put("name", node.asMap().get("symbol").toString());
+                                dataMap.put("symbol", node.asMap().get("symbol").toString());
+
+                                CytoscapeEntity entity = new Node(node.id(), "target", dataMap);
+                                entitiesInvolved.put(node.id(), entity);
+							} else if (node.hasLabel("Pathway")) {
+                                dataMap.put("id", String.valueOf(node.id()));
+                                dataMap.put("pathwayId", node.asMap().get("pathwayId").toString());
+                                dataMap.put("name", node.asMap().get("pathwayCode").toString());
+                                dataMap.put("term", node.asMap().get("topLevelTerm").toString());
+
+                                CytoscapeEntity entity = new Node(node.id(), "pathway", dataMap);
+								entitiesInvolved.put(node.id(), entity);
+							}
+						}
+					});
+
+					path.relationships().forEach(relationship -> {
+                        if (!entitiesInvolved.containsKey(relationship.id())) {
+                            Map<String, String> relationshipMap = new HashMap<>();
+                            relationship.asMap().forEach((k,v) -> relationshipMap.put(k, v.toString())); // Change type of Value from Object to String
+                            CytoscapeEntity entity = null;
+                            if (relationship.hasType("ASSOCIATED_WITH")) {
+                                Node drug = (Node) entitiesInvolved.get(relationship.startNodeId());
+                                Node ae = (Node) entitiesInvolved.get(relationship.endNodeId());
+                                ae.getData().put("llr", relationshipMap.get("llr"));
+
+                                relationshipMap.put("id", String.valueOf(relationship.id()));
+                                relationshipMap.put("source", drug.getId().toString());
+                                relationshipMap.put("target", ae.getId().toString());
+                                relationshipMap.put("arrow", "vee");
+                                relationshipMap.put("action", relationship.type().replace("_", " "));
+
+                                entity = new Relationship(relationship.id(), relationshipMap);
+
+                            } else if (relationship.hasType("TARGETS")) {
+                                Node relatedDrug = (Node) entitiesInvolved.get(relationship.startNodeId());
+                                Node relatedTarget = (Node) entitiesInvolved.get(relationship.endNodeId());
+
+                                relationshipMap.put("id", String.valueOf(relationship.id()));
+                                relationshipMap.put("source", relatedDrug.getId().toString());
+                                relationshipMap.put("target", relatedTarget.getId().toString());
+                                relationshipMap.put("arrow", "vee");
+                                relationshipMap.put("action", relationship.type());
+
+                                entity = new Relationship(relationship.id(), "drug_target", relationshipMap);
+                            }
+                            entitiesInvolved.put(relationship.id(), entity);
+                        }
+					});
+                }
+                return new ArrayList<>(entitiesInvolved.values());
             });
         }
     }
