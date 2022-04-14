@@ -12,9 +12,8 @@ AEList.propTypes = {
 
 export default function AEList({ graphNodes, filterHandler}) {
     let AEs = graphNodes.filter( (graphNode) => {
-        return graphNode.classes?.includes("adverse event");
+        return graphNode.classes?.includes("adverse-event");
     });
-
     return (
         <Card>
             <TableContainer>
@@ -22,21 +21,21 @@ export default function AEList({ graphNodes, filterHandler}) {
                     <TableHead>
                         <TableRow>
                             <TableCell>
-                                ID
+                                Adverse Event
                             </TableCell>
                             <TableCell>
-                                Meddra
+                                Weight
                             </TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {AEs.map( (AE) => (
+                        {AEs.sort((a,b) => b.data.llr - a.data.llr).map( (AE) => (
                             <TableRow key={AE.data.id} onClick={(e) => filterHandler(AE.data.id)}>
                                 <TableCell>
-                                    {AE.data.id}
+                                    {AE.data.name}
                                 </TableCell>
                                 <TableCell>
-                                    {AE.data.meddraCode}
+                                    {AE.data.llr}
                                 </TableCell>
                             </TableRow>
                         ))}
