@@ -1,4 +1,4 @@
-package com.semis.gradvek.springdb;
+package com.semis.gradvek.graphdb;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +15,7 @@ import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
 import com.semis.gradvek.entity.MechanismOfAction;
+import com.semis.gradvek.springdb.AdverseEventIntObj;
 
 public class TestDBDriver implements DBDriver {
 

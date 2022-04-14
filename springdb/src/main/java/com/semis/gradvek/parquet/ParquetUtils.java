@@ -30,7 +30,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.EntityType;
-import com.semis.gradvek.springdb.DBDriver;
+import com.semis.gradvek.graphdb.DBDriver;
 import com.semis.gradvek.springdb.Importer;
 
 public class ParquetUtils {

@@ -1,9 +1,10 @@
-package com.semis.gradvek.springdb;
+package com.semis.gradvek.graphdb;
 
 import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
+import com.semis.gradvek.springdb.AdverseEventIntObj;
 
 import java.util.List;
 

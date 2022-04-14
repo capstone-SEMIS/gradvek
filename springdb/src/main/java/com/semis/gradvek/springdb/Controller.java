@@ -14,6 +14,9 @@ import com.semis.gradvek.entity.Participates;
 import com.semis.gradvek.entity.Pathway;
 import com.semis.gradvek.entity.Target;
 import com.semis.gradvek.entity.*;
+import com.semis.gradvek.graphdb.DBDriver;
+import com.semis.gradvek.graphdb.Neo4jDriver;
+import com.semis.gradvek.graphdb.TestDBDriver;
 import com.semis.gradvek.parquet.ParquetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -103,7 +106,7 @@ public class Controller {
 	public void onApplicationReadyEvent (ApplicationReadyEvent event) {
 		if ("inmem".equals (mEnv.getProperty ("db.type"))) {
 			// This is the test environment - load the in-memory db driver and init demo data
-			mDriver = new TestDBDriver ();
+			mDriver = new TestDBDriver();
 			initDemo ();
 			return;
 		}

@@ -6,6 +6,7 @@ import java.util.List;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityFactory;
 import com.semis.gradvek.entity.EntityType;
+import com.semis.gradvek.graphdb.DBDriver;
 import com.semis.gradvek.parquet.Parquet;
 
 public class Importer {
