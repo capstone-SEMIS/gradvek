@@ -212,49 +212,22 @@ public class Neo4jDriver implements DBDriver {
         }
     }
 
-    private final boolean checkDatasets (String... datasetNames) {
-    	List<Dataset> datasets = getDatasets ();
-    	Map<String, Boolean> enabled = new HashMap<> ();
-    	datasets.forEach (d -> enabled.put (d.getDataset (), d.isEnabled ()));
-    	boolean ret = true;
-    	
-    	for (String name: datasetNames) {
-    		if (name != null && !name.isEmpty ()) {
-    			ret = ret && enabled.getOrDefault (name, true);
-    		}
-    	}
-    	
-    	return (ret);
-    }
-    
     @Override
     public List<AdverseEventIntObj> getAEByTarget(String target) {
         mLogger.info("Getting adverse event by target " + target);
         try (Session session = mDriver.session()) {
             return session.readTransaction(tx -> {
-                String cmd = "match n=(e:AdverseEvent)-[c:ASSOCIATED_WITH]-(d:Drug)-[r:TARGETS]-(t:Target {symbol:'"
-                        + target + "'}) return e.dataset, c.dataset, d.dataset, r.dataset, t.dataset, e, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc";
+                String cmd = new CommandBuilder().getWeights(target).toCypher();
                 Result result = tx.run(cmd);
                 List<AdverseEventIntObj> finalMap = new LinkedList<>();
                 while (result.hasNext()) {
                   Record record = result.next();
- 
-                	boolean allEnabled = checkDatasets (
-                    		record.fields ().get (0).value ().asString (),
-                    		record.fields ().get (1).value ().asString (),
-                    		record.fields ().get (2).value ().asString (),
-                    		record.fields ().get (3).value ().asString (),
-                    		record.fields ().get (4).value ().asString ()
-                    	);
-                	
-                	if (allEnabled) {
 	                    String id = record.fields().get(5).value().asEntity().get("adverseEventId").asString();
 	                    String code = record.fields().get(5).value().asEntity().get("meddraCode").asString();
 	                    AdverseEventIntObj ae = new AdverseEventIntObj(id, id, code);
 	                    ae.setLlr(record.fields().get(6).value().asDouble());
 	
 	                    finalMap.add(ae);
-                	}
                 }
                 return finalMap;
             });
