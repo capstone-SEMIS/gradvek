@@ -53,6 +53,7 @@ message spark_schema {
 					.collect (Collectors.toList ()),
 				null
 			);
+		setDataset ("Participates");
 	}
 
 	/**

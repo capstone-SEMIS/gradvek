@@ -70,6 +70,7 @@ public class MechanismOfAction extends Edges {
 						"actionType", data.getString ("actionType", 0)
 				)
 			);
+		setDataset ("MechanismOfAction");
 	}
 
 	/**

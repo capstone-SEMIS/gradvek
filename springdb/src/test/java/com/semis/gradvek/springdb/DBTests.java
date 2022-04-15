@@ -26,12 +26,12 @@ public class DBTests {
 
 	@Test
 	public void testInit () throws IOException {
-		assertThat (mController.count ("AdverseEvent").getBody () > 0);
+		assertThat (mController.count ("AdverseEvent").getBody ()).isGreaterThan (0);
 	}
 	
 	@Test
 	public void testAE () {
-		assertThat (mController.getAdverseEvent ("ENST00000310522").getBody ().size () > 0);
+		assertThat (mController.getAdverseEvent ("ENST00000310522").getBody ().size ()).isGreaterThan (0);
 	}
 	
 	@SuppressWarnings ("unchecked")
@@ -41,13 +41,13 @@ public class DBTests {
 		String datasetJson = mController.datasets ().getBody ();
 		Dataset [] datasets = Entity.fromJson(datasetJson, Dataset[].class);
 
-		assertThat (datasets != null);
-		assertThat (datasets.length == 1);
-		assertThat (datasets[0].isEnabled ());
+		assertThat (datasets).isNotNull ();
+		assertThat (datasets.length).isEqualTo (1);
+		assertThat (datasets[0].isEnabled ()).isTrue ();
 		
 		// form the enable command
 		List<Map<String, String>> toEnable = List.of (				
-			Map.of("dataset", datasets[0].getDataset (), "include", "false")
+			Map.of("dataset", datasets[0].getDataset (), "enabled", "false")
 		);
 		// disable this dataset
 		mController.enableDatasets (toEnable.stream ().toArray (Map[]::new));
@@ -57,35 +57,50 @@ public class DBTests {
 		datasets = Entity.fromJson(datasetJson, Dataset[].class);
 		
 		// should be disabled now
-		assertThat (datasets != null);
-		assertThat (datasets.length == 1);
-		assertThat (!datasets[0].isEnabled ());
+		assertThat (datasets).isNotNull ();
+		assertThat (datasets.length).isEqualTo (1);
+		assertThat (datasets[0].isEnabled ()).isFalse ();
 		// put it back
 		toEnable = List.of (				
-				Map.of("dataset", datasets[0].getDataset (), "include", "true")
+				Map.of("dataset", datasets[0].getDataset (), "enabled", "true")
 			);
 		mController.enableDatasets (toEnable.stream ().toArray (Map[]::new));
+		// check that it's back
+		datasetJson = mController.datasets ().getBody ();
+		datasets = Entity.fromJson(datasetJson, Dataset[].class);
+		assertThat (datasets[0].isEnabled ()).isTrue ();
 	}
 	
 	@SuppressWarnings ("unchecked")
 	@Test
 	public void testAEByTarget () {
+		
+		// get the adverse events for the demo target
 		List<AdverseEventIntObj> ae = mController.getAdverseEvent ("ENST00000310522").getBody ();
 		
-		assertThat (ae.size () == 2);
-		assertThat (ae.get (0).getMeddraCode ().equals ("10000804"));
+		// should be 2 of them
+		assertThat (ae.size ()).isEqualTo (2);
+		List<String> aeIds = List.of (ae.get (0).getMeddraCode (), ae.get (1).getMeddraCode ());
+		// find one by id
+		assertThat (aeIds).contains ("10000804");
 		
+		// disable the dataset
 		List<Map<String, String>> toEnable = List.of (				
-			Map.of("dataset", "demo", "include", "false")
+			Map.of("dataset", "demo", "enabled", "false")
 		);
 		mController.enableDatasets (toEnable.stream ().toArray (Map[]::new));
 		
+		// now there are none
 		ae = mController.getAdverseEvent ("ENST00000310522").getBody ();
-		assertThat (ae.size () == 0);
+		assertThat (ae.size ()).isEqualTo (0);
 		
+		// put the dataset back
 		toEnable = List.of (				
-				Map.of("dataset", "demo", "include", "true")
+				Map.of("dataset", "demo", "enabled", "true")
 			);
 		mController.enableDatasets (toEnable.stream ().toArray (Map[]::new));
+		// should be 2 again
+		ae = mController.getAdverseEvent ("ENST00000310522").getBody ();
+		assertThat (ae.size ()).isEqualTo (2);
 	}
 }
