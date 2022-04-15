@@ -3,7 +3,7 @@ import { PropTypes } from "prop-types";
 
 class Checkbox extends Component {
   state = {
-    isChecked: false
+    isChecked: this.props.enabled
   };
 
   toggleCheckboxChange = () => {
@@ -22,27 +22,16 @@ class Checkbox extends Component {
 
     return (
       <div className="checkbox">
-        {this.props.enabled ? (
-          <label>
-            <input
-              type="checkbox"
-              value={label}
-              defaultChecked={!isChecked}
-              onChange={this.toggleCheckboxChange}
-              dataset={this.props.dataset}
-            />
-            {label}
-          </label>
-        ) : (
-          <label>
-            <input
-              type="checkbox"
-              value={label}
-              onChange={this.toggleCheckboxChange}
-            />
-            {label}
-          </label>
-        )}
+        <label>
+          <input
+            type="checkbox"
+            value={label}
+            defaultChecked={isChecked}
+            onChange={this.toggleCheckboxChange}
+            dataset={this.props.dataset}
+          />
+          {label}
+        </label>
       </div>
     );
   }

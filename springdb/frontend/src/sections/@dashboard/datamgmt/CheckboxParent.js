@@ -36,51 +36,37 @@ class CheckboxParent extends Component {
     console.log("newArr", newArr);
 
     const url = "/api/datasets";
-    // const datapost = fetch(url, {
-    //   method: "POST",
-    //   headers: { contentType: "application/json" },
-    //   // body: JSON.stringify(newArr)
-    //   body: newArr
-    // });
-    // console.log("datapost", datapost);
 
     axios
-      .post(url, newArr)
+      .post(url, newArr, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
       .then(function(response) {
         console.log(response);
       })
       .catch(function(error) {
         console.log(error);
       });
-
-    // datapost
-    // .then(response => {
-    //   if (response.status >= 200 && response.status < 300) {
-    //     return Promise.resolve(response);
-    //   }
-    //   return Promise.reject(new Error(response.statusText));
-    // })
-    // .then(result => {
-    //   console.log(result);
-    // })
-    // .catch(error => {
-    //   // common error
-    //   return null;
-    // });
   };
 
-  createCheckboxes = () =>
-    this.props.data_array.map((descr, index) => {
-      return (
-        <Checkbox
-          label={descr.description}
-          handleCheckboxChange={this.toggleCheckbox}
-          key={index}
-          enabled={descr.enabled}
-          dataset={descr.dataset}
-        />
-      );
-    });
+  CreateCheckboxes = () => {
+    console.log("createCheckbox:", this.props.data_array);
+    return (
+      <>
+        {this.props.data_array.map((descr, index) => (
+          <Checkbox
+            label={descr.description}
+            handleCheckboxChange={this.toggleCheckbox}
+            key={index}
+            enabled={descr.enabled}
+            dataset={descr.dataset}
+          />
+        ))}
+      </>
+    );
+  };
 
   render() {
     return (
@@ -88,7 +74,8 @@ class CheckboxParent extends Component {
         <div className="row">
           <div className="col-sm-12">
             <form onSubmit={this.handleFormSubmit}>
-              {this.createCheckboxes()}
+              {/* <this.createCheckboxes()/> */}
+              <this.CreateCheckboxes />
 
               <Button variant="contained" type="submit">
                 Update Datasets
