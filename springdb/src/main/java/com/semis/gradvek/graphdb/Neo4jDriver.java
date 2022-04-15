@@ -238,6 +238,7 @@ public class Neo4jDriver implements DBDriver {
 		mLogger.info ("Getting adverse event paths by target " + target);
 		try (Session session = mDriver.session ()) {
 			return session.readTransaction (tx -> {
+                // String cmd = new CommandBuilder().getPaths(target).limit(10).toCypher();
 				String cmd = "match n=(e:AdverseEvent)-[c:ASSOCIATED_WITH]-(:Drug)-[:TARGETS]-(:Target {symbol:'"
 						+ target + "'}) return n, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc limit 10";
 				Result result = tx.run (cmd);
