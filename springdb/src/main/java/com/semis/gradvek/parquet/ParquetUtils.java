@@ -203,8 +203,12 @@ public class ParquetUtils {
 			mLogger.warning ("Could not load data for type " + type);
 			return new ResponseEntity<Void> (HttpStatus.NO_CONTENT);
 		}
-		
+
+		mLogger.info("Loading resources for type " + type.name());
+		long startTypeTime = System.currentTimeMillis();
 		for (Resource r : resources) {
+			mLogger.info("Loading " + type.name() + " from resource " + r.getFilename());
+			long startResourceTime = System.currentTimeMillis();
 			try {
 				Parquet parquet = readResource (r);
 				if (parquet != null) {
@@ -213,9 +217,13 @@ public class ParquetUtils {
 			} catch (IOException iox) {
 				mLogger.severe (iox.toString ());
 			}
+			long stopResourceTime = System.currentTimeMillis();
+			mLogger.info("Done with " + r.getFilename() + " in " + (stopResourceTime - startResourceTime) / 1000.0 + " seconds");
 		}
 		
 		driver.add (datasetFromType (type));
+		long stopTypeTime = System.currentTimeMillis();
+		mLogger.info("Done with " + type.name() + " in " + (startTypeTime - stopTypeTime) / 1000.0 + " seconds");
 
 		return new ResponseEntity<Void> (HttpStatus.OK);
 	}

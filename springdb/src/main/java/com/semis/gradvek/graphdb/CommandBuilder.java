@@ -11,7 +11,7 @@ import java.util.Locale;
  * new CommandBuilder().getWeights("JAK3").forAdverseEvent("10042868").toCypher();
  * <p>
  * Find the total weights for each adverse event linked to a particular target through a set of action types.
- * new CommandBuilder().getWeights("JAK3").forActionTypes(["OPENER", "INHIBITOR"]).toCypher();
+ * new CommandBuilder().getWeights("JAK3").forActionTypes(List.of("OPENER", "INHIBITOR")).toCypher();
  * <p>
  * Find the total weights for one adverse event linked to a target through a set of action types by drug.
  * new CommandBuilder().getWeights("JAK3").forAdverseEvent("10042868").forActionTypes(["OPENER", "INHIBITOR"]).toCypher();
@@ -62,11 +62,13 @@ public class CommandBuilder {
         // Find active datasets
         command.append("MATCH (nd:Dataset {enabled: true}) WITH COLLECT(nd.dataset) AS enabledSets");
 
-        // Find paths
+        // Find weights
         if (goal == Goal.WEIGHTS) {
+            // Don't include pathways here, otherwise there may be multiple matching paths for each ASSOCIATED_WITH
             command.append(" MATCH path=(nae:AdverseEvent)-[raw:ASSOCIATED_WITH]-(nd:Drug)-[rt:TARGETS]-(nt:Target)");
         }
 
+        // Find paths
         if (goal == Goal.PATHS) {
             command.append(" MATCH path=(nae:AdverseEvent)-[raw:ASSOCIATED_WITH]-(nd:Drug)-[rt:TARGETS]-(nt:Target)-[rpi:PARTICIPATES_IN]-(np:Pathway)");
         }
@@ -104,11 +106,20 @@ public class CommandBuilder {
             command.append("]");
         }
 
-        // Weights vs paths
+        // Summarize the total weights along relevant paths
         if (goal == Goal.WEIGHTS) {
-            command.append(" RETURN nae, sum(toFloat(raw.llr)) ORDER BY sum(toFloat(raw.llr)) desc");
+
+            // If we already know the adverse event, then summarize by drug instead of adverse event.
+            if (adverseEvent != null) {
+                command.append(" RETURN nd, sum(toFloat(raw.llr))");
+            } else {
+                command.append(" RETURN nae, sum(toFloat(raw.llr))");
+            }
+
+            command.append(" ORDER BY sum(toFloat(raw.llr)) desc");
         }
 
+        // Paths
         // May result in non-unique nodes and non-unique relations.  Can we find an easier way to parse this?
         if (goal == Goal.PATHS) {
             command.append(" RETURN path");
@@ -126,6 +137,36 @@ public class CommandBuilder {
     }
 
     public static void main(String[] args) {
-        System.out.println(new CommandBuilder().getWeights(("JAK3")).toCypher());
+//        System.out.println(new CommandBuilder().getWeights("JAK3").toCypher());
+//        System.out.println();
+//        System.out.println(new CommandBuilder().getWeights("JAK3").forAdverseEvent("10042868").toCypher());
+//        System.out.println();
+//        System.out.println(new CommandBuilder().getWeights("JAK3").forActionTypes(List.of("OPENER", "INHIBITOR")).toCypher());
+//        System.out.println();
+//        System.out.println(new CommandBuilder().getWeights("JAK3").forAdverseEvent("10042868").forActionTypes(List.of("OPENER", "INHIBITOR")).toCypher());
+//        System.out.println();
+//        System.out.println(new CommandBuilder().getWeights("JAK3").limit(3).toCypher());
+//        System.out.println();
+//        System.out.println(new CommandBuilder().getWeights("JAK3").forAdverseEvent("10042868").limit(3).toCypher());
+//        System.out.println();
+//        System.out.println(new CommandBuilder().getWeights("JAK3").forActionTypes(List.of("OPENER", "INHIBITOR")).limit(3).toCypher());
+//        System.out.println();
+//        System.out.println(new CommandBuilder().getWeights("JAK3").forAdverseEvent("10042868").forActionTypes(List.of("OPENER", "INHIBITOR")).limit(3).toCypher());
+//        System.out.println();
+        System.out.println(new CommandBuilder().getPaths("JAK3").toCypher());
+        System.out.println();
+        System.out.println(new CommandBuilder().getPaths("JAK3").forAdverseEvent("10042868").toCypher());
+        System.out.println();
+        System.out.println(new CommandBuilder().getPaths("JAK3").forActionTypes(List.of("OPENER", "INHIBITOR")).toCypher());
+        System.out.println();
+        System.out.println(new CommandBuilder().getPaths("JAK3").forAdverseEvent("10042868").forActionTypes(List.of("OPENER", "INHIBITOR")).toCypher());
+        System.out.println();
+        System.out.println(new CommandBuilder().getPaths("JAK3").limit(3).toCypher());
+        System.out.println();
+        System.out.println(new CommandBuilder().getPaths("JAK3").forAdverseEvent("10042868").limit(3).toCypher());
+        System.out.println();
+        System.out.println(new CommandBuilder().getPaths("JAK3").forActionTypes(List.of("OPENER", "INHIBITOR")).limit(3).toCypher());
+        System.out.println();
+        System.out.println(new CommandBuilder().getPaths("JAK3").forAdverseEvent("10042868").forActionTypes(List.of("OPENER", "INHIBITOR")).limit(3).toCypher());
     }
 }
