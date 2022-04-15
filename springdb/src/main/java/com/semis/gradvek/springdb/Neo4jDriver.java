@@ -145,7 +145,7 @@ public class Neo4jDriver implements DBDriver {
      * @param command
      */
     private void write(String command) {
-        mLogger.info(command);
+        mLogger.fine(command);
         if (command != null && !command.isEmpty()) {
             try (Session session = mDriver.session()) {
                 session.writeTransaction(tx -> {

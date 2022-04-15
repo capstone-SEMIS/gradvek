@@ -28,6 +28,7 @@ public class AssociatedWith extends Edge {
 	public AssociatedWith (Group data) {
 		super (data.getString ("chembl_id", 0), data.getString ("meddraCode", 0),
 				ParquetUtils.extractParams (data, "llr", "critval"/*, "count" is there, but irrelevant */));
+		setDataset ("AssociatedWith");
 	}
 
 	/**

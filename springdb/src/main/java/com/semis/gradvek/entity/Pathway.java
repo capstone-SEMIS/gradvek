@@ -36,6 +36,7 @@ public class Pathway extends NamedEntity {
 		super(data.getString ("pathway", 0));
 		mId = data.getString ("pathwayId", 0);
 		mTerm = data.getString ("topLevelTerm", 0);
+		setDataset ("Pathway");
 	}	
 	
 	public Pathway (String name, String id, String term) {
@@ -51,7 +52,7 @@ public class Pathway extends NamedEntity {
 	
 	@Override
 	public final List<String> addCommands () {
-		return Collections.singletonList("CREATE (:Pathway" 
+		return Collections.singletonList("MERGE (:Pathway" 
 				+ " {" 
 				+ "pathwayCode:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
 				+ "pathwayId:\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\', "
