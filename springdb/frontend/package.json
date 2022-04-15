@@ -43,6 +43,7 @@
     "@mui/lab": "^5.0.0-alpha.69",
     "@mui/material": "^5.4.2",
     "@testing-library/jest-dom": "^5.16.2",
+    "axios": "^0.26.1",
     "cytoscape": "^3.21.0",
     "cytoscape-popper": "^2.0.0",
     "date-fns": "^2.28.0",
