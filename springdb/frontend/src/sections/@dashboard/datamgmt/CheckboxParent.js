@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Checkbox from "./Checkbox";
 import Button from "@mui/material/Button";
+import axios from "axios";
 
 class CheckboxParent extends Component {
   constructor(props) {
@@ -35,27 +36,37 @@ class CheckboxParent extends Component {
     console.log("newArr", newArr);
 
     const url = "/api/datasets";
-    const datapost = fetch(url, {
-      method: "POST",
-      headers: { contentType: "application/json; charset=UTF-8" },
-      body: JSON.stringify(newArr)
-    });
-    console.log("datapost", datapost);
+    // const datapost = fetch(url, {
+    //   method: "POST",
+    //   headers: { contentType: "application/json" },
+    //   // body: JSON.stringify(newArr)
+    //   body: newArr
+    // });
+    // console.log("datapost", datapost);
 
-    datapost
-      .then(response => {
-        if (response.status >= 200 && response.status < 300) {
-          return Promise.resolve(response);
-        }
-        return Promise.reject(new Error(response.statusText));
+    axios
+      .post(url, newArr)
+      .then(function(response) {
+        console.log(response);
       })
-      .then(result => {
-        console.log(result);
-      })
-      .catch(error => {
-        // common error
-        return null;
+      .catch(function(error) {
+        console.log(error);
       });
+
+    // datapost
+    // .then(response => {
+    //   if (response.status >= 200 && response.status < 300) {
+    //     return Promise.resolve(response);
+    //   }
+    //   return Promise.reject(new Error(response.statusText));
+    // })
+    // .then(result => {
+    //   console.log(result);
+    // })
+    // .catch(error => {
+    //   // common error
+    //   return null;
+    // });
   };
 
   createCheckboxes = () =>
