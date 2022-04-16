@@ -9,7 +9,8 @@ import CsvImporter from "../sections/@dashboard/datamgmt/CsvImporter";
 export default function DataMgmtPage() {
   return (
     <Page title="Dashboard: Data Management ">
-      <Box sx={{ ml: 15 }}>
+         
+      <Box sx={{ ml: 8 }}>
         <Typography variant="h4" sx={{ mb: 5 }}>
           Data Management
         </Typography>
