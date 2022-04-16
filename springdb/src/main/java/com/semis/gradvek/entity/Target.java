@@ -319,7 +319,8 @@ message spark_schema {
 				+ "symbol:\'" + StringEscapeUtils.escapeEcmaScript (mSymbol) + "\'"
 				+ "})");
 
-		mParquetPathways.forEach (p -> ret.add (p.addCommands ().get (0)));
+		// TODO temporarily disable until pathway loading is fixed
+//		mParquetPathways.forEach (p -> ret.add (p.addCommands ().get (0)));
 		
 		return (ret);
 	}

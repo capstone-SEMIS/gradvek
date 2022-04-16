@@ -138,6 +138,7 @@ public class CommandBuilder {
         return command.toString();
     }
 
+    // Missing paths for a particular drug
     public static void main(String[] args) {
         System.out.println(new CommandBuilder().getWeights("JAK3").toCypher());
         System.out.println();

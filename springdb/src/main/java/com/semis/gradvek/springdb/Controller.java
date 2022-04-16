@@ -81,7 +81,12 @@ public class Controller {
 				MechanismOfAction,
 				Participates
 		};
-		
+
+		// Create indexes up front for fast merging
+		for (EntityType type : toInit) {
+			mDriver.index(type);
+		}
+
 		for (EntityType type: toInit) {
 			try {
 				String typeString = type.toString ();
@@ -90,7 +95,6 @@ public class Controller {
 					mLogger.info ("Importing " + typeString + " data");
 					ParquetUtils.initEntities (mEnv, mDriver, type);
 					mDriver.unique (type);
-					mDriver.index (type);
 					mLogger.info ("Imported " +  mDriver.count (type) + " entities of type " + typeString);
 				} else {
 					mLogger.info ("Database contains " + alreadyThere + " entries of type " + typeString + ", skipping import");
@@ -204,7 +208,6 @@ public class Controller {
 		EntityType type = EntityType.valueOf (typeString);
 		ParquetUtils.initEntities (mEnv, mDriver, type);
 		mDriver.unique (type);
-		mDriver.index (type);
 		return new ResponseEntity<Void> (HttpStatus.OK);
 	}
 	

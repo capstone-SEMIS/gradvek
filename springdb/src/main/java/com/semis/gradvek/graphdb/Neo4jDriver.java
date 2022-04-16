@@ -144,12 +144,19 @@ public class Neo4jDriver implements DBDriver {
     private void write(String command) {
         mLogger.fine(command);
         if (command != null && !command.isEmpty()) {
+            long startTime = System.currentTimeMillis();
             try (Session session = mDriver.session()) {
                 session.writeTransaction(tx -> {
                     tx.run(command);
                     return "";
                 });
             }
+            double duration = (System.currentTimeMillis() - startTime) / 1000.0;
+            mLogger.fine("Wrote command of length " + command.length() + " in " + duration + " seconds");
+//            if (duration > 1) {
+//                mLogger.info(command);
+//                throw new RuntimeException("Command execution too slow");
+//            }
         }
     }
 

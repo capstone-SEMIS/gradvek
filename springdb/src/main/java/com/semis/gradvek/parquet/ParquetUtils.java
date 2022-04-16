@@ -1,21 +1,9 @@
 package com.semis.gradvek.parquet;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
-import java.util.List;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
+import com.semis.gradvek.entity.Dataset;
+import com.semis.gradvek.entity.EntityType;
+import com.semis.gradvek.graphdb.DBDriver;
+import com.semis.gradvek.springdb.Importer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -28,10 +16,17 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.semis.gradvek.entity.Dataset;
-import com.semis.gradvek.entity.EntityType;
-import com.semis.gradvek.graphdb.DBDriver;
-import com.semis.gradvek.springdb.Importer;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class ParquetUtils {
 	private static final Logger mLogger = Logger.getLogger (ParquetUtils.class.getName ());
@@ -54,7 +49,8 @@ public class ParquetUtils {
 			EntityType.MechanismOfAction, new OpenTargetsSource ("mechanismOfAction", "Mechanisms of action for drug molecules"),
 			EntityType.AssociatedWith, new OpenTargetsSource ("fda/significantAdverseDrugReactions", "Association of adverse events with drug molecules"),
 			EntityType.Pathway, new OpenTargetsSource ("", "Core annotation for pathways"), // gets created with targets
-			EntityType.Participates, new OpenTargetsSource ("targets", "Participation of targets in pathways")
+//			EntityType.Participates, new OpenTargetsSource ("targets", "Participation of targets in pathways")
+			EntityType.Participates, new OpenTargetsSource ("", "Participation of targets in pathways")		// TODO temporarily disable until pathway loading is fixed
 	);
 
 	/**
@@ -140,9 +136,8 @@ public class ParquetUtils {
 
 		// do the reading
 		try {
-			mLogger.info ("Processing " + resourceFile.getName ());
 			parquet = Reader.read (Paths.get (resourceFile.toURI ()));
-			mLogger.info ("Finished " + resourceFile.getName ());
+			mLogger.info ("Finished reading " + resourceFile.getName ());
 		} catch (IOException iox) {
 			mLogger.severe (iox.toString ());
 		}
@@ -217,13 +212,13 @@ public class ParquetUtils {
 			} catch (IOException iox) {
 				mLogger.severe (iox.toString ());
 			}
-			long stopResourceTime = System.currentTimeMillis();
-			mLogger.info("Done with " + r.getFilename() + " in " + (stopResourceTime - startResourceTime) / 1000.0 + " seconds");
+			double resourceDuration = (System.currentTimeMillis() - startResourceTime) / 1000.0;
+			mLogger.info("Done with " + r.getFilename() + " in " + resourceDuration + " seconds");
 		}
 		
 		driver.add (datasetFromType (type));
 		long stopTypeTime = System.currentTimeMillis();
-		mLogger.info("Done with " + type.name() + " in " + (startTypeTime - stopTypeTime) / 1000.0 + " seconds");
+		mLogger.info("Done with " + type.name() + " in " + (stopTypeTime - startTypeTime) / 1000.0 + " seconds");
 
 		return new ResponseEntity<Void> (HttpStatus.OK);
 	}
