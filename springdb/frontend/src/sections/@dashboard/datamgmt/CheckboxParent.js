@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Checkbox from "./Checkbox";
 import Button from "@mui/material/Button";
+import axios from "axios";
 
 class CheckboxParent extends Component {
   constructor(props) {
@@ -32,28 +33,40 @@ class CheckboxParent extends Component {
       });
     });
 
-    console.log(newArr);
+    console.log("newArr", newArr);
 
     const url = "/api/datasets";
-    const datapost = fetch(url, {
-      method: "POST",
-      body: JSON.stringify(newArr)
-    });
-    console.log("datapost", datapost);
+
+    axios
+      .post(url, newArr, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      .then(function(response) {
+        console.log(response);
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
   };
 
-  createCheckboxes = () =>
-    this.props.data_array.map((descr, index) => {
-      return (
-        <Checkbox
-          label={descr.description}
-          handleCheckboxChange={this.toggleCheckbox}
-          key={index}
-          enabled={descr.enabled}
-          dataset={descr.dataset}
-        />
-      );
-    });
+  CreateCheckboxes = () => {
+    console.log("createCheckbox:", this.props.data_array);
+    return (
+      <>
+        {this.props.data_array.map((descr, index) => (
+          <Checkbox
+            label={descr.description}
+            handleCheckboxChange={this.toggleCheckbox}
+            key={index}
+            enabled={descr.enabled}
+            dataset={descr.dataset}
+          />
+        ))}
+      </>
+    );
+  };
 
   render() {
     return (
@@ -61,7 +74,8 @@ class CheckboxParent extends Component {
         <div className="row">
           <div className="col-sm-12">
             <form onSubmit={this.handleFormSubmit}>
-              {this.createCheckboxes()}
+              {/* <this.createCheckboxes()/> */}
+              <this.CreateCheckboxes />
 
               <Button variant="contained" type="submit">
                 Update Datasets
