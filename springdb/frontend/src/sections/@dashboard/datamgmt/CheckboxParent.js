@@ -9,7 +9,7 @@ class CheckboxParent extends Component {
     this.state = {};
   }
 
-  componentWillMount = () => {
+  componentDidMount = () => {
     this.selectedCheckboxes = new Set();
   };
 

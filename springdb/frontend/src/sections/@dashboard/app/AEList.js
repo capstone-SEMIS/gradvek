@@ -16,10 +16,47 @@ export default function AEList({ graphNodes, filterHandler }) {
   });
   console.log("AEs", AEs);
 
-  // listOfDrugs = {};
+  let listOfDrugs = [
+    {
+      title: "Tylenol",
+      list: [
+        {
+          drug: "drugtest",
+          weight: 3435
+        },
+        {
+          drug: "drugtest2",
+          weight: 45435
+        },
+        {
+          drug: "drugtest3",
+          weight: 9835
+        }
+      ]
+    },
+    {
+      title: "Prozac",
+      list: [
+        {
+          drug: "Prozdrugtest",
+          weight: 43435
+        },
+        {
+          drug: "Prozdrugtest2",
+          weight: 5435
+        },
+        {
+          drug: "Prozdrugtest3",
+          weight: 79935
+        }
+      ]
+    }
+  ];
   return (
     <Card>
-      <Accordion title="Title" drugs="Drugs" weight={9812734} />
+      {listOfDrugs.map(item => (
+        <Accordion title={item.title} list={item.list} />
+      ))}
     </Card>
   );
 }

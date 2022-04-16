@@ -58,11 +58,14 @@ export default function PeterAccordion(props) {
         onChange={handleChange("panel1")}
       >
         <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
-          <Typography>{props.weight}</Typography>
-          <Typography>{props.drugs}</Typography>
+          <Typography>{props.title}</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography>{props.content}</Typography>
+          {props.list.map(l => (
+            <Typography>
+              {l.drug} | {l.weight}
+            </Typography>
+          ))}
         </AccordionDetails>
       </Accordion>
     </div>
