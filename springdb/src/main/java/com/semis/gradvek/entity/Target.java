@@ -298,6 +298,7 @@ message spark_schema {
 		super(data.getString ("approvedName", 0));
 		mSymbol = data.getString ("approvedSymbol", 0);
 		mId = data.getString ("id", 0);
+		setDataset ("Target");
 		
 		List<Group> pathways = ParquetUtils.extractGroupList (data, "pathways");
 		pathways.forEach (p -> mParquetPathways.add (new Pathway (p)));

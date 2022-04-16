@@ -1,6 +1,7 @@
 package com.semis.gradvek.springdb;
 
 import com.semis.gradvek.csv.CsvFile;
+import com.semis.gradvek.cytoscape.CytoscapeEntity;
 import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
@@ -46,12 +47,17 @@ public interface DBDriver {
 	 */
 	void unique (EntityType type);
 	
-	public List<AdverseEventIntObj> getAEByTarget (String target);
+//	public List<AdverseEventIntObj> getAEByTarget (String target);
 
 	public void loadCsv(String url, CsvFile csvFile);
-	
+
 	public List<Dataset> getDatasets ();
+
 	public void enableDataset (String dataset, boolean enable);
 	
 	public String getUri();
+
+	List<CytoscapeEntity> getAEPathByTarget(String target);
+
+	List<AdverseEventIntObj> getAEByTarget(String target);
 }

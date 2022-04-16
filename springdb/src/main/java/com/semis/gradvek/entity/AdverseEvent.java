@@ -32,6 +32,7 @@ public class AdverseEvent extends NamedEntity {
 	 */
 	public AdverseEvent (Group data) {
 		super (data.getString ("event", 0));
+		setDataset ("AdverseEvent");
 		mMeddraCode = data.getString ("meddraCode", 0);
 	}
 

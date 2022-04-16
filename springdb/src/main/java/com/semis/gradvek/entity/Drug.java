@@ -89,6 +89,7 @@ message spark_schema {
 	public Drug(Group data) {
 		super(data.getString ("name", 0));
 		mChemblCode = data.getString ("id", 0);
+		setDataset ("Drug");
 	}
 
 	public String getChemblCode () {

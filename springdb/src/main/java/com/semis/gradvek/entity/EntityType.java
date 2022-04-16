@@ -5,12 +5,12 @@ package com.semis.gradvek.entity;
  * @author ymachkasov
  *
  */
-public enum EntityType {
+public enum EntityType implements Constants {
 	AdverseEvent (AdverseEvent.class, "meddraCode"), 
 	Drug (Drug.class, "chembl_code"), 
 	Gene (Gene.class, "geneId"), 
 	Target (Target.class, "targetId"), 
-	Pathway (Target.class, "pathwayId"), 
+	Pathway (Pathway.class, "pathwayId"), 
 	AssociatedWith (AssociatedWith.class, null),
 	MechanismOfAction (MechanismOfAction.class, null),
 	Participates (Participates.class, null),
