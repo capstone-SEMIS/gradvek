@@ -17,6 +17,7 @@ public class Involves extends Edges {
 
 	public Involves (List<String> from, List<String> to, Map<String, String> params) {
 		super (from, to, params);
+		setDataset ("Involves");
 	}
 
 	/**
