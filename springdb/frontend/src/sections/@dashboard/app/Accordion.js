@@ -62,7 +62,11 @@ export default function PeterAccordion(props) {
           <Typography>{props.drugs}</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography>{props.content}</Typography>
+          {props.list.map(l => (
+            <Typography>
+              {l.drug} | {l.weight}
+            </Typography>
+          ))}
         </AccordionDetails>
       </Accordion>
     </div>
