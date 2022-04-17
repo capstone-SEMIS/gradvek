@@ -295,11 +295,18 @@ public class Controller {
 		return new ResponseEntity<Void> (HttpStatus.OK);		
 	}
 
-	@GetMapping("/ae/{target}")
+	@GetMapping("/weight/{target}")
 	public ResponseEntity<List<AdverseEventIntObj>> getAdverseEvent(@PathVariable(value="target") final String target) {
-		List<CytoscapeEntity> entities = mDriver.getAEPathByTarget(target);
 		List<AdverseEventIntObj> adverseEvents = mDriver.getAEByTarget(target);
 		return ResponseEntity.ok(adverseEvents);
+	}
+
+	@GetMapping("/weight/{target}/{ae}")
+	public ResponseEntity<List<Map>> getWeightsTargetAe(
+			@PathVariable(value = "target") final String target,
+			@PathVariable(value = "ae") final String ae) {
+		List<Map> results = mDriver.getWeightsByDrug(target, ae);
+		return ResponseEntity.ok(results);
 	}
 
 	@GetMapping("/ae/path/{target}")

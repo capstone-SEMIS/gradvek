@@ -84,7 +84,7 @@ export default function Searchbar({onResultsChange}) {
               console.log("Status " + response.status);
               response.json().then(r => {
                   console.log(r);
-                  onResultsChange(r);
+                  onResultsChange(values.searchText, r);
               });
           })
     }

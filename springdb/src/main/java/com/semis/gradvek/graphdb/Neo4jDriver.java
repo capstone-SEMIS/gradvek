@@ -241,6 +241,27 @@ public class Neo4jDriver implements DBDriver {
         }
     }
 
+    @Override
+    public List<Map> getWeightsByDrug(String target, String ae) {
+        List<Map> weights = new ArrayList<>();
+        try (Session session = mDriver.session()) {
+            session.readTransaction(tx -> {
+                String cmd = new CommandBuilder().getWeights(target).forAdverseEvent(ae).toCypher();
+                Result result = tx.run(cmd);
+                while (result.hasNext()) {
+                    Record record = result.next();
+                    org.neo4j.driver.types.Node drug  = record.get(0).asNode();
+                    String drugId = drug.get("chembl_code").asString();
+                    String drugName = drug.get("drugId").asString();
+                    double weight = record.get(1).asDouble();
+                    weights.add(Map.of("drugId", drugId, "drugName", drugName, "weight", weight));
+                }
+                return weights;
+            });
+        }
+        return weights;
+    }
+
 	public List<CytoscapeEntity> getAEPathByTarget (String target) {
 		mLogger.info ("Getting adverse event paths by target " + target);
 		try (Session session = mDriver.session ()) {

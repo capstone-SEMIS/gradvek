@@ -8,6 +8,7 @@ import com.semis.gradvek.entity.EntityType;
 import com.semis.gradvek.springdb.AdverseEventIntObj;
 
 import java.util.List;
+import java.util.Map;
 
 public interface DBDriver {
 
@@ -61,4 +62,6 @@ public interface DBDriver {
 	List<CytoscapeEntity> getAEPathByTarget(String target);
 
 	List<AdverseEventIntObj> getAEByTarget(String target);
+
+	List<Map> getWeightsByDrug(String target, String ae);
 }
