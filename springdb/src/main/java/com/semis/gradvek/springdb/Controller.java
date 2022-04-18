@@ -332,4 +332,10 @@ public class Controller {
 	public String home () {
 		return "Hello Gradvek";
 	}
+
+	@GetMapping("suggest/{hint}")
+	public ResponseEntity<List<Map>> getTargetSuggestions(@PathVariable(value="hint") final String hint) {
+		List<Map> suggestions = mDriver.getTargetSuggestions(hint);
+		return ResponseEntity.ok(suggestions);
+	}
 }

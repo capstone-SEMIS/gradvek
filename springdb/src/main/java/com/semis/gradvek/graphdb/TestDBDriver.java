@@ -140,6 +140,11 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
+	public List<Map> getTargetSuggestions(String hint) {
+		return new ArrayList<>();
+	}
+
+	@Override
 	public void loadCsv(String url, CsvFile csvFile) {
 	}
 

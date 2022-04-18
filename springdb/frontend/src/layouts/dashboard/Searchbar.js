@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import {useState} from 'react';
 // material
-import { styled, alpha } from '@mui/material/styles';
-import {Input, Slide, IconButton, InputAdornment, ClickAwayListener, Toolbar, AppBar} from '@mui/material';
+import {alpha, styled} from '@mui/material/styles';
+import {AppBar, Autocomplete, ClickAwayListener, IconButton, Slide, TextField, Toolbar} from '@mui/material';
 // component
 import Iconify from '../../components/Iconify';
 import {Form, FormikProvider, useFormik} from "formik";
 import {LoadingButton} from "@mui/lab";
 import PropTypes from "prop-types";
+import {debounce} from "lodash";
 
 // ----------------------------------------------------------------------
 
@@ -60,6 +61,7 @@ Searchbar.propTypes = {
 
 export default function Searchbar({onResultsChange}) {
   const [isOpen, setOpen] = useState(false);
+   const [suggestions, setSuggestions] = useState([]);
 
   const handleOpen = () => {
     setOpen((prev) => !prev);
@@ -92,6 +94,25 @@ export default function Searchbar({onResultsChange}) {
 
   const {isSubmitting, getFieldProps } = formik;
 
+    function suggest(event, value) {
+        if (!value) {
+            return;
+        }
+        fetch(`/api/suggest/${encodeURIComponent(value)}`).then((response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error(response.statusText);
+            }
+        })).then(body => {
+            setSuggestions(body);
+        }).catch(error => {
+            console.error(error.name + ': ' + error.message);
+        });
+    }
+
+    const debouncedSuggest = debounce(suggest, 250);
+
   return (
       <RootStyle>
           <ToolbarStyle>
@@ -106,28 +127,27 @@ export default function Searchbar({onResultsChange}) {
                       <Slide direction="down" in={isOpen} mountOnEnter unmountOnExit>
                           <SearchbarStyle>
                               <FormikProvider value={formik}>
-                                  <Form autoComplete="off" noValidate onSubmit={formik.handleSubmit}>
-                                      <Input
-                                          autoFocus
-                                          fullWidth
-                                          {...getFieldProps('searchText')}
-                                          onChange={formik.handleChange}
-                                          value={formik.values.searchText}
-                                          startAdornment={
-                                              <InputAdornment position="start">
-                                                  <Iconify
-                                                      icon="eva:search-fill"
-                                                      sx={{ color: 'text.disabled', width: 20, height: 20 }}
-                                                  />
-                                              </InputAdornment>
+                                  <Form autoComplete="off" noValidate onSubmit={(event) => {
+                                      const target = document.getElementById('autocomplete-field').value;
+                                      formik.setValues({"searchText": target});
+                                      formik.handleSubmit(event);
+                                  }}>
+                                      <Autocomplete
+                                          id='autocomplete-field'
+                                          freeSolo
+                                          options={suggestions}
+                                          getOptionLabel={(option) => option.symbol}
+                                          filterOptions={(options) => options}
+                                          renderOption={(props, option) =>
+                                              <li {...props}> {option.id + " : " + option.symbol + " : " + option.name}</li>
                                           }
-                                          sx={{ mr: 1, fontWeight: 'fontWeightBold' }}
+                                          sx={{ color: 'text.disabled', marginTop: '3em', marginBottom: '1em'}}
+                                          renderInput={(params) =>
+                                              <TextField {...params} label="Target" sx={{width: '36em'}}/>
+                                          }
+                                          onInputChange={debouncedSuggest}
                                       />
-                                      <LoadingButton
-                                          type="submit"
-                                          variant="contained"
-                                          loading={isSubmitting}
-                                      >
+                                      <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                                           Search
                                       </LoadingButton>
                                   </Form>
