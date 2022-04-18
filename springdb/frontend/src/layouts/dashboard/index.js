@@ -11,7 +11,8 @@ const RootStyle = styled('div')({
     display: 'flex',
     flexWrap: 'wrap',
     minHeight: '100%',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    alignItems: 'flex-start'
 });
 
 const MainStyle = styled('div')(({theme}) => ({
