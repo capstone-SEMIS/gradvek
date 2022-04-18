@@ -1,25 +1,22 @@
-package com.semis.gradvek.springdb;
+package com.semis.gradvek.graphdb;
 
 import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.cytoscape.CytoscapeEntity;
 import com.semis.gradvek.cytoscape.Node;
 import com.semis.gradvek.cytoscape.Relationship;
-import com.semis.gradvek.entity.*;
-
-import org.neo4j.driver.AuthTokens;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.GraphDatabase;
-
+import com.semis.gradvek.entity.Dataset;
+import com.semis.gradvek.entity.Entity;
+import com.semis.gradvek.entity.EntityType;
+import com.semis.gradvek.springdb.AdverseEventIntObj;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.*;
+import org.neo4j.driver.types.Path;
 import org.springframework.core.env.Environment;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import org.neo4j.driver.types.Path;
 
 /**
  * The abstraction of the access to the Neo4j database, delegating methods to
@@ -147,12 +144,19 @@ public class Neo4jDriver implements DBDriver {
     private void write(String command) {
         mLogger.fine(command);
         if (command != null && !command.isEmpty()) {
+            long startTime = System.currentTimeMillis();
             try (Session session = mDriver.session()) {
                 session.writeTransaction(tx -> {
                     tx.run(command);
                     return "";
                 });
             }
+            double duration = (System.currentTimeMillis() - startTime) / 1000.0;
+            mLogger.fine("Wrote command of length " + command.length() + " in " + duration + " seconds");
+//            if (duration > 1) {
+//                mLogger.info(command);
+//                throw new RuntimeException("Command execution too slow");
+//            }
         }
     }
 
@@ -215,49 +219,22 @@ public class Neo4jDriver implements DBDriver {
         }
     }
 
-    private final boolean checkDatasets (String... datasetNames) {
-    	List<Dataset> datasets = getDatasets ();
-    	Map<String, Boolean> enabled = new HashMap<> ();
-    	datasets.forEach (d -> enabled.put (d.getDataset (), d.isEnabled ()));
-    	boolean ret = true;
-    	
-    	for (String name: datasetNames) {
-    		if (name != null && !name.isEmpty ()) {
-    			ret = ret && enabled.getOrDefault (name, true);
-    		}
-    	}
-    	
-    	return (ret);
-    }
-    
     @Override
     public List<AdverseEventIntObj> getAEByTarget(String target) {
         mLogger.info("Getting adverse event by target " + target);
         try (Session session = mDriver.session()) {
             return session.readTransaction(tx -> {
-                String cmd = "match n=(e:AdverseEvent)-[c:ASSOCIATED_WITH]-(d:Drug)-[r:TARGETS]-(t:Target {symbol:'"
-                        + target + "'}) return e.dataset, c.dataset, d.dataset, r.dataset, t.dataset, e, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc";
+                String cmd = new CommandBuilder().getWeights(target).toCypher();
                 Result result = tx.run(cmd);
                 List<AdverseEventIntObj> finalMap = new LinkedList<>();
                 while (result.hasNext()) {
                   Record record = result.next();
- 
-                	boolean allEnabled = checkDatasets (
-                    		record.fields ().get (0).value ().asString (),
-                    		record.fields ().get (1).value ().asString (),
-                    		record.fields ().get (2).value ().asString (),
-                    		record.fields ().get (3).value ().asString (),
-                    		record.fields ().get (4).value ().asString ()
-                    	);
-                	
-                	if (allEnabled) {
 	                    String id = record.fields().get(5).value().asEntity().get("adverseEventId").asString();
 	                    String code = record.fields().get(5).value().asEntity().get("meddraCode").asString();
 	                    AdverseEventIntObj ae = new AdverseEventIntObj(id, id, code);
 	                    ae.setLlr(record.fields().get(6).value().asDouble());
 	
 	                    finalMap.add(ae);
-                	}
                 }
                 return finalMap;
             });
@@ -268,6 +245,7 @@ public class Neo4jDriver implements DBDriver {
 		mLogger.info ("Getting adverse event paths by target " + target);
 		try (Session session = mDriver.session ()) {
 			return session.readTransaction (tx -> {
+                // String cmd = new CommandBuilder().getPaths(target).limit(10).toCypher();
 				String cmd = "match n=(e:AdverseEvent)-[c:ASSOCIATED_WITH]-(:Drug)-[:TARGETS]-(:Target {symbol:'"
 						+ target + "'}) return n, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc limit 10";
 				Result result = tx.run (cmd);
