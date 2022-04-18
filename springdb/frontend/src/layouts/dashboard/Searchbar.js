@@ -21,7 +21,8 @@ const RootStyle = styled(AppBar)(({ theme }) => ({
     backgroundColor: alpha(theme.palette.background.default, 0.72),
     [theme.breakpoints.up('lg')]: {
         width: `calc(100% - ${DRAWER_WIDTH + 1}px)`
-    }
+    },
+    position: "sticky"
 }));
 
 const ToolbarStyle = styled(Toolbar)(({ theme }) => ({
