@@ -26,6 +26,7 @@ public class CommandBuilder {
     private List<String> actionTypes = null;
     private Goal goal = null;
     private int count = 0;
+    private String drug = null;
 
     private enum Goal {WEIGHTS, PATHS}
 
@@ -48,6 +49,11 @@ public class CommandBuilder {
 
     public CommandBuilder forActionTypes(List<String> actionTypes) {
         this.actionTypes = actionTypes;
+        return this;
+    }
+
+    public CommandBuilder forDrug(String drug) {
+        this.drug = drug;
         return this;
     }
 
@@ -90,6 +96,11 @@ public class CommandBuilder {
             command.append(" AND nae.meddraCode = '").append(adverseEvent).append("'");
         }
 
+        // Limit to drug
+        if (drug != null) {
+            command.append(" AND nd.chembl_code = '").append(drug).append("'");
+        }
+
         // Limit to action types
         if (actionTypes != null && actionTypes.size() > 0) {
             command.append(" AND rt.actionType IN ");
@@ -106,7 +117,7 @@ public class CommandBuilder {
         // Summarize the total weights along relevant paths
         if (goal == Goal.WEIGHTS) {
 
-            // If we already know the adverse event, then summarize by drug instead of adverse event.
+            // If we know the adverse event, then summarize by drug, otherwise summarize by adverse event.
             if (adverseEvent != null) {
                 command.append(" RETURN nd, sum(toFloat(raw.llr))");
             } else {
@@ -136,40 +147,5 @@ public class CommandBuilder {
         }
 
         return command.toString();
-    }
-
-    // Missing paths for a particular drug
-    public static void main(String[] args) {
-        System.out.println(new CommandBuilder().getWeights("JAK3").toCypher());
-        System.out.println();
-        System.out.println(new CommandBuilder().getWeights("JAK3").forAdverseEvent("10042868").toCypher());
-        System.out.println();
-        System.out.println(new CommandBuilder().getWeights("JAK3").forActionTypes(List.of("OPENER", "INHIBITOR")).toCypher());
-        System.out.println();
-        System.out.println(new CommandBuilder().getWeights("JAK3").forAdverseEvent("10042868").forActionTypes(List.of("OPENER", "INHIBITOR")).toCypher());
-        System.out.println();
-        System.out.println(new CommandBuilder().getWeights("JAK3").limit(3).toCypher());
-        System.out.println();
-        System.out.println(new CommandBuilder().getWeights("JAK3").forAdverseEvent("10042868").limit(3).toCypher());
-        System.out.println();
-        System.out.println(new CommandBuilder().getWeights("JAK3").forActionTypes(List.of("OPENER", "INHIBITOR")).limit(3).toCypher());
-        System.out.println();
-        System.out.println(new CommandBuilder().getWeights("JAK3").forAdverseEvent("10042868").forActionTypes(List.of("OPENER", "INHIBITOR")).limit(3).toCypher());
-        System.out.println();
-        System.out.println(new CommandBuilder().getPaths("JAK3").toCypher());
-        System.out.println();
-        System.out.println(new CommandBuilder().getPaths("JAK3").forAdverseEvent("10042868").toCypher());
-        System.out.println();
-        System.out.println(new CommandBuilder().getPaths("JAK3").forActionTypes(List.of("OPENER", "INHIBITOR")).toCypher());
-        System.out.println();
-        System.out.println(new CommandBuilder().getPaths("JAK3").forAdverseEvent("10042868").forActionTypes(List.of("OPENER", "INHIBITOR")).toCypher());
-        System.out.println();
-        System.out.println(new CommandBuilder().getPaths("JAK3").limit(3).toCypher());
-        System.out.println();
-        System.out.println(new CommandBuilder().getPaths("JAK3").forAdverseEvent("10042868").limit(3).toCypher());
-        System.out.println();
-        System.out.println(new CommandBuilder().getPaths("JAK3").forActionTypes(List.of("OPENER", "INHIBITOR")).limit(3).toCypher());
-        System.out.println();
-        System.out.println(new CommandBuilder().getPaths("JAK3").forAdverseEvent("10042868").forActionTypes(List.of("OPENER", "INHIBITOR")).limit(3).toCypher());
     }
 }
