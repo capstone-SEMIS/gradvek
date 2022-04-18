@@ -1,6 +1,6 @@
 // material
-import { Grid, Container } from '@mui/material';
-import { Component } from 'react';
+import {Grid} from '@mui/material';
+import {Component} from 'react';
 // components
 import Page from '../components/Page';
 
@@ -11,46 +11,42 @@ import Searchbar from "../layouts/dashboard/Searchbar";
 // ----------------------------------------------------------------------
 
 export default class DashboardApp extends Component {
-  constructor(props){
-    super(props)
-    this.handleResultsChange = this.handleResultsChange.bind(this);
-    this.state = {
-      "nodeFilter": '*', //initially, all nodes are visible
-      "focusNode": {},
-      "resultNodes": []
-    };
-    this.AEfilterCallback = this.AEfilterCallback.bind(this);
-  }
+    constructor(props) {
+        super(props)
+        this.handleResultsChange = this.handleResultsChange.bind(this);
+        this.state = {
+            "nodeFilter": '*', //initially, all nodes are visible
+            "focusNode": {},
+            "resultNodes": []
+        };
+        this.AEfilterCallback = this.AEfilterCallback.bind(this);
+    }
 
-  handleResultsChange(results) {
-    this.setState({focusNode:{}});
-    this.setState({resultNodes: results});
-  }
-  
-  AEfilterCallback(AE_id) {
-    this.setState({
-      "focusNode": {"AE": AE_id}
-    });
-  }
+    handleResultsChange(results) {
+        this.setState({focusNode: {}});
+        this.setState({resultNodes: results});
+    }
 
-  render(){
-    return (
-      <Page title="Gradvek">
-        <Container maxWidth="xl">
-          <Searchbar onResultsChange={this.handleResultsChange}/>
+    AEfilterCallback(AE_id) {
+        this.setState({
+            "focusNode": {"AE": AE_id}
+        });
+    }
 
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={8}>
-              <AEList graphNodes={this.state.resultNodes} filterHandler={this.AEfilterCallback}/>
-            </Grid>
-
-            <Grid item xs={12} md={6} lg={8}>
-              <CytoCard graphNodes={this.state.resultNodes} nodeFilter={this.state.nodeFilter} focusNode={this.state.focusNode}/>
-            </Grid>
-
-          </Grid>
-        </Container>
-      </Page>
-    );
-  }
+    render() {
+        return (
+            <Page title="Gradvek">
+                <Searchbar onResultsChange={this.handleResultsChange}/>
+                <Grid container spacing={3}>
+                    <Grid item xs={12} md={6}>
+                        <AEList graphNodes={this.state.resultNodes} filterHandler={this.AEfilterCallback}/>
+                    </Grid>
+                    <Grid item xs={12} md={6} position='sticky' top={0} id='grid-sticky' alignSelf='flex-start'>
+                        <CytoCard graphNodes={this.state.resultNodes} nodeFilter={this.state.nodeFilter}
+                                  focusNode={this.state.focusNode}/>
+                    </Grid>
+                </Grid>
+            </Page>
+        );
+    }
 }

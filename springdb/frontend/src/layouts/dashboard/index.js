@@ -11,13 +11,11 @@ const RootStyle = styled('div')({
     display: 'flex',
     flexWrap: 'wrap',
     minHeight: '100%',
-    overflow: 'hidden',
     alignItems: 'flex-start'
 });
 
 const MainStyle = styled('div')(({theme}) => ({
     flexGrow: 1,
-    overflow: 'auto',
     minHeight: '100%',
     paddingBottom: theme.spacing(10),
     [theme.breakpoints.up('lg')]: {
