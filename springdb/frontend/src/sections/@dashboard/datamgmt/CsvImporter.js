@@ -115,7 +115,7 @@ function Helper() {
   );
 }
 
-export default function Uploader() {
+export default function Uploader(props) {
   const [INIT, SPINNING, SUCCESS, FAILURE] = [0, 1, 2, 3];
   const [progress, setProgress] = useState(INIT);
 
@@ -133,6 +133,7 @@ export default function Uploader() {
       .then(response => {
         if (response.ok) {
           setProgress(SUCCESS);
+          props.fetchData();
         } else {
           throw new Error(response.statusText);
         }

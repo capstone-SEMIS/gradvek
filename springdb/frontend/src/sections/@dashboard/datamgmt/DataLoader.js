@@ -5,26 +5,26 @@ class DataLoader extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data_array: []
+      dataArray: props.dataArray
     };
   }
 
-  async componentDidMount() {
-    const url = "/api/datasets";
-    const objectFromUrl = await fetch(url);
-    const data = await objectFromUrl.json();
-    console.log("dataloader", data);
-    this.setState({
-      data_array: data
-    });
-  }
+  // async componentDidMount() {
+  //   const url = "/api/datasets";
+  //   const objectFromUrl = await fetch(url);
+  //   const data = await objectFromUrl.json();
+  //   console.log("dataloader", data);
+  //   this.setState({
+  //     data_array: data
+  //   });
+  // }
 
   render() {
-    const { data_array } = this.state;
+    const { dataArray } = this.state;
 
     return (
       <div>
-        {data_array.length > 0 && <CheckboxParent data_array={data_array} />}
+        {dataArray.length > 0 && <CheckboxParent dataArray={dataArray} />}
       </div>
     );
   }
