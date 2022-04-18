@@ -3,7 +3,6 @@ import { Typography, Box } from "@mui/material";
 
 // components
 import Page from "../components/Page";
-import DataLoader from "../sections/@dashboard/datamgmt/DataLoader";
 import CsvImporter from "../sections/@dashboard/datamgmt/CsvImporter";
 import { useState, useEffect } from "react";
 import CheckboxParent from "../sections/@dashboard/datamgmt/CheckboxParent";
