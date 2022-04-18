@@ -92,7 +92,7 @@ export default function Searchbar({onResultsChange}) {
     }
   });
 
-  const {isSubmitting, getFieldProps } = formik;
+  const {isSubmitting} = formik;
 
     function suggest(event, value) {
         if (!value) {
