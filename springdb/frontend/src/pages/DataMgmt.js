@@ -42,6 +42,7 @@ export default function DataMgmtPage() {
         </Typography>
         {/* <DataLoader dataArray={dataArray} /> */}
         <CheckboxParent dataArray={dataArray} />
+
       </Box>
     </Page>
   );
