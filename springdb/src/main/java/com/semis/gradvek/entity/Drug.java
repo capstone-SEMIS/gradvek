@@ -6,13 +6,15 @@ import java.util.List;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.parquet.example.data.Group;
 
+import com.semis.gradvek.springdb.Importer;
+
 public class Drug extends NamedEntity {
 
-	private final String mChemblCode;
+	private final String mChemblId;
 	
 	public Drug (String name, String code) {
 		super (name);
-		mChemblCode = code;
+		mChemblId = code;
 	}
 
 	/* drug Parquet schema, the fields we use are marked with ^:
@@ -86,21 +88,21 @@ message spark_schema {
 }
 
 	 */
-	public Drug(Group data) {
+	public Drug(Importer importer, Group data) {
 		super(data.getString ("name", 0));
-		mChemblCode = data.getString ("id", 0);
+		mChemblId = data.getString ("id", 0);
 		setDataset ("Drug");
 	}
 
 	public String getChemblCode () {
-		return mChemblCode;
+		return mChemblId;
 	}
 
 	@Override
 	public final List<String> addCommands () {
 		return Collections.singletonList("CREATE (:Drug" + " {" + "drugId:\'" + StringEscapeUtils.escapeEcmaScript (getName ()) + "\', "
 				+ "dataset: \'" + getDataset () + "\', "
-				+ "chembl_code:\'" + StringEscapeUtils.escapeEcmaScript (mChemblCode) + "\'})");
+				+ DRUG_ID_STRING + ":\'" + StringEscapeUtils.escapeEcmaScript (mChemblId) + "\'})");
 	}
 	
 	@Override
@@ -116,7 +118,7 @@ message spark_schema {
 	@Override
 	public boolean equals (Object otherObj) {
 		if (otherObj instanceof Drug) {
-			return ((Drug) otherObj).mChemblCode.equals (mChemblCode);
+			return ((Drug) otherObj).mChemblId.equals (mChemblId);
 		} else {
 			return (false);
 		}
@@ -124,7 +126,7 @@ message spark_schema {
 	
 	@Override
 	public int hashCode () {
-		return (mChemblCode.hashCode ());
+		return (mChemblId.hashCode ());
 	}
 
 	@Override

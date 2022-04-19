@@ -26,7 +26,7 @@ public class ImporterTests {
 	}
 	@Test
 	public void testImport () {
-		List<Entity> imported = Importer.readEntities (mParquet, EntityType.Target);
+		List<Entity> imported = new Importer (new TestDBDriver ()).readEntities (mParquet, EntityType.Target);
 		
 		Assertions.assertEquals (imported.size (), 316);
 		imported.forEach (e -> Assertions.assertTrue (e instanceof Target));

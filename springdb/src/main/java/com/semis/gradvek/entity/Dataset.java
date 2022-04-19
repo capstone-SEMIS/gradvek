@@ -3,7 +3,9 @@ package com.semis.gradvek.entity;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.parquet.example.data.Group; 
+import org.apache.parquet.example.data.Group;
+
+import com.semis.gradvek.springdb.Importer; 
 
 public class Dataset extends Entity {
 
@@ -21,7 +23,7 @@ public class Dataset extends Entity {
 		mEnabled = true;
 	}
 
-	public Dataset (Group data) {
+	public Dataset (Importer importer, Group data) {
 		this (
 			data.getString ("dataset", 0),
 			data.getString ("description", 0),

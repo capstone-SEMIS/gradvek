@@ -6,6 +6,8 @@ import java.util.List;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.parquet.example.data.Group;
 
+import com.semis.gradvek.springdb.Importer;
+
 /**
  * The immutable object representing a pathway from the OpenTargets
  * database
@@ -32,7 +34,7 @@ public class Pathway extends NamedEntity {
 
 	 */
 
-	public Pathway(Group data) {
+	public Pathway(Importer importer, Group data) {
 		super(data.getString ("pathway", 0));
 		mId = data.getString ("pathwayId", 0);
 		mTerm = data.getString ("topLevelTerm", 0);

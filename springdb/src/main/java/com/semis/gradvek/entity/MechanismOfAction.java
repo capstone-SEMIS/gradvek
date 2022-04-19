@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.parquet.example.data.Group;
 
 import com.semis.gradvek.parquet.ParquetUtils;
+import com.semis.gradvek.springdb.Importer;
 
 /**
  * The immutable class representing a connection between
@@ -61,7 +62,7 @@ public class MechanismOfAction extends Edges {
 	 * 
 	 * @param data the full Parquet entity for this event
 	 */
-	public MechanismOfAction (Group data) {
+	public MechanismOfAction (Importer importer, Group data) {
 		super (
 				ParquetUtils.extractStringList (data, "chemblIds"),
 				ParquetUtils.extractStringList (data, "targets"),
@@ -84,8 +85,8 @@ public class MechanismOfAction extends Edges {
 		getFrom ().forEach (from -> {
 			getTo ().forEach (to -> {
 				String cmd = "MATCH (from:Drug), (to:Target)\n"
-						+ "WHERE from.chembl_code=\'" + from + "\'\n"
-						+ "AND to.targetId=\'" + to + "\'\n"
+						+ "WHERE from." + DRUG_ID_STRING + "=\'" + from + "\'\n"
+						+ "AND to." + TARGET_ID_STRING + "=\'" + to + "\'\n"
 						+ "CREATE (from)-[:TARGETS"
 						+ " { dataset: \'" + getDataset () + "\' "
 						+ (jsonMap != null ? (", " + jsonMap) : "")

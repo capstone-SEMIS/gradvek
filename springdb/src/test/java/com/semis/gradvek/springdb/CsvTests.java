@@ -2,6 +2,8 @@ package com.semis.gradvek.springdb;
 
 import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.csv.CsvService;
+import com.semis.gradvek.entity.Constants;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatObject;
 
 @SpringBootTest
 @TestPropertySource(properties = "db.type=inmem")
-class CsvTests {
+class CsvTests implements Constants {
     @Autowired
     private Controller controller;
 
@@ -108,7 +110,7 @@ class CsvTests {
         CsvService csvService = CsvService.getInstance();
 
         CsvTestFile csvTest = new CsvTestFile("test");
-        csvTest.setHeaders(List.of("Relationship", "not_a_meddraCode", "chembl_code"));
+        csvTest.setHeaders(List.of("Relationship", "not_a_meddraCode", DRUG_ID_STRING));
         csvTest.addRow(List.of("hello", "beautiful", "world"));
 
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
@@ -122,7 +124,7 @@ class CsvTests {
         CsvService csvService = CsvService.getInstance();
 
         CsvTestFile csvTest = new CsvTestFile("test");
-        csvTest.setHeaders(List.of("Relationship", "meddraCode", "not_a_chembl_code"));
+        csvTest.setHeaders(List.of("Relationship", ADVERSE_EVENT_ID_STRING, "not_a_chembl_code"));
         csvTest.addRow(List.of("hello", "beautiful", "world"));
 
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
@@ -136,13 +138,13 @@ class CsvTests {
         CsvService csvService = CsvService.getInstance();
 
         CsvTestFile csvTest = new CsvTestFile("test");
-        csvTest.setHeaders(List.of("Relationship", "chembl_code", "geneId"));
+        csvTest.setHeaders(List.of("Relationship", DRUG_ID_STRING, GENE_ID_STRING));
         csvTest.addRow(List.of("hello", "beautiful", "world"));
 
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Drug {chembl_code: line[1]}), (toNode:Gene {geneId: line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello' }]->(toNode) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Drug {" + DRUG_ID_STRING + ": line[1]}), (toNode:Gene {geneId: line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello' }]->(toNode) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 
@@ -151,13 +153,13 @@ class CsvTests {
         CsvService csvService = CsvService.getInstance();
 
         CsvTestFile csvTest = new CsvTestFile("test");
-        csvTest.setHeaders(List.of("Relationship", "targetId", "pathwayId", "firstProp"));
+        csvTest.setHeaders(List.of("Relationship", TARGET_ID_STRING, PATHWAY_ID_STRING, "firstProp"));
         csvTest.addRow(List.of("hello", "strange", "beautiful", "world"));
 
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Target {targetId: line[1]}), (toNode:Pathway {pathwayId: line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello', firstProp: line[3] }]->(toNode) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Target {" + TARGET_ID_STRING + ": line[1]}), (toNode:Pathway {pathwayId: line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello', firstProp: line[3] }]->(toNode) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 
@@ -166,13 +168,13 @@ class CsvTests {
         CsvService csvService = CsvService.getInstance();
 
         CsvTestFile csvTest = new CsvTestFile("test");
-        csvTest.setHeaders(List.of("Relationship", "meddraCode", "meddraCode", "firstProp", "secondProp"));
+        csvTest.setHeaders(List.of("Relationship", ADVERSE_EVENT_ID_STRING, ADVERSE_EVENT_ID_STRING, "firstProp", "secondProp"));
         csvTest.addRow(List.of("hello", "strange", "beautiful", "bittersweet", "world"));
 
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:AdverseEvent {meddraCode: line[1]}), (toNode:AdverseEvent {meddraCode: line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello', firstProp: line[3], secondProp: line[4] }]->(toNode) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:AdverseEvent {" + ADVERSE_EVENT_ID_STRING + ": line[1]}), (toNode:AdverseEvent {" + ADVERSE_EVENT_ID_STRING + ": line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello', firstProp: line[3], secondProp: line[4] }]->(toNode) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 

@@ -7,6 +7,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.apache.parquet.example.data.Group;
 
 import com.semis.gradvek.parquet.ParquetUtils;
+import com.semis.gradvek.springdb.Importer;
 
 /**
  * The immutable object representing a drug target from the OpenTargets
@@ -16,14 +17,12 @@ import com.semis.gradvek.parquet.ParquetUtils;
  *
  */public class Target extends NamedEntity {
 
-	private final String mId;
+	private final String mEnsembleId;
 	private final String mSymbol;
 	
-	private transient List<Pathway> mParquetPathways = new ArrayList<> ();
-
 	public Target (String name, String id, String symbol) {
 		super (name);
-		mId = id;
+		mEnsembleId = id;
 		mSymbol = symbol;
 	}
 	
@@ -294,19 +293,19 @@ message spark_schema {
 
 	 */
 
-	public Target(Group data) {
+	public Target(Importer importer, Group data) {
 		super(data.getString ("approvedName", 0));
 		mSymbol = data.getString ("approvedSymbol", 0);
-		mId = data.getString ("id", 0);
+		mEnsembleId = data.getString ("id", 0);
 		setDataset ("Target");
 		
 		List<Group> pathways = ParquetUtils.extractGroupList (data, "pathways");
-		pathways.forEach (p -> mParquetPathways.add (new Pathway (p)));
+		pathways.forEach (p -> importer.additionalEntity (new Pathway (importer, p)));
 	}
 
 	@Override
 	public String getId () {
-		return mId;
+		return mEnsembleId;
 	}
 
 	@Override
@@ -314,13 +313,11 @@ message spark_schema {
 		List<String> ret = new ArrayList<> ();
 		ret.add ("CREATE (:Target" 
 				+ " {" + "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
-				+ "targetId:\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\', "
+				+ TARGET_ID_STRING + ":\'" + StringEscapeUtils.escapeEcmaScript (mEnsembleId) + "\', "
 				+ "dataset: \'" + getDataset () + "\', "
 				+ "symbol:\'" + StringEscapeUtils.escapeEcmaScript (mSymbol) + "\'"
 				+ "})");
 
-		mParquetPathways.forEach (p -> ret.add (p.addCommands ().get (0)));
-		
 		return (ret);
 	}
 	
@@ -332,7 +329,7 @@ message spark_schema {
 	@Override
 	public boolean equals (Object otherObj) {
 		if (otherObj instanceof Target) {
-			return ((Target) otherObj).mId.equals (mId);
+			return ((Target) otherObj).mEnsembleId.equals (mEnsembleId);
 		} else {
 			return (false);
 		}
@@ -340,7 +337,7 @@ message spark_schema {
 	
 	@Override
 	public int hashCode () {
-		return (mId.hashCode ());
+		return (mEnsembleId.hashCode ());
 	}
 
 }
