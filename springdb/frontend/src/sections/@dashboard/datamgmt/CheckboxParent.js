@@ -76,7 +76,6 @@ class CheckboxParent extends Component {
         <div className="row">
           <div className="col-sm-12">
             <form onSubmit={this.handleFormSubmit}>
-              {/* <this.createCheckboxes()/> */}
               <this.CreateCheckboxes />
 
               <Button variant="contained" type="submit">
