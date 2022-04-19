@@ -17,12 +17,14 @@ export default class DashboardApp extends Component {
         this.state = {
             "nodeFilter": '*', //initially, all nodes are visible
             "focusNode": {},
-            "resultNodes": []
+            "resultNodes": [],
+            "target": ""
         };
         this.AEfilterCallback = this.AEfilterCallback.bind(this);
     }
 
-    handleResultsChange(results) {
+    handleResultsChange(newTarget, results) {
+        this.setState({target: newTarget});
         this.setState({focusNode: {}});
         this.setState({resultNodes: results});
     }
@@ -39,7 +41,8 @@ export default class DashboardApp extends Component {
                 <Searchbar onResultsChange={this.handleResultsChange}/>
                 <Grid container spacing={3}>
                     <Grid item xs={12} md={6}>
-                        <AEList graphNodes={this.state.resultNodes} filterHandler={this.AEfilterCallback}/>
+                        <AEList target={this.state.target} graphNodes={this.state.resultNodes}
+                                filterHandler={this.AEfilterCallback}/>
                     </Grid>
                     <Grid item xs={12} md={6} position='sticky' top={0} id='grid-sticky' alignSelf='flex-start'>
                         <CytoCard graphNodes={this.state.resultNodes} nodeFilter={this.state.nodeFilter}

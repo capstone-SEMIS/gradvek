@@ -140,6 +140,11 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
+	public List<Map> getTargetSuggestions(String hint) {
+		return new ArrayList<>();
+	}
+
+	@Override
 	public void loadCsv(String url, CsvFile csvFile) {
 	}
 
@@ -164,5 +169,10 @@ public class TestDBDriver implements DBDriver {
 	public List<CytoscapeEntity> getAEPathByTarget(String target) {
 		final List<CytoscapeEntity> ret = new ArrayList<> ();
 		return ret; // TODO Yan
+	}
+
+	@Override
+	public List<Map> getWeightsByDrug(String target, String ae) {
+		return new ArrayList<>();
 	}
 }
