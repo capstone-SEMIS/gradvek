@@ -46,7 +46,7 @@ class CheckboxParent extends Component {
       })
       .then(function(response) {
         console.log(response);
-        if (response.status == 200) {
+        if (response.status === 200) {
           toast.success("Successfully Updated!");
         } else toast.error("Update FAILED!");
       })
