@@ -170,4 +170,9 @@ public class TestDBDriver implements DBDriver {
 		final List<CytoscapeEntity> ret = new ArrayList<> ();
 		return ret; // TODO Yan
 	}
+
+	@Override
+	public List<Map> getWeightsByDrug(String target, String ae) {
+		return new ArrayList<>();
+	}
 }

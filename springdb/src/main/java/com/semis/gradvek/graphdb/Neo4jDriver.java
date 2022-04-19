@@ -242,33 +242,55 @@ public class Neo4jDriver implements DBDriver {
     }
 
     @Override
-    public List<Map> getTargetSuggestions(String hint) {
-        List<Map> suggestions = new ArrayList<>();
-        String upperCaseHint = hint.toUpperCase();
+    public List<Map> getWeightsByDrug(String target, String ae) {
+        List<Map> weights = new ArrayList<>();
         try (Session session = mDriver.session()) {
             session.readTransaction(tx -> {
-                String cmd = "MATCH (nt:Target)"
-                        + " WHERE toUpper(nt.name) CONTAINS '" + upperCaseHint + "'"
-                        + " OR toUpper(nt.symbol) CONTAINS '" + upperCaseHint + "'"
-                        + " OR toUpper(nt.targetId) CONTAINS '" + upperCaseHint + "'"
-                        + " RETURN nt"
-                        + " LIMIT 12";
+                String cmd = new CommandBuilder().getWeights(target).forAdverseEvent(ae).toCypher();
                 Result result = tx.run(cmd);
                 while (result.hasNext()) {
                     Record record = result.next();
-                    org.neo4j.driver.types.Node target = record.get(0).asNode();
-                    String id = target.get("targetId").asString();
-                    String symbol = target.get("symbol").asString();
-                    String name = target.get("name").asString();
-                    suggestions.add(Map.of("id", id, "symbol", symbol, "name", name));
+                    org.neo4j.driver.types.Node drug  = record.get(0).asNode();
+                    String drugId = drug.get("chembl_code").asString();
+                    String drugName = drug.get("drugId").asString();
+                    double weight = record.get(1).asDouble();
+                    weights.add(Map.of("drugId", drugId, "drugName", drugName, "weight", weight));
                 }
-                return suggestions;
+                return weights;
             });
         }
-        return suggestions;
+        return weights;
     }
 
-    public List<CytoscapeEntity> getAEPathByTarget (String target) {
+  @Override
+  public List<Map> getTargetSuggestions(String hint) {
+      List<Map> suggestions = new ArrayList<>();
+      String upperCaseHint = hint.toUpperCase();
+      try (Session session = mDriver.session()) {
+          session.readTransaction(tx -> {
+              String cmd = "MATCH (nt:Target)"
+                      + " WHERE toUpper(nt.name) CONTAINS '" + upperCaseHint + "'"
+                      + " OR toUpper(nt.symbol) CONTAINS '" + upperCaseHint + "'"
+                      + " OR toUpper(nt.targetId) CONTAINS '" + upperCaseHint + "'"
+                      + " RETURN nt"
+                      + " LIMIT 12";
+              Result result = tx.run(cmd);
+              while (result.hasNext()) {
+                  Record record = result.next();
+                  org.neo4j.driver.types.Node target = record.get(0).asNode();
+                  String id = target.get("targetId").asString();
+                  String symbol = target.get("symbol").asString();
+                  String name = target.get("name").asString();
+                  suggestions.add(Map.of("id", id, "symbol", symbol, "name", name));
+              }
+              return suggestions;
+          });
+      }
+      return suggestions;
+  }
+
+  @Override
+  public List<CytoscapeEntity> getAEPathByTarget (String target) {
 		mLogger.info ("Getting adverse event paths by target " + target);
 		try (Session session = mDriver.session ()) {
 			return session.readTransaction (tx -> {
