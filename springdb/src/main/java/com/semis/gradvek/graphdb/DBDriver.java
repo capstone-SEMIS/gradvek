@@ -64,4 +64,7 @@ public interface DBDriver {
 	List<AdverseEventIntObj> getAEByTarget(String target);
 
 	List<Map> getWeightsByDrug(String target, String ae);
+
+  List<Map> getTargetSuggestions(String hint);
+  
 }
