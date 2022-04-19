@@ -6,7 +6,7 @@ import Page from '../components/Page';
 
 import CytoCard from '../sections/@dashboard/app/CytoCard';
 import AEList from '../sections/@dashboard/app/AEList';
-import Searchbar from "../layouts/dashboard/Searchbar";
+import SearchControl from "../sections/@dashboard/app/SearchControl";
 
 // ----------------------------------------------------------------------
 
@@ -18,17 +18,23 @@ export default class DashboardApp extends Component {
             "focusNode": {},
             "resultNodes": [],
             "target": "",
-            "tableResults": []
+            "tableResults": [],
+            "actions": []
         };
         this.refreshResults = this.refreshResults.bind(this);
         this.refreshViz = this.refreshViz.bind(this);
+        this.refreshActions = this.refreshActions.bind(this);
+    }
+
+    componentDidMount() {
+        this.refreshActions();
     }
 
     refreshViz(target, ae = null) {
         this.setState({focusNode: {}});
 
-        const urlStart = `/api/ae/path/${target}`;
-        const url = ae === null ? urlStart : `${urlStart}/${ae}`;
+        const urlStart = `/api/ae/path/${encodeURIComponent(target)}`;
+        const url = ae === null ? urlStart : `${urlStart}/${encodeURIComponent(ae)}`;
 
         fetch(url).then(response => {
             if (response.ok) {
@@ -46,7 +52,7 @@ export default class DashboardApp extends Component {
     refreshResults(target) {
         this.setState({target: target});
 
-        fetch(`/api/weight/${target}`).then(response => {
+        fetch(`/api/weight/${encodeURIComponent(target)}`).then(response => {
             if (response.ok) {
                 return response.json();
             } else {
@@ -59,15 +65,36 @@ export default class DashboardApp extends Component {
         });
 
         this.refreshViz(target);
+        this.refreshActions(target);
     }
 
+    refreshActions(target = null) {
+        const urlStart = '/api/actions';
+        const url = target === null ? urlStart : `${urlStart}/${encodeURIComponent(target)}`;
+
+        fetch(url).then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error(response.statusText);
+            }
+        }).then(body => {
+            this.setState({actions: body});
+        }).catch(error => {
+            console.error(`${error.name}: ${error.message}`);
+        })
+    }
+
+    fetchGetTo() {
+        // TODO
+    }
 
     render() {
         return (
             <Page title="Gradvek">
                 <Grid container spacing={3}>
                     <Grid item xs={12} md={6}>
-                        <Searchbar onResultsChange={this.refreshResults}/>
+                        <SearchControl onResultsChange={this.refreshResults} actions={this.state.actions}/>
                         <AEList target={this.state.target} tableResults={this.state.tableResults}
                                 filterHandler={this.refreshViz}/>
                     </Grid>

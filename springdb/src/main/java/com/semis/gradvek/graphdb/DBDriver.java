@@ -68,4 +68,8 @@ public interface DBDriver {
 	List<Map> getTargetSuggestions(String hint);
 
     List<CytoscapeEntity> getPathsTargetAe(String target, String ae);
+
+    List<Map> getActions();
+
+	List<Map> getActions(String target);
 }

@@ -357,4 +357,16 @@ public class Controller {
 		List<Map> suggestions = mDriver.getTargetSuggestions(hint);
 		return ResponseEntity.ok(suggestions);
 	}
+
+	@GetMapping("actions")
+	public ResponseEntity<List<Map>> getActions() {
+		List<Map> actions = mDriver.getActions();
+		return ResponseEntity.ok(actions);
+	}
+
+	@GetMapping("actions/{target}")
+	public ResponseEntity<List<Map>> getActions(@PathVariable(value="target") final String target) {
+		List<Map> actions = mDriver.getActions(target);
+		return ResponseEntity.ok(actions);
+	}
 }

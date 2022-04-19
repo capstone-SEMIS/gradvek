@@ -150,6 +150,16 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
+	public List<Map> getActions() {
+		return new ArrayList<>();
+	}
+
+	@Override
+	public List<Map> getActions(String target) {
+		return new ArrayList<>();
+	}
+
+	@Override
 	public void loadCsv(String url, CsvFile csvFile) {
 	}
 

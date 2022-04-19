@@ -387,13 +387,48 @@ public class Neo4jDriver implements DBDriver {
     }
 
     @Override
+    public List<Map> getActions() {
+        return getActions(null);
+    }
+
+    @Override
+    public List<Map> getActions(String target) {
+        List<Map> actions = new ArrayList<>();
+
+        String cmdFilter;
+        if (target == null) {
+            cmdFilter = "";
+        } else {
+            cmdFilter = " WHERE toUpper(nt.symbol) = '" + target.toUpperCase(Locale.ROOT) + "'";
+        }
+
+        try (Session session = mDriver.session()) {
+            session.readTransaction(tx -> {
+                String cmd = "MATCH (:Drug)-[rt:TARGETS]-(:Target)"
+                        + " WITH DISTINCT rt.actionType AS actType"
+                        + " OPTIONAL MATCH (:Drug)-[rt2:TARGETS {actionType: actType}]-(nt:Target)"
+                        + cmdFilter
+                        + " RETURN actType, COUNT(rt2)"
+                        + " ORDER BY actType";
+                Result result = tx.run(cmd);
+                while (result.hasNext()) {
+                    Record record = result.next();
+                    String action = record.get(0).asString();
+                    long count = record.get(1).asLong();
+                    actions.add(Map.of("action", action, "count", count));
+                }
+                return actions;
+            });
+        }
+        return actions;
+    }
+
+    @Override
     public List<CytoscapeEntity> getAEPathByTarget(String target) {
         mLogger.info("Getting adverse event paths by target " + target);
         try (Session session = mDriver.session()) {
             return session.readTransaction(tx -> {
                 String cmd = new CommandBuilder().getPaths(target).toCypher();
-//				String cmd = "match n=(e:AdverseEvent)-[c:ASSOCIATED_WITH]-(:Drug)-[:TARGETS]-(:Target {symbol:'"
-//						+ target + "'}) return n, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc limit 10";
                 Result result = tx.run(cmd);
                 return getCytoscapeEntities(result);
             });
