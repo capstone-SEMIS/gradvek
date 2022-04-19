@@ -145,6 +145,11 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
+	public List<CytoscapeEntity> getPathsTargetAe(String target, String ae) {
+		return new ArrayList<>();
+	}
+
+	@Override
 	public void loadCsv(String url, CsvFile csvFile) {
 	}
 

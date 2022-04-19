@@ -322,6 +322,18 @@ public class Controller {
 		}
 	}
 
+	@GetMapping("/ae/path/{target}/{ae}")
+	public ResponseEntity<String> getPathsTargetAe(@PathVariable(value="target") final String target, @PathVariable(value="ae") final String ae) {
+		List<CytoscapeEntity> entities = mDriver.getPathsTargetAe(target, ae);
+		try {
+			String json = new ObjectMapper().writeValueAsString(entities);
+			return ResponseEntity.ok(json);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
 	@GetMapping("count/{type}")
 	@ResponseBody
 	public ResponseEntity<Integer> count (@PathVariable (value = "type") final String typeString) throws IOException {

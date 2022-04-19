@@ -13,38 +13,65 @@ import Searchbar from "../layouts/dashboard/Searchbar";
 export default class DashboardApp extends Component {
     constructor(props) {
         super(props)
-        this.handleResultsChange = this.handleResultsChange.bind(this);
         this.state = {
             "nodeFilter": '*', //initially, all nodes are visible
             "focusNode": {},
             "resultNodes": [],
-            "target": ""
+            "target": "",
+            "tableResults": []
         };
-        this.AEfilterCallback = this.AEfilterCallback.bind(this);
+        this.refreshResults = this.refreshResults.bind(this);
+        this.refreshViz = this.refreshViz.bind(this);
     }
 
-    handleResultsChange(newTarget, results) {
-        this.setState({target: newTarget});
+    refreshViz(target, ae = null) {
         this.setState({focusNode: {}});
-        this.setState({resultNodes: results});
-    }
 
-    AEfilterCallback(AE_id) {
-        this.setState({
-            "focusNode": {"AE": AE_id}
+        const urlStart = `/api/ae/path/${target}`;
+        const url = ae === null ? urlStart : `${urlStart}/${ae}`;
+
+        fetch(url).then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error(response.statusText);
+            }
+        }).then(body => {
+            this.setState({resultNodes: body})
+        }).catch(error => {
+            console.error(`${error.name}: ${error.message}`);
         });
     }
+
+    refreshResults(target) {
+        this.setState({target: target});
+
+        fetch(`/api/weight/${target}`).then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error(response.statusText);
+            }
+        }).then(body => {
+            this.setState({tableResults: body});
+        }).catch(error => {
+            console.error(`${error.name}: ${error.message}`);
+        });
+
+        this.refreshViz(target);
+    }
+
 
     render() {
         return (
             <Page title="Gradvek">
-                <Searchbar onResultsChange={this.handleResultsChange}/>
                 <Grid container spacing={3}>
                     <Grid item xs={12} md={6}>
-                        <AEList target={this.state.target} graphNodes={this.state.resultNodes}
-                                filterHandler={this.AEfilterCallback}/>
+                        <Searchbar onResultsChange={this.refreshResults}/>
+                        <AEList target={this.state.target} tableResults={this.state.tableResults}
+                                filterHandler={this.refreshViz}/>
                     </Grid>
-                    <Grid item xs={12} md={6} position='sticky' top={0} id='grid-sticky' alignSelf='flex-start'>
+                    <Grid item xs={12} md={6} position='sticky' top={0} alignSelf='flex-start'>
                         <CytoCard graphNodes={this.state.resultNodes} nodeFilter={this.state.nodeFilter}
                                   focusNode={this.state.focusNode}/>
                     </Grid>
