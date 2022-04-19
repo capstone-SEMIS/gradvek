@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Checkbox from "./Checkbox";
 import Button from "@mui/material/Button";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 class CheckboxParent extends Component {
   constructor(props) {
@@ -9,7 +10,7 @@ class CheckboxParent extends Component {
     this.state = {};
   }
 
-  componentWillMount = () => {
+  componentDidMount = () => {
     this.selectedCheckboxes = new Set();
   };
 
@@ -45,17 +46,21 @@ class CheckboxParent extends Component {
       })
       .then(function(response) {
         console.log(response);
+        if (response.status === 200) {
+          toast.success("Successfully Updated!");
+        } else toast.error("Update FAILED!");
       })
       .catch(function(error) {
         console.log(error);
+        toast.error("Error with Request!");
       });
   };
 
   CreateCheckboxes = () => {
-    console.log("createCheckbox:", this.props.data_array);
+    console.log("createCheckbox:", this.props.dataArray);
     return (
       <>
-        {this.props.data_array.map((descr, index) => (
+        {this.props.dataArray.map((descr, index) => (
           <Checkbox
             label={descr.description}
             handleCheckboxChange={this.toggleCheckbox}
@@ -74,7 +79,6 @@ class CheckboxParent extends Component {
         <div className="row">
           <div className="col-sm-12">
             <form onSubmit={this.handleFormSubmit}>
-              {/* <this.createCheckboxes()/> */}
               <this.CreateCheckboxes />
 
               <Button variant="contained" type="submit">
