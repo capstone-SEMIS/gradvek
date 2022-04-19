@@ -19,6 +19,9 @@ import com.semis.gradvek.entity.Participates;
 import com.semis.gradvek.entity.Pathway;
 import com.semis.gradvek.entity.Target;
 import com.semis.gradvek.entity.*;
+import com.semis.gradvek.graphdb.DBDriver;
+import com.semis.gradvek.graphdb.Neo4jDriver;
+import com.semis.gradvek.graphdb.TestDBDriver;
 import com.semis.gradvek.parquet.ParquetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -78,7 +81,12 @@ public class Controller {
 				MechanismOfAction,
 				Participates
 		};
-		
+
+		// Create indexes up front for fast merging
+		for (EntityType type : toInit) {
+			mDriver.index(type);
+		}
+
 		for (EntityType type: toInit) {
 			try {
 				String typeString = type.toString ();
@@ -87,7 +95,6 @@ public class Controller {
 					mLogger.info ("Importing " + typeString + " data");
 					ParquetUtils.initEntities (mEnv, mDriver, type);
 					mDriver.unique (type);
-					mDriver.index (type);
 					mLogger.info ("Imported " +  mDriver.count (type) + " entities of type " + typeString);
 				} else {
 					mLogger.info ("Database contains " + alreadyThere + " entries of type " + typeString + ", skipping import");
@@ -108,7 +115,7 @@ public class Controller {
 	public void onApplicationReadyEvent (ApplicationReadyEvent event) {
 		if ("inmem".equals (mEnv.getProperty ("db.type"))) {
 			// This is the test environment - load the in-memory db driver and init demo data
-			mDriver = new TestDBDriver ();
+			mDriver = new TestDBDriver();
 			initDemo ();
 			return;
 		}
@@ -201,7 +208,6 @@ public class Controller {
 		EntityType type = EntityType.valueOf (typeString);
 		ParquetUtils.initEntities (mEnv, mDriver, type);
 		mDriver.unique (type);
-		mDriver.index (type);
 		return new ResponseEntity<Void> (HttpStatus.OK);
 	}
 	
@@ -289,11 +295,18 @@ public class Controller {
 		return new ResponseEntity<Void> (HttpStatus.OK);		
 	}
 
-	@GetMapping("/ae/{target}")
+	@GetMapping("/weight/{target}")
 	public ResponseEntity<List<AdverseEventIntObj>> getAdverseEvent(@PathVariable(value="target") final String target) {
-		List<CytoscapeEntity> entities = mDriver.getAEPathByTarget(target);
 		List<AdverseEventIntObj> adverseEvents = mDriver.getAEByTarget(target);
 		return ResponseEntity.ok(adverseEvents);
+	}
+
+	@GetMapping("/weight/{target}/{ae}")
+	public ResponseEntity<List<Map>> getWeightsTargetAe(
+			@PathVariable(value = "target") final String target,
+			@PathVariable(value = "ae") final String ae) {
+		List<Map> results = mDriver.getWeightsByDrug(target, ae);
+		return ResponseEntity.ok(results);
 	}
 
 	@GetMapping("/ae/path/{target}")
@@ -325,5 +338,11 @@ public class Controller {
 	@GetMapping ("/info")
 	public String home () {
 		return "Hello Gradvek";
+	}
+
+	@GetMapping("suggest/{hint}")
+	public ResponseEntity<List<Map>> getTargetSuggestions(@PathVariable(value="hint") final String hint) {
+		List<Map> suggestions = mDriver.getTargetSuggestions(hint);
+		return ResponseEntity.ok(suggestions);
 	}
 }

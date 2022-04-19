@@ -1,28 +1,46 @@
 // material
-import { Typography } from "@mui/material";
+import { Typography, Box } from "@mui/material";
 
 // components
 import Page from "../components/Page";
-import DataLoader from "../sections/@dashboard/datamgmt/DataLoader";
 import CsvImporter from "../sections/@dashboard/datamgmt/CsvImporter";
+import { useState, useEffect } from "react";
+import CheckboxParent from "../sections/@dashboard/datamgmt/CheckboxParent";
 
 export default function DataMgmtPage() {
+  const [dataArray, setDataArray] = useState([]);
+
+  const fetchData = async () => {
+    const url = "/api/datasets";
+    const objectFromUrl = await fetch(url);
+    const data = await objectFromUrl.json();
+    console.log("dataloader", data);
+
+    setDataArray(data);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <Page title="Dashboard: Data Management ">
-      <Typography variant="h4" sx={{ mb: 5 }}>
-        Data Management
-      </Typography>
+      <Box sx={{ ml: 8 }}>
+        <Typography variant="h2" sx={{ mb: 5 }}>
+          Data Management
+        </Typography>
 
-      <Typography variant="h6" sx={{ mb: 0 }}>
-        Import CSV Data into Gradvek:
-      </Typography>
-      <CsvImporter />
-      <br />
-      <br />
-      <Typography variant="h6" sx={{ mb: 0 }}>
-        Datasets from Backend (Include/Exclude):
-      </Typography>
-      <DataLoader />
+        <Typography variant="h4" sx={{ mb: 2 }}>
+          Import CSV Data into Gradvek:
+        </Typography>
+        <CsvImporter fetchData={fetchData} />
+        <br />
+        <br />
+        <Typography variant="h4" sx={{ mb: 2, fontSize: 10 }}>
+          Datasets from Backend (Include/Exclude):
+        </Typography>
+        <CheckboxParent dataArray={dataArray} />
+      </Box>
     </Page>
   );
 }

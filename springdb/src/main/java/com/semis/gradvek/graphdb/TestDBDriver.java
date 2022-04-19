@@ -1,4 +1,4 @@
-package com.semis.gradvek.springdb;
+package com.semis.gradvek.graphdb;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +16,7 @@ import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
 import com.semis.gradvek.entity.MechanismOfAction;
+import com.semis.gradvek.springdb.AdverseEventIntObj;
 
 public class TestDBDriver implements DBDriver {
 
@@ -139,6 +140,11 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
+	public List<Map> getTargetSuggestions(String hint) {
+		return new ArrayList<>();
+	}
+
+	@Override
 	public void loadCsv(String url, CsvFile csvFile) {
 	}
 
@@ -163,5 +169,10 @@ public class TestDBDriver implements DBDriver {
 	public List<CytoscapeEntity> getAEPathByTarget(String target) {
 		final List<CytoscapeEntity> ret = new ArrayList<> ();
 		return ret; // TODO Yan
+	}
+
+	@Override
+	public List<Map> getWeightsByDrug(String target, String ae) {
+		return new ArrayList<>();
 	}
 }
