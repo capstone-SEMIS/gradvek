@@ -21,14 +21,15 @@ class Checkbox extends Component {
     const { isChecked } = this.state;
 
     return (
-      <div className="checkbox">
-        <label>
+      <div className="checkbox" style={{ marginBottom: "1rem" }}>
+        <label style={{ fontSize: "1.2rem" }}>
           <input
             type="checkbox"
             value={label}
             defaultChecked={isChecked}
             onChange={this.toggleCheckboxChange}
             dataset={this.props.dataset}
+            style={{ marginRight: ".5rem" }}
           />
           {label}
         </label>

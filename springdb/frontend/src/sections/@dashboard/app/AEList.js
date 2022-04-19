@@ -94,4 +94,5 @@ export default function AEList({target, tableResults, filterHandler}) {
             </TableContainer>
         </Card>
     )
+
 }
