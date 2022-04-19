@@ -24,6 +24,7 @@ class CommandBuilderTest {
             + filterTarget;
     final String filterAe = " AND nae.meddraCode = '10042868'";
     final String filterActions = " AND rt.actionType IN ['OPENER', 'INHIBITOR']";
+    final String filterDrug = " AND nd.chembl_code = 'CHEMBL221959'";
     final String returnByAe = " RETURN nae, sum(toFloat(raw.llr))";
     final String returnByDrug = " RETURN nd, sum(toFloat(raw.llr))";
     final String returnPath = " RETURN path";
@@ -272,6 +273,75 @@ class CommandBuilderTest {
                 + pathwayPrefix
                 + returnPath
                 + limits;
+        assertThat(command).isEqualTo(expected);
+    }
+
+    @Test
+    void getWeightsFilterAeActionDrug() {
+        String command = new CommandBuilder()
+                .getWeights("JAK3")
+                .forAdverseEvent("10042868")
+                .forActionTypes(List.of("OPENER", "INHIBITOR"))
+                .forDrug("CHEMBL221959")
+                .toCypher();
+        String expected = aePrefix
+                + filterAe
+                + filterDrug
+                + filterActions
+                + returnByDrug
+                + orderByWeights;
+        assertThat(command).isEqualTo(expected);
+    }
+
+    @Test
+    void getWeightsFilterDrug() {
+        String command = new CommandBuilder()
+                .getWeights("JAK3")
+                .forDrug("CHEMBL221959")
+                .toCypher();
+        String expected = aePrefix
+                + filterDrug
+                + returnByAe
+                + orderByWeights;
+         assertThat(command).isEqualTo(expected);
+    }
+
+    @Test
+    void getPathsFilterAeActionDrugLimit() {
+        String command = new CommandBuilder()
+                .getPaths("JAK3")
+                .forAdverseEvent("10042868")
+                .forActionTypes(List.of("OPENER", "INHIBITOR"))
+                .forDrug("CHEMBL221959")
+                .limit(3)
+                .toCypher();
+        String expected = aePrefix
+                + filterAe
+                + filterDrug
+                + filterActions
+                + returnPath
+                + limits
+                + union
+                + pathwayPrefix
+                + returnPath
+                + limits;
+        assertThat(command).isEqualTo(expected);
+    }
+
+    @Test
+    void getPathsFilterAeDrug() {
+        String command = new CommandBuilder()
+                .getPaths("JAK3")
+                .forAdverseEvent("10042868")
+                .forDrug("CHEMBL221959")
+                .toCypher();
+        String expected = aePrefix
+                + filterAe
+                + filterDrug
+                + returnPath
+                + union
+                + pathwayPrefix
+                + returnPath;
         assertThat(command).isEqualTo(expected);
     }
 }
