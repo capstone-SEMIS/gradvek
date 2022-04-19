@@ -14,10 +14,19 @@ export default function App() {
     <ThemeConfig>
       <Toaster
         toastOptions={{
-          style: {
-            border: "1px solid green",
-            fontSize: "1.8rem",
-            color: "green"
+          success: {
+            style: {
+              border: "1px solid green",
+              fontSize: "1.6rem",
+              color: "green"
+            }
+          },
+          error: {
+            style: {
+              border: "1px solid red",
+              fontSize: "1.6rem",
+              color: "red"
+            }
           }
         }}
       />

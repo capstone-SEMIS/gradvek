@@ -33,7 +33,7 @@ export default function DataMgmtPage() {
         <Typography variant="h4" sx={{ mb: 2 }}>
           Import CSV Data into Gradvek:
         </Typography>
-        <CsvImporter setDataArray={setDataArray} fetchData={fetchData} />
+        <CsvImporter fetchData={fetchData} />
         <br />
         <br />
         <Typography variant="h4" sx={{ mb: 2, fontSize: 10 }}>
