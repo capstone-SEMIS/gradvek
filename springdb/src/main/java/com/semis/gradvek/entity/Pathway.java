@@ -54,7 +54,7 @@ public class Pathway extends NamedEntity {
 	
 	@Override
 	public final List<String> addCommands () {
-		return Collections.singletonList("MERGE (:Pathway" 
+		return Collections.singletonList("CREATE (:Pathway" 
 				+ " {" 
 				+ "pathwayCode:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
 				+ "pathwayId:\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\', "
