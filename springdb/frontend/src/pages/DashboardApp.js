@@ -19,7 +19,8 @@ export default class DashboardApp extends Component {
             "resultNodes": [],
             "target": "",
             "tableResults": [],
-            "actions": []
+            "availableActions": [],
+            "selectedActions": []
         };
         this.refreshResults = this.refreshResults.bind(this);
         this.refreshViz = this.refreshViz.bind(this);
@@ -49,10 +50,16 @@ export default class DashboardApp extends Component {
         });
     }
 
-    refreshResults(target) {
+    refreshResults(target, actions) {
         this.setState({target: target});
+        this.setState({selectedActions: actions});
 
-        fetch(`/api/weight/${encodeURIComponent(target)}`).then(response => {
+        let url = `/api/weight/${encodeURIComponent(target)}`
+        if (actions && actions.length) {
+            url = `${url}?actions=${actions.map(a => encodeURIComponent(a)).join(',')}`;
+        }
+
+        fetch(url).then(response => {
             if (response.ok) {
                 return response.json();
             } else {
@@ -79,14 +86,15 @@ export default class DashboardApp extends Component {
                 throw new Error(response.statusText);
             }
         }).then(body => {
-            this.setState({actions: body});
+            this.setState({availableActions: body});
         }).catch(error => {
             console.error(`${error.name}: ${error.message}`);
         })
     }
 
     fetchGetTo() {
-        // TODO
+        // TODO fix duplicate code fragments
+        // TODO add index on actionType
     }
 
     render() {
@@ -94,9 +102,9 @@ export default class DashboardApp extends Component {
             <Page title="Gradvek">
                 <Grid container spacing={3}>
                     <Grid item xs={12} md={6}>
-                        <SearchControl onResultsChange={this.refreshResults} actions={this.state.actions}/>
-                        <AEList target={this.state.target} tableResults={this.state.tableResults}
-                                filterHandler={this.refreshViz}/>
+                        <SearchControl onResultsChange={this.refreshResults} actions={this.state.availableActions}/>
+                        <AEList target={this.state.target} actions={this.state.selectedActions}
+                                tableResults={this.state.tableResults} filterHandler={this.refreshViz}/>
                     </Grid>
                     <Grid item xs={12} md={6} position='sticky' top={0} alignSelf='flex-start'>
                         <CytoCard graphNodes={this.state.resultNodes} nodeFilter={this.state.nodeFilter}

@@ -39,11 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -296,16 +292,28 @@ public class Controller {
 	}
 
 	@GetMapping("/weight/{target}")
-	public ResponseEntity<List<AdverseEventIntObj>> getAdverseEvent(@PathVariable(value="target") final String target) {
-		List<AdverseEventIntObj> adverseEvents = mDriver.getAEByTarget(target);
+	public ResponseEntity<List<AdverseEventIntObj>> getAdverseEvent(@PathVariable(value = "target") final String target,
+																	@RequestParam Optional<List<String>> actions) {
+		List<AdverseEventIntObj> adverseEvents;
+		if (actions.isPresent()) {
+			adverseEvents = mDriver.getAEByTarget(target, actions.get());
+		} else {
+			adverseEvents = mDriver.getAEByTarget(target);
+		}
 		return ResponseEntity.ok(adverseEvents);
 	}
 
 	@GetMapping("/weight/{target}/{ae}")
 	public ResponseEntity<List<Map>> getWeightsTargetAe(
 			@PathVariable(value = "target") final String target,
-			@PathVariable(value = "ae") final String ae) {
-		List<Map> results = mDriver.getWeightsByDrug(target, ae);
+			@PathVariable(value = "ae") final String ae, @RequestParam Optional<List<String>> actions) {
+		List<Map> results;
+		if (actions.isPresent()) {
+			results = mDriver.getWeightsByDrug(target, actions.get(), ae);
+		} else {
+			results = mDriver.getWeightsByDrug(target, ae);
+		}
+
 		return ResponseEntity.ok(results);
 	}
 

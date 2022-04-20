@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +32,7 @@ public class DBTests {
 	
 	@Test
 	public void testAE () {
-		assertThat (mController.getAdverseEvent ("ENST00000310522").getBody ().size ()).isGreaterThan (0);
+		assertThat (mController.getAdverseEvent ("ENST00000310522", Optional.empty()).getBody ().size ()).isGreaterThan (0);
 	}
 	
 	@SuppressWarnings ("unchecked")
@@ -76,7 +77,7 @@ public class DBTests {
 	public void testAEByTarget () {
 		
 		// get the adverse events for the demo target
-		List<AdverseEventIntObj> ae = mController.getAdverseEvent ("ENST00000310522").getBody ();
+		List<AdverseEventIntObj> ae = mController.getAdverseEvent ("ENST00000310522", Optional.empty()).getBody ();
 		
 		// should be 2 of them
 		assertThat (ae.size ()).isEqualTo (2);
@@ -91,7 +92,7 @@ public class DBTests {
 		mController.enableDatasets (toEnable.stream ().toArray (Map[]::new));
 		
 		// now there are none
-		ae = mController.getAdverseEvent ("ENST00000310522").getBody ();
+		ae = mController.getAdverseEvent ("ENST00000310522", Optional.empty()).getBody ();
 		assertThat (ae.size ()).isEqualTo (0);
 		
 		// put the dataset back
@@ -100,7 +101,7 @@ public class DBTests {
 			);
 		mController.enableDatasets (toEnable.stream ().toArray (Map[]::new));
 		// should be 2 again
-		ae = mController.getAdverseEvent ("ENST00000310522").getBody ();
+		ae = mController.getAdverseEvent ("ENST00000310522", Optional.empty()).getBody ();
 		assertThat (ae.size ()).isEqualTo (2);
 	}
 }

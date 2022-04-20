@@ -34,8 +34,9 @@ export default function SearchControl({onResultsChange, actions}) {
             searchText: ''
         },
         onSubmit: (values) => {
+            const activeSelections = Object.keys(selections).filter(k => selections[k]);
             formik.setSubmitting(false);
-            onResultsChange(values.searchText);
+            onResultsChange(values.searchText, activeSelections);
         }
     });
 
@@ -90,8 +91,6 @@ export default function SearchControl({onResultsChange, actions}) {
                 <Accordion>
                     <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
                         <SelectedActions />
-                        {/*{Object.keys(selections).filter(k => selections[k]).map(k => <Fragment key={k}>{k}</Fragment>)}*/}
-                        {/*Summary*/}
                     </AccordionSummary>
                     <AccordionDetails>
                         <Box display='flex' flexDirection='row' flexWrap='wrap'>

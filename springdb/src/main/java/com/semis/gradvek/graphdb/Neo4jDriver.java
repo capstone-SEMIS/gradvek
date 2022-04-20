@@ -221,10 +221,18 @@ public class Neo4jDriver implements DBDriver {
 
     @Override
     public List<AdverseEventIntObj> getAEByTarget(String target) {
-        mLogger.info("Getting adverse event by target " + target);
+        return getAEByTarget(target, null);
+    }
+
+    @Override
+    public List<AdverseEventIntObj> getAEByTarget(String target, List<String> actions) {
         try (Session session = mDriver.session()) {
             return session.readTransaction(tx -> {
-                String cmd = new CommandBuilder().getWeights(target).toCypher();
+                CommandBuilder cmdBuilder = new CommandBuilder().getWeights(target);
+                if (actions != null && !actions.isEmpty()) {
+                    cmdBuilder = cmdBuilder.forActionTypes(actions);
+                }
+                String cmd = cmdBuilder.toCypher();
                 Result result = tx.run(cmd);
                 List<AdverseEventIntObj> finalMap = new LinkedList<>();
                 while (result.hasNext()) {
@@ -245,10 +253,19 @@ public class Neo4jDriver implements DBDriver {
 
     @Override
     public List<Map> getWeightsByDrug(String target, String ae) {
+        return getWeightsByDrug(target, null, ae);
+    }
+
+    @Override
+    public List<Map> getWeightsByDrug(String target, List<String> actions, String ae) {
         List<Map> weights = new ArrayList<>();
         try (Session session = mDriver.session()) {
             session.readTransaction(tx -> {
-                String cmd = new CommandBuilder().getWeights(target).forAdverseEvent(ae).toCypher();
+                CommandBuilder cmdBuilder = new CommandBuilder().getWeights(target).forAdverseEvent(ae);
+                if (actions != null && !actions.isEmpty()) {
+                    cmdBuilder.forActionTypes(actions);
+                }
+                String cmd = cmdBuilder.toCypher();
                 Result result = tx.run(cmd);
                 while (result.hasNext()) {
                     Record record = result.next();
@@ -264,7 +281,7 @@ public class Neo4jDriver implements DBDriver {
         return weights;
     }
 
-  @Override
+    @Override
   public List<Map> getTargetSuggestions(String hint) {
       List<Map> suggestions = new ArrayList<>();
       String upperCaseHint = hint.toUpperCase();

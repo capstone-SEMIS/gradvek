@@ -30,17 +30,25 @@ function DrugRow() {
     );
 }
 
-function AeRow({target, AE, filterHandler}) {
+function AeRow({target, actions, AE, filterHandler}) {
     const [expanded, setExpanded] = useState(false);
 
     function handleExpansion() {
         if (!expanded) {
-            fetch(`/api/weight/${target}/${AE.meddraCode}`).then(r => {
+
+            let url = `/api/weight/${encodeURIComponent(target)}/${encodeURIComponent(AE.meddraCode)}`
+            if (actions && actions.length) {
+                url = `${url}?actions=${actions.map(a => encodeURIComponent(a)).join(',')}`;
+            }
+
+            fetch(url).then(r => {
                 if (r.ok) {
-                    console.log("success");
+                    return r.json();
                 } else {
                     throw new Error(r.statusText);
                 }
+            }).then(body => {
+                console.log(JSON.stringify(body));
             }).catch((error) => {
                 console.error(error.name + ': ' + error.message);
             });
@@ -67,7 +75,7 @@ function AeRow({target, AE, filterHandler}) {
     );
 }
 
-export default function AEList({target, tableResults, filterHandler}) {
+export default function AEList({target, actions, tableResults, filterHandler}) {
     return (
         <Card>
             <TableContainer>
@@ -87,7 +95,7 @@ export default function AEList({target, tableResults, filterHandler}) {
                     </TableHead>
                     <TableBody>
                         {tableResults.map(r =>
-                            <AeRow key={r.id} target={target} AE={r} filterHandler={filterHandler} />
+                            <AeRow key={r.id} target={target} actions={actions} AE={r} filterHandler={filterHandler} />
                         )}
                     </TableBody>
                 </Table>

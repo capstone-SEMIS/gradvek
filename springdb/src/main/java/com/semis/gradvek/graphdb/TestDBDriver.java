@@ -160,6 +160,11 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
+	public List<AdverseEventIntObj> getAEByTarget(String target, List<String> actions) {
+		return new ArrayList<>();
+	}
+
+	@Override
 	public void loadCsv(String url, CsvFile csvFile) {
 	}
 
@@ -188,6 +193,11 @@ public class TestDBDriver implements DBDriver {
 
 	@Override
 	public List<Map> getWeightsByDrug(String target, String ae) {
+		return new ArrayList<>();
+	}
+
+	@Override
+	public List<Map> getWeightsByDrug(String target, List<String> actions, String ae) {
 		return new ArrayList<>();
 	}
 }
