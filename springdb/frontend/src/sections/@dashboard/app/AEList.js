@@ -63,10 +63,10 @@ function AeRow({target, actions, AE, filterHandler}) {
                     <ExpandMoreIcon onClick={handleExpansion}/>
                     {/*<ExpandLessIcon />*/}
                 </TableCell>
-                <TableCell onClick={(e) => filterHandler(target, AE.id)}>
+                <TableCell onClick={(e) => filterHandler(target, actions, AE.id)}>
                     {AE.name}
                 </TableCell>
-                <TableCell onClick={(e) => filterHandler(target, AE.id)}>
+                <TableCell onClick={(e) => filterHandler(target, actions, AE.id)}>
                     {AE.llr}
                 </TableCell>
             </TableRow>

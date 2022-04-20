@@ -145,8 +145,24 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
+	public List<CytoscapeEntity> getAEPathByTarget(String target) {
+		final List<CytoscapeEntity> ret = new ArrayList<> ();
+		return ret; // TODO Yan
+	}
+
+	@Override
+	public List<CytoscapeEntity> getAEPathByTarget(String target, List<String> actions) {
+		return new ArrayList<>();
+	}
+
+	@Override
 	public List<CytoscapeEntity> getPathsTargetAe(String target, String ae) {
 		return new ArrayList<>();
+	}
+
+	@Override
+	public List<CytoscapeEntity> getPathsTargetAe(String target, List<String> actions, String ae) {
+		return null;
 	}
 
 	@Override
@@ -183,12 +199,6 @@ public class TestDBDriver implements DBDriver {
 	@Override
 	public String getUri() {
 		return null;
-	}
-
-	@Override
-	public List<CytoscapeEntity> getAEPathByTarget(String target) {
-		final List<CytoscapeEntity> ret = new ArrayList<> ();
-		return ret; // TODO Yan
 	}
 
 	@Override

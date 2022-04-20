@@ -393,10 +393,32 @@ public class Neo4jDriver implements DBDriver {
     }
 
     @Override
+    public List<CytoscapeEntity> getAEPathByTarget(String target) {
+        return getPathsTargetAe(target, null, null);
+    }
+
+    @Override
+    public List<CytoscapeEntity> getAEPathByTarget(String target, List<String> actions) {
+        return getPathsTargetAe(target, actions, null);
+    }
+
+    @Override
     public List<CytoscapeEntity> getPathsTargetAe(String target, String ae) {
+        return getPathsTargetAe(target, null, ae);
+    }
+
+    @Override
+    public List<CytoscapeEntity> getPathsTargetAe(String target, List<String> actions, String ae) {
         try (Session session = mDriver.session()) {
             return session.readTransaction(tx -> {
-                String cmd = new CommandBuilder().getPaths(target).forAdverseEvent(ae).toCypher();
+                CommandBuilder cmdBuilder = new CommandBuilder().getPaths(target);
+                if (actions != null && !actions.isEmpty()) {
+                    cmdBuilder = cmdBuilder.forActionTypes(actions);
+                }
+                if (ae != null) {
+                    cmdBuilder = cmdBuilder.forAdverseEvent(ae);
+                }
+                String cmd = cmdBuilder.toCypher();
                 Result result = tx.run(cmd);
                 return getCytoscapeEntities(result);
             });
@@ -438,18 +460,6 @@ public class Neo4jDriver implements DBDriver {
             });
         }
         return actions;
-    }
-
-    @Override
-    public List<CytoscapeEntity> getAEPathByTarget(String target) {
-        mLogger.info("Getting adverse event paths by target " + target);
-        try (Session session = mDriver.session()) {
-            return session.readTransaction(tx -> {
-                String cmd = new CommandBuilder().getPaths(target).toCypher();
-                Result result = tx.run(cmd);
-                return getCytoscapeEntities(result);
-            });
-        }
     }
 
     @Override

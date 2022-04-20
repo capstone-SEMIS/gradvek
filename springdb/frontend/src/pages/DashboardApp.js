@@ -31,11 +31,16 @@ export default class DashboardApp extends Component {
         this.refreshActions();
     }
 
-    refreshViz(target, ae = null) {
+    refreshViz(target, actions = null, ae = null) {
         this.setState({focusNode: {}});
 
-        const urlStart = `/api/ae/path/${encodeURIComponent(target)}`;
-        const url = ae === null ? urlStart : `${urlStart}/${encodeURIComponent(ae)}`;
+        let url = `/api/ae/path/${encodeURIComponent(target)}`;
+        if (ae !== null) {
+            url = `${url}/${encodeURIComponent(ae)}`
+        }
+        if (actions && actions.length) {
+            url = `${url}?actions=${actions.map(a => encodeURIComponent(a)).join(',')}`;
+        }
 
         fetch(url).then(response => {
             if (response.ok) {
@@ -71,7 +76,7 @@ export default class DashboardApp extends Component {
             console.error(`${error.name}: ${error.message}`);
         });
 
-        this.refreshViz(target);
+        this.refreshViz(target, actions);
         this.refreshActions(target);
     }
 

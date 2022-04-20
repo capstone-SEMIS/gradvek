@@ -319,8 +319,15 @@ public class Controller {
 
 	@GetMapping("/ae/path/{target}")
 	@ResponseBody
-	public ResponseEntity<String> getAdverseEventPath(@PathVariable(value="target") final String target) {
-		List<CytoscapeEntity> entities = mDriver.getAEPathByTarget(target);
+	public ResponseEntity<String> getAdverseEventPath(@PathVariable(value = "target") final String target,
+													  @RequestParam Optional<List<String>> actions) {
+		List<CytoscapeEntity> entities;
+		if (actions.isPresent()) {
+			entities = mDriver.getAEPathByTarget(target, actions.get());
+		} else {
+			entities = mDriver.getAEPathByTarget(target);
+		}
+
 		try {
 			String json = new ObjectMapper().writeValueAsString(entities);
 			return ResponseEntity.ok(json);
@@ -331,8 +338,16 @@ public class Controller {
 	}
 
 	@GetMapping("/ae/path/{target}/{ae}")
-	public ResponseEntity<String> getPathsTargetAe(@PathVariable(value="target") final String target, @PathVariable(value="ae") final String ae) {
-		List<CytoscapeEntity> entities = mDriver.getPathsTargetAe(target, ae);
+	public ResponseEntity<String> getPathsTargetAe(@PathVariable(value = "target") final String target,
+												   @PathVariable(value = "ae") final String ae,
+												   @RequestParam Optional<List<String>> actions) {
+		List<CytoscapeEntity> entities;
+		if (actions.isPresent()) {
+			entities = mDriver.getPathsTargetAe(target, actions.get(), ae);
+		} else {
+			entities = mDriver.getPathsTargetAe(target, ae);
+		}
+
 		try {
 			String json = new ObjectMapper().writeValueAsString(entities);
 			return ResponseEntity.ok(json);

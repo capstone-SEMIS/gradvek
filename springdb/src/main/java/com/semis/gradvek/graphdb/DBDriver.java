@@ -59,19 +59,23 @@ public interface DBDriver {
 
 	public String getUri();
 
-	List<CytoscapeEntity> getAEPathByTarget(String target);
-
 	List<AdverseEventIntObj> getAEByTarget(String target);
 
 	List<AdverseEventIntObj> getAEByTarget(String target, List<String> actions);
+
+	List<CytoscapeEntity> getAEPathByTarget(String target);
+
+	List<CytoscapeEntity> getAEPathByTarget(String target, List<String> actions);
+
+	List<CytoscapeEntity> getPathsTargetAe(String target, String ae);
+
+	List<CytoscapeEntity> getPathsTargetAe(String target, List<String> actions, String ae);
 
 	List<Map> getWeightsByDrug(String target, String ae);
 
 	List<Map> getWeightsByDrug(String target, List<String> actions, String ae);
 
 	List<Map> getTargetSuggestions(String hint);
-
-    List<CytoscapeEntity> getPathsTargetAe(String target, String ae);
 
     List<Map> getActions();
 
