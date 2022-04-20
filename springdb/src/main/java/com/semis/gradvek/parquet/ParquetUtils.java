@@ -49,8 +49,7 @@ public class ParquetUtils {
 			EntityType.MechanismOfAction, new OpenTargetsSource ("mechanismOfAction", "Mechanisms of action for drug molecules"),
 			EntityType.AssociatedWith, new OpenTargetsSource ("fda/significantAdverseDrugReactions", "Association of adverse events with drug molecules"),
 			EntityType.Pathway, new OpenTargetsSource ("", "Core annotation for pathways"), // gets created with targets
-//			EntityType.Participates, new OpenTargetsSource ("targets", "Participation of targets in pathways")
-			EntityType.Participates, new OpenTargetsSource ("", "Participation of targets in pathways")		// TODO temporarily disable until pathway loading is fixed
+			EntityType.Participates, new OpenTargetsSource ("targets", "Participation of targets in pathways")
 	);
 
 	/**
