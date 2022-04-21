@@ -39,11 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -296,23 +292,62 @@ public class Controller {
 	}
 
 	@GetMapping("/weight/{target}")
-	public ResponseEntity<List<AdverseEventIntObj>> getAdverseEvent(@PathVariable(value="target") final String target) {
-		List<AdverseEventIntObj> adverseEvents = mDriver.getAEByTarget(target);
+	public ResponseEntity<List<AdverseEventIntObj>> getAdverseEvent(@PathVariable(value = "target") final String target,
+																	@RequestParam Optional<List<String>> actions) {
+		List<AdverseEventIntObj> adverseEvents;
+		if (actions.isPresent()) {
+			adverseEvents = mDriver.getAEByTarget(target, actions.get());
+		} else {
+			adverseEvents = mDriver.getAEByTarget(target);
+		}
 		return ResponseEntity.ok(adverseEvents);
 	}
 
 	@GetMapping("/weight/{target}/{ae}")
 	public ResponseEntity<List<Map>> getWeightsTargetAe(
 			@PathVariable(value = "target") final String target,
-			@PathVariable(value = "ae") final String ae) {
-		List<Map> results = mDriver.getWeightsByDrug(target, ae);
+			@PathVariable(value = "ae") final String ae, @RequestParam Optional<List<String>> actions) {
+		List<Map> results;
+		if (actions.isPresent()) {
+			results = mDriver.getWeightsByDrug(target, actions.get(), ae);
+		} else {
+			results = mDriver.getWeightsByDrug(target, ae);
+		}
+
 		return ResponseEntity.ok(results);
 	}
 
 	@GetMapping("/ae/path/{target}")
 	@ResponseBody
-	public ResponseEntity<String> getAdverseEventPath(@PathVariable(value="target") final String target) {
-		List<CytoscapeEntity> entities = mDriver.getAEPathByTarget(target);
+	public ResponseEntity<String> getAdverseEventPath(@PathVariable(value = "target") final String target,
+													  @RequestParam Optional<List<String>> actions) {
+		List<CytoscapeEntity> entities;
+		if (actions.isPresent()) {
+			entities = mDriver.getAEPathByTarget(target, actions.get());
+		} else {
+			entities = mDriver.getAEPathByTarget(target);
+		}
+
+		try {
+			String json = new ObjectMapper().writeValueAsString(entities);
+			return ResponseEntity.ok(json);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/ae/path/{target}/{ae}")
+	public ResponseEntity<String> getPathsTargetAe(@PathVariable(value = "target") final String target,
+												   @PathVariable(value = "ae") final String ae,
+												   @RequestParam Optional<List<String>> actions) {
+		List<CytoscapeEntity> entities;
+		if (actions.isPresent()) {
+			entities = mDriver.getPathsTargetAe(target, actions.get(), ae);
+		} else {
+			entities = mDriver.getPathsTargetAe(target, ae);
+		}
+
 		try {
 			String json = new ObjectMapper().writeValueAsString(entities);
 			return ResponseEntity.ok(json);
@@ -344,5 +379,17 @@ public class Controller {
 	public ResponseEntity<List<Map>> getTargetSuggestions(@PathVariable(value="hint") final String hint) {
 		List<Map> suggestions = mDriver.getTargetSuggestions(hint);
 		return ResponseEntity.ok(suggestions);
+	}
+
+	@GetMapping("actions")
+	public ResponseEntity<List<Map>> getActions() {
+		List<Map> actions = mDriver.getActions();
+		return ResponseEntity.ok(actions);
+	}
+
+	@GetMapping("actions/{target}")
+	public ResponseEntity<List<Map>> getActions(@PathVariable(value="target") final String target) {
+		List<Map> actions = mDriver.getActions(target);
+		return ResponseEntity.ok(actions);
 	}
 }

@@ -22,7 +22,8 @@ const RootStyle = styled(AppBar)(({ theme }) => ({
     backgroundColor: alpha(theme.palette.background.default, 0.72),
     [theme.breakpoints.up('lg')]: {
         width: `calc(100% - ${DRAWER_WIDTH + 1}px)`
-    }
+    },
+    position: "sticky"
 }));
 
 const ToolbarStyle = styled(Toolbar)(({ theme }) => ({
@@ -76,19 +77,8 @@ export default function Searchbar({onResultsChange}) {
       searchText: ''
     },
     onSubmit: (values) => {
-      const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      };
-      fetch('/api/ae/path/'+ values.searchText, requestOptions)
-          .then((response) => {
-              formik.setSubmitting(false);
-              console.log("Status " + response.status);
-              response.json().then(r => {
-                  console.log(r);
-                  onResultsChange(values.searchText, r);
-              });
-          })
+        formik.setSubmitting(false);
+        onResultsChange(values.searchText);
     }
   });
 
@@ -136,7 +126,7 @@ export default function Searchbar({onResultsChange}) {
                                           id='autocomplete-field'
                                           freeSolo
                                           options={suggestions}
-                                          getOptionLabel={(option) => option.symbol}
+                                          getOptionLabel={(option) => option.hasOwnProperty('symbol') ? option.symbol : option.toString()}
                                           filterOptions={(options) => options}
                                           renderOption={(props, option) =>
                                               <li {...props}> {option.id + " : " + option.symbol + " : " + option.name}</li>

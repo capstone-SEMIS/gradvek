@@ -221,20 +221,30 @@ public class Neo4jDriver implements DBDriver {
 
     @Override
     public List<AdverseEventIntObj> getAEByTarget(String target) {
-        mLogger.info("Getting adverse event by target " + target);
+        return getAEByTarget(target, null);
+    }
+
+    @Override
+    public List<AdverseEventIntObj> getAEByTarget(String target, List<String> actions) {
         try (Session session = mDriver.session()) {
             return session.readTransaction(tx -> {
-                String cmd = new CommandBuilder().getWeights(target).toCypher();
+                CommandBuilder cmdBuilder = new CommandBuilder().getWeights(target);
+                if (actions != null && !actions.isEmpty()) {
+                    cmdBuilder = cmdBuilder.forActionTypes(actions);
+                }
+                String cmd = cmdBuilder.toCypher();
                 Result result = tx.run(cmd);
                 List<AdverseEventIntObj> finalMap = new LinkedList<>();
                 while (result.hasNext()) {
-                  Record record = result.next();
-	                    String id = record.fields().get(5).value().asEntity().get("adverseEventId").asString();
-	                    String code = record.fields().get(5).value().asEntity().get("meddraCode").asString();
-	                    AdverseEventIntObj ae = new AdverseEventIntObj(id, id, code);
-	                    ae.setLlr(record.fields().get(6).value().asDouble());
-	
-	                    finalMap.add(ae);
+                    Record record = result.next();
+                    org.neo4j.driver.types.Node adverseEvent = record.get(0).asNode();
+                    String name = adverseEvent.get("adverseEventId").asString();
+                    String id = adverseEvent.get("meddraCode").asString();
+                    double llr = record.get(1).asDouble();
+                    AdverseEventIntObj ae = new AdverseEventIntObj(name, name, id);
+                    ae.setLlr(llr);
+
+                    finalMap.add(ae);
                 }
                 return finalMap;
             });
@@ -243,14 +253,23 @@ public class Neo4jDriver implements DBDriver {
 
     @Override
     public List<Map> getWeightsByDrug(String target, String ae) {
+        return getWeightsByDrug(target, null, ae);
+    }
+
+    @Override
+    public List<Map> getWeightsByDrug(String target, List<String> actions, String ae) {
         List<Map> weights = new ArrayList<>();
         try (Session session = mDriver.session()) {
             session.readTransaction(tx -> {
-                String cmd = new CommandBuilder().getWeights(target).forAdverseEvent(ae).toCypher();
+                CommandBuilder cmdBuilder = new CommandBuilder().getWeights(target).forAdverseEvent(ae);
+                if (actions != null && !actions.isEmpty()) {
+                    cmdBuilder.forActionTypes(actions);
+                }
+                String cmd = cmdBuilder.toCypher();
                 Result result = tx.run(cmd);
                 while (result.hasNext()) {
                     Record record = result.next();
-                    org.neo4j.driver.types.Node drug  = record.get(0).asNode();
+                    org.neo4j.driver.types.Node drug = record.get(0).asNode();
                     String drugId = drug.get("chembl_code").asString();
                     String drugName = drug.get("drugId").asString();
                     double weight = record.get(1).asDouble();
@@ -262,7 +281,7 @@ public class Neo4jDriver implements DBDriver {
         return weights;
     }
 
-  @Override
+    @Override
   public List<Map> getTargetSuggestions(String hint) {
       List<Map> suggestions = new ArrayList<>();
       String upperCaseHint = hint.toUpperCase();
@@ -289,98 +308,158 @@ public class Neo4jDriver implements DBDriver {
       return suggestions;
   }
 
-  @Override
-  public List<CytoscapeEntity> getAEPathByTarget (String target) {
-		mLogger.info ("Getting adverse event paths by target " + target);
-		try (Session session = mDriver.session ()) {
-			return session.readTransaction (tx -> {
-                // String cmd = new CommandBuilder().getPaths(target).limit(10).toCypher();
-				String cmd = "match n=(e:AdverseEvent)-[c:ASSOCIATED_WITH]-(:Drug)-[:TARGETS]-(:Target {symbol:'"
-						+ target + "'}) return n, sum(toFloat(c.llr)) order by sum(toFloat(c.llr)) desc limit 10";
-				Result result = tx.run (cmd);
-				Map<Long, CytoscapeEntity> entitiesInvolved = new HashMap<>();
-				while (result.hasNext ()) {
-					Record record = result.next();
-					Path path = record.fields().get(0).value().asPath();
-					path.nodes().forEach( node -> {
-						if (!entitiesInvolved.containsKey(node.id())) {
-                            Map<String, String> dataMap = new HashMap<>();
-							if (node.hasLabel("AdverseEvent")) {
+    private List<CytoscapeEntity> getCytoscapeEntities(Result result) {
+        Map<Long, CytoscapeEntity> entitiesInvolved = new HashMap<>();
+        while (result.hasNext ()) {
+            Record record = result.next();
+            Path path = record.fields().get(0).value().asPath();
+            path.nodes().forEach( node -> {
+                if (!entitiesInvolved.containsKey(node.id())) {
+                    Map<String, String> dataMap = new HashMap<>();
+                    if (node.hasLabel("AdverseEvent")) {
 
-                                dataMap.put("id", String.valueOf(node.id()));
-                                dataMap.put("adverseEventId", node.asMap().get("adverseEventId").toString());
-                                dataMap.put("meddraCode", node.asMap().get("meddraCode").toString());
-                                dataMap.put("name", node.asMap().get("adverseEventId").toString());
+                        dataMap.put("id", String.valueOf(node.id()));
+                        dataMap.put("adverseEventId", node.asMap().get("adverseEventId").toString());
+                        dataMap.put("meddraCode", node.asMap().get("meddraCode").toString());
+                        dataMap.put("name", node.asMap().get("adverseEventId").toString());
 
-								CytoscapeEntity entity = new Node(node.id(),"adverse-event", dataMap);
-								entitiesInvolved.put(node.id(), entity);
-							} else if (node.hasLabel("Drug")) {
+                        CytoscapeEntity entity = new Node(node.id(),"adverse-event", dataMap);
+                        entitiesInvolved.put(node.id(), entity);
+                    } else if (node.hasLabel("Drug")) {
 
-                                dataMap.put("id", String.valueOf(node.id()));
-                                dataMap.put("drugId", node.asMap().get("drugId").toString());
-                                dataMap.put("chembl_code", node.asMap().get("chembl_code").toString());
-                                dataMap.put("name", node.asMap().get("drugId").toString());
+                        dataMap.put("id", String.valueOf(node.id()));
+                        dataMap.put("drugId", node.asMap().get("drugId").toString());
+                        dataMap.put("chembl_code", node.asMap().get("chembl_code").toString());
+                        dataMap.put("name", node.asMap().get("drugId").toString());
 
-                                CytoscapeEntity entity = new Node(node.id(), "drug", dataMap);
-								entitiesInvolved.put(node.id(), entity);
-							} else if (node.hasLabel("Target")) {
+                        CytoscapeEntity entity = new Node(node.id(), "drug", dataMap);
+                        entitiesInvolved.put(node.id(), entity);
+                    } else if (node.hasLabel("Target")) {
 
-                                dataMap.put("id", String.valueOf(node.id()));
-                                dataMap.put("targetId", node.asMap().get("targetId").toString());
-                                dataMap.put("name", node.asMap().get("symbol").toString());
-                                dataMap.put("symbol", node.asMap().get("symbol").toString());
+                        dataMap.put("id", String.valueOf(node.id()));
+                        dataMap.put("targetId", node.asMap().get("targetId").toString());
+                        dataMap.put("name", node.asMap().get("symbol").toString());
+                        dataMap.put("symbol", node.asMap().get("symbol").toString());
 
-                                CytoscapeEntity entity = new Node(node.id(), "target", dataMap);
-                                entitiesInvolved.put(node.id(), entity);
-							} else if (node.hasLabel("Pathway")) {
-                                dataMap.put("id", String.valueOf(node.id()));
-                                dataMap.put("pathwayId", node.asMap().get("pathwayId").toString());
-                                dataMap.put("name", node.asMap().get("pathwayCode").toString());
-                                dataMap.put("term", node.asMap().get("topLevelTerm").toString());
+                        CytoscapeEntity entity = new Node(node.id(), "target", dataMap);
+                        entitiesInvolved.put(node.id(), entity);
+                    } else if (node.hasLabel("Pathway")) {
+                        dataMap.put("id", String.valueOf(node.id()));
+                        dataMap.put("pathwayId", node.asMap().get("pathwayId").toString());
+                        dataMap.put("name", node.asMap().get("pathwayCode").toString());
+                        dataMap.put("term", node.asMap().get("topLevelTerm").toString());
 
-                                CytoscapeEntity entity = new Node(node.id(), "pathway", dataMap);
-								entitiesInvolved.put(node.id(), entity);
-							}
-						}
-					});
-
-					path.relationships().forEach(relationship -> {
-                        if (!entitiesInvolved.containsKey(relationship.id())) {
-                            Map<String, String> relationshipMap = new HashMap<>();
-                            relationship.asMap().forEach((k,v) -> relationshipMap.put(k, v.toString())); // Change type of Value from Object to String
-                            CytoscapeEntity entity = null;
-                            if (relationship.hasType("ASSOCIATED_WITH")) {
-                                Node drug = (Node) entitiesInvolved.get(relationship.startNodeId());
-                                Node ae = (Node) entitiesInvolved.get(relationship.endNodeId());
-                                ae.getData().put("llr", relationshipMap.get("llr"));
-
-                                relationshipMap.put("id", String.valueOf(relationship.id()));
-                                relationshipMap.put("source", drug.getId().toString());
-                                relationshipMap.put("target", ae.getId().toString());
-                                relationshipMap.put("arrow", "vee");
-                                relationshipMap.put("action", relationship.type().replace("_", " "));
-
-                                entity = new Relationship(relationship.id(), relationshipMap);
-
-                            } else if (relationship.hasType("TARGETS")) {
-                                Node relatedDrug = (Node) entitiesInvolved.get(relationship.startNodeId());
-                                Node relatedTarget = (Node) entitiesInvolved.get(relationship.endNodeId());
-
-                                relationshipMap.put("id", String.valueOf(relationship.id()));
-                                relationshipMap.put("source", relatedDrug.getId().toString());
-                                relationshipMap.put("target", relatedTarget.getId().toString());
-                                relationshipMap.put("arrow", "vee");
-                                relationshipMap.put("action", relationship.type());
-
-                                entity = new Relationship(relationship.id(), "drug_target", relationshipMap);
-                            }
-                            entitiesInvolved.put(relationship.id(), entity);
-                        }
-					});
+                        CytoscapeEntity entity = new Node(node.id(), "pathway", dataMap);
+                        entitiesInvolved.put(node.id(), entity);
+                    }
                 }
-                return new ArrayList<>(entitiesInvolved.values());
+            });
+
+            path.relationships().forEach(relationship -> {
+                if (!entitiesInvolved.containsKey(relationship.id())) {
+                    Map<String, String> relationshipMap = new HashMap<>();
+                    relationship.asMap().forEach((k,v) -> relationshipMap.put(k, v.toString())); // Change type of Value from Object to String
+                    CytoscapeEntity entity = null;
+                    if (relationship.hasType("ASSOCIATED_WITH")) {
+                        Node drug = (Node) entitiesInvolved.get(relationship.startNodeId());
+                        Node ae = (Node) entitiesInvolved.get(relationship.endNodeId());
+                        ae.getData().put("llr", relationshipMap.get("llr"));
+
+                        relationshipMap.put("id", String.valueOf(relationship.id()));
+                        relationshipMap.put("source", drug.getId().toString());
+                        relationshipMap.put("target", ae.getId().toString());
+                        relationshipMap.put("arrow", "vee");
+                        relationshipMap.put("action", relationship.type().replace("_", " "));
+
+                        entity = new Relationship(relationship.id(), relationshipMap);
+
+                    } else if (relationship.hasType("TARGETS")) {
+                        Node relatedDrug = (Node) entitiesInvolved.get(relationship.startNodeId());
+                        Node relatedTarget = (Node) entitiesInvolved.get(relationship.endNodeId());
+
+                        relationshipMap.put("id", String.valueOf(relationship.id()));
+                        relationshipMap.put("source", relatedDrug.getId().toString());
+                        relationshipMap.put("target", relatedTarget.getId().toString());
+                        relationshipMap.put("arrow", "vee");
+                        relationshipMap.put("action", relationship.type());
+
+                        entity = new Relationship(relationship.id(), "drug_target", relationshipMap);
+                    }
+                    entitiesInvolved.put(relationship.id(), entity);
+                }
             });
         }
+        return new ArrayList<>(entitiesInvolved.values());
+    }
+
+    @Override
+    public List<CytoscapeEntity> getAEPathByTarget(String target) {
+        return getPathsTargetAe(target, null, null);
+    }
+
+    @Override
+    public List<CytoscapeEntity> getAEPathByTarget(String target, List<String> actions) {
+        return getPathsTargetAe(target, actions, null);
+    }
+
+    @Override
+    public List<CytoscapeEntity> getPathsTargetAe(String target, String ae) {
+        return getPathsTargetAe(target, null, ae);
+    }
+
+    @Override
+    public List<CytoscapeEntity> getPathsTargetAe(String target, List<String> actions, String ae) {
+        try (Session session = mDriver.session()) {
+            return session.readTransaction(tx -> {
+                CommandBuilder cmdBuilder = new CommandBuilder().getPaths(target);
+                if (actions != null && !actions.isEmpty()) {
+                    cmdBuilder = cmdBuilder.forActionTypes(actions);
+                }
+                if (ae != null) {
+                    cmdBuilder = cmdBuilder.forAdverseEvent(ae);
+                }
+                String cmd = cmdBuilder.toCypher();
+                Result result = tx.run(cmd);
+                return getCytoscapeEntities(result);
+            });
+        }
+    }
+
+    @Override
+    public List<Map> getActions() {
+        return getActions(null);
+    }
+
+    @Override
+    public List<Map> getActions(String target) {
+        List<Map> actions = new ArrayList<>();
+
+        String cmdFilter;
+        if (target == null) {
+            cmdFilter = "";
+        } else {
+            cmdFilter = " WHERE toUpper(nt.symbol) = '" + target.toUpperCase(Locale.ROOT) + "'";
+        }
+
+        try (Session session = mDriver.session()) {
+            session.readTransaction(tx -> {
+                String cmd = "MATCH (:Drug)-[rt:TARGETS]-(:Target)"
+                        + " WITH DISTINCT rt.actionType AS actType"
+                        + " OPTIONAL MATCH (:Drug)-[rt2:TARGETS {actionType: actType}]-(nt:Target)"
+                        + cmdFilter
+                        + " RETURN actType, COUNT(rt2)"
+                        + " ORDER BY actType";
+                Result result = tx.run(cmd);
+                while (result.hasNext()) {
+                    Record record = result.next();
+                    String action = record.get(0).asString();
+                    long count = record.get(1).asLong();
+                    actions.add(Map.of("action", action, "count", count));
+                }
+                return actions;
+            });
+        }
+        return actions;
     }
 
     @Override
