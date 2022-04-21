@@ -65,16 +65,105 @@ public class CommandBuilder implements Constants {
     }
 
     public String toCypher() {
+        if (goal == Goal.WEIGHTS) {
+            return toCypherWeights();
+        }
+        return toCypherPaths();
+    }
+
+    private void appendEnabledDatasets(StringBuilder command) {
+        command.append("MATCH (nd:Dataset {enabled: true}) WITH COLLECT(nd.dataset) AS enabledSets");
+    }
+
+    private void appendTargetLimit(StringBuilder command) {
+        command.append(" AND toUpper(nt.symbol) = '").append(target.toUpperCase(Locale.ROOT)).append("'");
+    }
+
+    private void appendAdverseEventLimit(StringBuilder command) {
+        if (adverseEvent != null) {
+            command.append(" AND nae.").append(ADVERSE_EVENT_ID_STRING).append(" = '").append(adverseEvent).append("'");
+        }
+    }
+
+    private void appendDrugLimit(StringBuilder command) {
+        if (drug != null) {
+            command.append(" AND nd.").append(DRUG_ID_STRING).append(" = '").append(drug).append("'");
+        }
+    }
+
+    private void appendActionLimit(StringBuilder command) {
+        if (actionTypes != null && actionTypes.size() > 0) {
+            command.append(" AND rt.actionType IN ");
+            for (int i = 0; i < actionTypes.size(); ++i) {
+                if (i == 0) {
+                    command.append("['").append(actionTypes.get(i)).append("'");
+                } else {
+                    command.append(", '").append(actionTypes.get(i)).append("'");
+                }
+            }
+            command.append("]");
+        }
+    }
+
+    private void appendCountLimit(StringBuilder command) {
+        if (count > 0) {
+            command.append(" LIMIT ").append(count);
+        }
+    }
+
+    private String toCypherWeights() {
         StringBuilder command = new StringBuilder();
-        StringBuilder pathway = new StringBuilder();    // build this in parallel to include after UNION if necessary
 
         // Find active datasets
-        String enableDatasets = "MATCH (nd:Dataset {enabled: true}) WITH COLLECT(nd.dataset) AS enabledSets";
-        command.append(enableDatasets);
-        pathway.append(enableDatasets);
+        appendEnabledDatasets(command);
+
+        // First find the TARGETS segment
+        command.append(" MATCH (nd:Drug)-[rt:TARGETS]-(nt:Target)"
+                + " WHERE nd.dataset IN enabledSets"
+                + " AND rt.dataset IN enabledSets"
+                + " AND nt.dataset IN enabledSets");
+        appendTargetLimit(command);
+        appendDrugLimit(command);
+        appendActionLimit(command);
+
+        // Forward enabledSets and targetingDrugs to next MATCH clause
+        command.append(" WITH enabledSets, COLLECT(nd) AS targetingDrugs");
+
+        // Now find the ASSOCIATED_WITH segment
+        command.append(" MATCH (nae:AdverseEvent)-[raw:ASSOCIATED_WITH]-(nd:Drug)"
+                + " WHERE nae.dataset IN enabledSets"
+                + " AND raw.dataset IN enabledSets"
+                + " AND nd.dataset IN enabledSets"
+                + " AND nd in targetingDrugs");
+        appendAdverseEventLimit(command);
+        appendDrugLimit(command);
+
+        // Summarize the total weights along relevant paths
+        if (adverseEvent != null) {
+            // If we know the adverse event, then summarize by drug, otherwise summarize by adverse event.
+            command.append(" RETURN nd, sum(toFloat(raw.llr))");
+        } else {
+            command.append(" RETURN nae, sum(toFloat(raw.llr))");
+        }
+
+        command.append(" ORDER BY sum(toFloat(raw.llr)) desc");
+
+        appendCountLimit(command);
+
+        return command.toString();
+    }
+
+    private String toCypherPaths() {
+        StringBuilder command = new StringBuilder();
+        StringBuilder pathway = new StringBuilder();    // build this in parallel to include after UNION
+
+        // Find active datasets
+        appendEnabledDatasets(command);
+        appendEnabledDatasets(pathway);
 
         // Don't include pathways here, otherwise there may be multiple matching paths for each ASSOCIATED_WITH
         command.append(" MATCH path=(nae:AdverseEvent)-[raw:ASSOCIATED_WITH]-(nd:Drug)-[rt:TARGETS]-(nt:Target)");
+
         // Get pathways here
         pathway.append(" MATCH path=(nt:Target)-[rpi:PARTICIPATES_IN]-(np:Pathway)");
 
@@ -89,64 +178,29 @@ public class CommandBuilder implements Constants {
                 .append(" AND np.dataset IN enabledSets");
 
         // Limit to target
-        String targetLimit = " AND toUpper(nt.symbol) = '" + target.toUpperCase(Locale.ROOT) + "'";
-        command.append(targetLimit);
-        pathway.append(targetLimit);
+        appendTargetLimit(command);
+        appendTargetLimit(pathway);
 
         // Limit to adverse event
-        if (adverseEvent != null) {
-            command.append(" AND nae.").append(ADVERSE_EVENT_ID_STRING).append(" = '").append(adverseEvent).append("'");
-        }
+        appendAdverseEventLimit(command);
 
         // Limit to drug
-        if (drug != null) {
-            command.append(" AND nd.").append(DRUG_ID_STRING).append(" = '").append(drug).append("'");
-        }
+        appendDrugLimit(command);
 
         // Limit to action types
-        if (actionTypes != null && actionTypes.size() > 0) {
-            command.append(" AND rt.actionType IN ");
-            for (int i = 0; i < actionTypes.size(); ++i) {
-                if (i == 0) {
-                    command.append("['").append(actionTypes.get(i)).append("'");
-                } else {
-                    command.append(", '").append(actionTypes.get(i)).append("'");
-                }
-            }
-            command.append("]");
-        }
-
-        // Summarize the total weights along relevant paths
-        if (goal == Goal.WEIGHTS) {
-
-            // If we know the adverse event, then summarize by drug, otherwise summarize by adverse event.
-            if (adverseEvent != null) {
-                command.append(" RETURN nd, sum(toFloat(raw.llr))");
-            } else {
-                command.append(" RETURN nae, sum(toFloat(raw.llr))");
-            }
-
-            command.append(" ORDER BY sum(toFloat(raw.llr)) desc");
-        }
+        appendActionLimit(command);
 
         // List all paths
-        if (goal == Goal.PATHS) {
-            String returnPath = " RETURN path";
-            command.append(returnPath);
-            pathway.append(returnPath);
-        }
+        String returnPath = " RETURN path";
+        command.append(returnPath);
+        pathway.append(returnPath);
 
-        if (count > 0) {
-            String limitCount = " LIMIT " + count;
-            command.append(limitCount);
-            pathway.append(limitCount);
-        }
+        appendCountLimit(command);
+        appendCountLimit(pathway);
 
         // There may or may not be a pathway linked to the target, if you need the full path, segment it into
         // full path = path from the adverse event to the target + path from target to pathway
-        if (goal == Goal.PATHS) {
-            command.append(" UNION ").append(pathway);
-        }
+        command.append(" UNION ").append(pathway);
 
         return command.toString();
     }
