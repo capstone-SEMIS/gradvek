@@ -39,20 +39,22 @@ public class Importer {
 	}
 	
 	public void importParquet (Parquet parquet, EntityType type) {
-		mAdditionalEntities.clear ();
 		final List<Entity> toImport = readEntities (parquet, type);
 		logger.fine("Found " + toImport.size() + " entities to import");
 		
 		if (toImport.size () > 0) {
 			mDriver.add (toImport, type.canCombine ());
 		}
-		
-		if (mAdditionalEntities.size () > 0) {
-			mDriver.add (mAdditionalEntities.values ().stream ().collect (Collectors.toList ()), false);
-		}
 	}
 	
 	public final void additionalEntity (Entity entity) {
 		mAdditionalEntities.put (entity.getId (), entity);
+	}
+
+	public void processAdditionalEntities() {
+		if (mAdditionalEntities.size() > 0) {
+			mDriver.add(new ArrayList<>(mAdditionalEntities.values()), true);
+		}
+		mAdditionalEntities.clear();
 	}
 }

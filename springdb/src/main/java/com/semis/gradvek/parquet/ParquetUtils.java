@@ -214,6 +214,7 @@ public class ParquetUtils {
 			double resourceDuration = (System.currentTimeMillis() - startResourceTime) / 1000.0;
 			mLogger.info("Done with " + r.getFilename() + " in " + resourceDuration + " seconds");
 		}
+		importer.processAdditionalEntities();
 		
 		driver.add (datasetFromType (type));
 		long stopTypeTime = System.currentTimeMillis();

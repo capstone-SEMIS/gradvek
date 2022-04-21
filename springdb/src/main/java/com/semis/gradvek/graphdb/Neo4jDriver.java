@@ -455,7 +455,6 @@ public class Neo4jDriver implements DBDriver, Constants {
                     cmdBuilder = cmdBuilder.forDrug(drugId);
                 }
                 String cmd = cmdBuilder.toCypher();
-                mLogger.info(cmd);
                 Result result = tx.run(cmd);
                 return getCytoscapeEntities(result);
             });
