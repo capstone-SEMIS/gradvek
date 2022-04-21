@@ -145,6 +145,52 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
+	public List<CytoscapeEntity> getAEPathByTarget(String target) {
+		final List<CytoscapeEntity> ret = new ArrayList<> ();
+		return ret; // TODO Yan
+	}
+
+	@Override
+	public List<CytoscapeEntity> getAEPathByTarget(String target, List<String> actions) {
+		return new ArrayList<>();
+	}
+
+	@Override
+	public List<CytoscapeEntity> getPathsTargetAe(String target, String ae) {
+		return new ArrayList<>();
+	}
+
+	@Override
+	public List<CytoscapeEntity> getPathsTargetAe(String target, List<String> actions, String ae) {
+		return new ArrayList<>();
+	}
+
+	@Override
+	public List<CytoscapeEntity> getPathsTargetAeDrug(String target, String ae, String drugId) {
+		return new ArrayList<>();
+	}
+
+	@Override
+	public List<CytoscapeEntity> getPathsTargetAeDrug(String target, List<String> actions, String ae, String drugId) {
+		return null;
+	}
+
+	@Override
+	public List<Map> getActions() {
+		return new ArrayList<>();
+	}
+
+	@Override
+	public List<Map> getActions(String target) {
+		return new ArrayList<>();
+	}
+
+	@Override
+	public List<AdverseEventIntObj> getAEByTarget(String target, List<String> actions) {
+		return new ArrayList<>();
+	}
+
+	@Override
 	public void loadCsv(String url, CsvFile csvFile) {
 	}
 
@@ -166,13 +212,12 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
-	public List<CytoscapeEntity> getAEPathByTarget(String target) {
-		final List<CytoscapeEntity> ret = new ArrayList<> ();
-		return ret; // TODO Yan
+	public List<Map> getWeightsByDrug(String target, String ae) {
+		return new ArrayList<>();
 	}
 
 	@Override
-	public List<Map> getWeightsByDrug(String target, String ae) {
+	public List<Map> getWeightsByDrug(String target, List<String> actions, String ae) {
 		return new ArrayList<>();
 	}
 }

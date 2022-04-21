@@ -42,13 +42,13 @@ public interface DBDriver {
 	 * @param type the type of the entities to index
 	 */
 	void index (EntityType type);
-	
+
 	/**
 	 * Prunes duplicate entries of the specified type, if this type supports indexing
 	 * @param type the type of the entities to prune
 	 */
 	void unique (EntityType type);
-	
+
 //	public List<AdverseEventIntObj> getAEByTarget (String target);
 
 	public void loadCsv(String url, CsvFile csvFile);
@@ -56,15 +56,32 @@ public interface DBDriver {
 	public List<Dataset> getDatasets ();
 
 	public void enableDataset (String dataset, boolean enable);
-	
-	public String getUri();
 
-	List<CytoscapeEntity> getAEPathByTarget(String target);
+	public String getUri();
 
 	List<AdverseEventIntObj> getAEByTarget(String target);
 
+	List<AdverseEventIntObj> getAEByTarget(String target, List<String> actions);
+
+	List<CytoscapeEntity> getAEPathByTarget(String target);
+
+	List<CytoscapeEntity> getAEPathByTarget(String target, List<String> actions);
+
+	List<CytoscapeEntity> getPathsTargetAe(String target, String ae);
+
+	List<CytoscapeEntity> getPathsTargetAe(String target, List<String> actions, String ae);
+
+	List<CytoscapeEntity> getPathsTargetAeDrug(String target, String ae, String drugId);
+
+	List<CytoscapeEntity> getPathsTargetAeDrug(String target, List<String> actions, String ae, String drugId);
+
 	List<Map> getWeightsByDrug(String target, String ae);
 
-  List<Map> getTargetSuggestions(String hint);
-  
+	List<Map> getWeightsByDrug(String target, List<String> actions, String ae);
+
+	List<Map> getTargetSuggestions(String hint);
+
+    List<Map> getActions();
+
+	List<Map> getActions(String target);
 }
