@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 // material
 import {Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -6,28 +5,22 @@ import {useState} from "react";
 
 // ----------------------------------------------------------------------
 
-AEList.propTypes = {
-    graphNodes: PropTypes.array.isRequired
-};
-
-function DrugRow() {
+function DrugList({drugResults}) {
     return (
         <TableRow>
             <TableCell colSpan="3">
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>One</TableCell>
-                            <TableCell>Two</TableCell>
-                            <TableCell>Three</TableCell>
+                            <TableCell>Drug Name</TableCell>
+                            <TableCell>Drug ID</TableCell>
+                            <TableCell>Weight</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        <TableRow>
-                            <TableCell>1</TableCell>
-                            <TableCell>2</TableCell>
-                            <TableCell>3</TableCell>
-                        </TableRow>
+                        {drugResults.map(r =>
+                            <DrugRow key={r.id} drug={r}/>
+                        )}
                     </TableBody>
                 </Table>
             </TableCell>
@@ -35,17 +28,30 @@ function DrugRow() {
     );
 }
 
+function DrugRow({drug}) {
+    return (
+        <TableRow>
+            <TableCell> {drug.drugName} </TableCell>
+            <TableCell> {drug.drugId} </TableCell>
+            <TableCell> {drug.weight} </TableCell>
+        </TableRow>
+    );
+}
+
 function AeRow({target, AE, filterHandler}) {
     const [expanded, setExpanded] = useState(false);
+    const [drugResults, setDrugResults] = useState([]);
 
     function handleExpansion() {
         if (!expanded) {
-            fetch(`/api/weight/${target}/${AE.data.meddraCode}`).then(r => {
+            fetch(`/api/weight/${target}/${AE.meddraCode}`).then(r => {
                 if (r.ok) {
-                    console.log("success");
+                    return r.json();
                 } else {
                     throw new Error(r.statusText);
                 }
+            }).then(body => {
+                setDrugResults(body);
             }).catch((error) => {
                 console.error(error.name + ': ' + error.message);
             });
@@ -60,22 +66,19 @@ function AeRow({target, AE, filterHandler}) {
                     <ExpandMoreIcon onClick={handleExpansion}/>
                     {/*<ExpandLessIcon />*/}
                 </TableCell>
-                <TableCell onClick={(e) => filterHandler(AE.data.id)}>
-                    {AE.data.name}
+                <TableCell onClick={(e) => filterHandler(target, AE.id)}>
+                    {AE.name}
                 </TableCell>
-                <TableCell onClick={(e) => filterHandler(AE.data.id)}>
-                    {AE.data.llr}
+                <TableCell onClick={(e) => filterHandler(target, AE.id)}>
+                    {AE.llr}
                 </TableCell>
             </TableRow>
-            {expanded ? <DrugRow /> : null}
+            {expanded ? <DrugList drugResults={drugResults}/> : null}
         </>
     );
 }
 
-export default function AEList({target, graphNodes, filterHandler}) {
-    let AEs = graphNodes.filter((graphNode) => {
-        return graphNode.classes?.includes("adverse-event");
-    });
+export default function AEList({target, tableResults, filterHandler}) {
     return (
         <Card>
             <TableContainer>
@@ -94,9 +97,9 @@ export default function AEList({target, graphNodes, filterHandler}) {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {AEs.sort((a, b) => b.data.llr - a.data.llr).map((AE) => (
-                            <AeRow key={AE.data.id} target={target} AE={AE} filterHandler={filterHandler} />
-                        ))}
+                        {tableResults.map(r =>
+                            <AeRow key={r.id} target={target} AE={r} filterHandler={filterHandler} />
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>
