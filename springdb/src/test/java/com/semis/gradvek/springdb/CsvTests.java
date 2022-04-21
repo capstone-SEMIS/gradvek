@@ -159,7 +159,7 @@ class CsvTests implements Constants {
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Target {" + TARGET_ID_STRING + ": line[1]}), (toNode:Pathway {pathwayId: line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello', firstProp: line[3] }]->(toNode) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Target {" + TARGET_ID_STRING + ": line[1]}), (toNode:Pathway {" + PATHWAY_ID_STRING + ": line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello', firstProp: line[3] }]->(toNode) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 

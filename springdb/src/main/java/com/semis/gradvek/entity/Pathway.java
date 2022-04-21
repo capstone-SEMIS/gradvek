@@ -57,7 +57,7 @@ public class Pathway extends NamedEntity {
 		return Collections.singletonList("CREATE (:Pathway" 
 				+ " {" 
 				+ "pathwayCode:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
-				+ "pathwayId:\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\', "
+				+ PATHWAY_ID_STRING + ":\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\', "
 				+ "dataset: \'" + getDataset () + "\', "
 				+ "topLevelTerm:\'" + StringEscapeUtils.escapeEcmaScript (mTerm) + "\'"
 				+ "})");

@@ -2,6 +2,7 @@
 import {Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {useState} from "react";
+import {Id} from "../../../utils/entityProperties";
 
 // ----------------------------------------------------------------------
 
@@ -44,7 +45,7 @@ function AeRow({target, actions, AE, filterHandler}) {
 
     function handleExpansion() {
         if (!expanded) {
-            let url = `/api/weight/${encodeURIComponent(target)}/${encodeURIComponent(AE.meddraCode)}`
+            let url = `/api/weight/${encodeURIComponent(target)}/${encodeURIComponent(Id.ofAe(AE))}`
             if (actions && actions.length) {
                 url = `${url}?actions=${actions.map(a => encodeURIComponent(a)).join(',')}`;
             }

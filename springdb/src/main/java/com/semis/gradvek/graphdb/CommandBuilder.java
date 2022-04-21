@@ -1,5 +1,7 @@
 package com.semis.gradvek.graphdb;
 
+import com.semis.gradvek.entity.Constants;
+
 import java.util.List;
 import java.util.Locale;
 
@@ -19,7 +21,7 @@ import java.util.Locale;
  * Substitute getPaths() for getWeights() in the examples above to find paths that include the given target.
  * They can also be limited by action type and adverse event.
  */
-public class CommandBuilder {
+public class CommandBuilder implements Constants {
 
     private String target = null;
     private String adverseEvent = null;
@@ -93,12 +95,12 @@ public class CommandBuilder {
 
         // Limit to adverse event
         if (adverseEvent != null) {
-            command.append(" AND nae.meddraCode = '").append(adverseEvent).append("'");
+            command.append(" AND nae.").append(ADVERSE_EVENT_ID_STRING).append(" = '").append(adverseEvent).append("'");
         }
 
         // Limit to drug
         if (drug != null) {
-            command.append(" AND nd.chembl_code = '").append(drug).append("'");
+            command.append(" AND nd.").append(DRUG_ID_STRING).append(" = '").append(drug).append("'");
         }
 
         // Limit to action types

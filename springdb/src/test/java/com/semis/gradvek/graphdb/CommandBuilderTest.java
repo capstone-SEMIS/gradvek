@@ -1,12 +1,13 @@
 package com.semis.gradvek.graphdb;
 
+import com.semis.gradvek.entity.Constants;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class CommandBuilderTest {
+class CommandBuilderTest implements Constants {
     final String filterTarget = " AND toUpper(nt.symbol) = 'JAK3'";
     final String aePrefix = "MATCH (nd:Dataset {enabled: true}) WITH COLLECT(nd.dataset) AS enabledSets"
             + " MATCH path=(nae:AdverseEvent)-[raw:ASSOCIATED_WITH]-(nd:Drug)-[rt:TARGETS]-(nt:Target)"
@@ -22,9 +23,9 @@ class CommandBuilderTest {
             + " AND rpi.dataset IN enabledSets"
             + " AND np.dataset IN enabledSets"
             + filterTarget;
-    final String filterAe = " AND nae.meddraCode = '10042868'";
+    final String filterAe = " AND nae." + ADVERSE_EVENT_ID_STRING + " = '10042868'";
     final String filterActions = " AND rt.actionType IN ['OPENER', 'INHIBITOR']";
-    final String filterDrug = " AND nd.chembl_code = 'CHEMBL221959'";
+    final String filterDrug = " AND nd." + DRUG_ID_STRING + " = 'CHEMBL221959'";
     final String returnByAe = " RETURN nae, sum(toFloat(raw.llr))";
     final String returnByDrug = " RETURN nd, sum(toFloat(raw.llr))";
     final String returnPath = " RETURN path";

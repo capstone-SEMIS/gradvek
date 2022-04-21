@@ -4,6 +4,7 @@ import com.semis.gradvek.csv.CsvFile;
 import com.semis.gradvek.cytoscape.CytoscapeEntity;
 import com.semis.gradvek.cytoscape.Node;
 import com.semis.gradvek.cytoscape.Relationship;
+import com.semis.gradvek.entity.Constants;
 import com.semis.gradvek.entity.Dataset;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
  *
  * @author ymachkasov, ychen
  */
-public class Neo4jDriver implements DBDriver {
+public class Neo4jDriver implements DBDriver, Constants {
     private static final Logger mLogger = Logger.getLogger(Neo4jDriver.class.getName());
 
     private final Driver mDriver;
@@ -239,7 +240,7 @@ public class Neo4jDriver implements DBDriver {
                     Record record = result.next();
                     org.neo4j.driver.types.Node adverseEvent = record.get(0).asNode();
                     String name = adverseEvent.get("adverseEventId").asString();
-                    String id = adverseEvent.get("meddraCode").asString();
+                    String id = adverseEvent.get(ADVERSE_EVENT_ID_STRING).asString();
                     double llr = record.get(1).asDouble();
                     AdverseEventIntObj ae = new AdverseEventIntObj(name, name, id);
                     ae.setLlr(llr);
@@ -270,7 +271,7 @@ public class Neo4jDriver implements DBDriver {
                 while (result.hasNext()) {
                     Record record = result.next();
                     org.neo4j.driver.types.Node drug = record.get(0).asNode();
-                    String drugId = drug.get("chembl_code").asString();
+                    String drugId = drug.get(DRUG_ID_STRING).asString();
                     String drugName = drug.get("drugId").asString();
                     double weight = record.get(1).asDouble();
                     weights.add(Map.of("drugId", drugId, "drugName", drugName, "weight", weight));
@@ -290,14 +291,14 @@ public class Neo4jDriver implements DBDriver {
               String cmd = "MATCH (nt:Target)"
                       + " WHERE toUpper(nt.name) CONTAINS '" + upperCaseHint + "'"
                       + " OR toUpper(nt.symbol) CONTAINS '" + upperCaseHint + "'"
-                      + " OR toUpper(nt.targetId) CONTAINS '" + upperCaseHint + "'"
+                      + " OR toUpper(nt." + TARGET_ID_STRING + ") CONTAINS '" + upperCaseHint + "'"
                       + " RETURN nt"
                       + " LIMIT 12";
               Result result = tx.run(cmd);
               while (result.hasNext()) {
                   Record record = result.next();
                   org.neo4j.driver.types.Node target = record.get(0).asNode();
-                  String id = target.get("targetId").asString();
+                  String id = target.get(TARGET_ID_STRING).asString();
                   String symbol = target.get("symbol").asString();
                   String name = target.get("name").asString();
                   suggestions.add(Map.of("id", id, "symbol", symbol, "name", name));
@@ -320,7 +321,7 @@ public class Neo4jDriver implements DBDriver {
 
                         dataMap.put("id", String.valueOf(node.id()));
                         dataMap.put("adverseEventId", node.asMap().get("adverseEventId").toString());
-                        dataMap.put("meddraCode", node.asMap().get("meddraCode").toString());
+                        dataMap.put(ADVERSE_EVENT_ID_STRING, node.asMap().get(ADVERSE_EVENT_ID_STRING).toString());
                         dataMap.put("name", node.asMap().get("adverseEventId").toString());
 
                         CytoscapeEntity entity = new Node(node.id(),"adverse-event", dataMap);
@@ -329,7 +330,7 @@ public class Neo4jDriver implements DBDriver {
 
                         dataMap.put("id", String.valueOf(node.id()));
                         dataMap.put("drugId", node.asMap().get("drugId").toString());
-                        dataMap.put("chembl_code", node.asMap().get("chembl_code").toString());
+                        dataMap.put(DRUG_ID_STRING, node.asMap().get(DRUG_ID_STRING).toString());
                         dataMap.put("name", node.asMap().get("drugId").toString());
 
                         CytoscapeEntity entity = new Node(node.id(), "drug", dataMap);
@@ -337,7 +338,7 @@ public class Neo4jDriver implements DBDriver {
                     } else if (node.hasLabel("Target")) {
 
                         dataMap.put("id", String.valueOf(node.id()));
-                        dataMap.put("targetId", node.asMap().get("targetId").toString());
+                        dataMap.put(TARGET_ID_STRING, node.asMap().get(TARGET_ID_STRING).toString());
                         dataMap.put("name", node.asMap().get("symbol").toString());
                         dataMap.put("symbol", node.asMap().get("symbol").toString());
 
@@ -345,7 +346,7 @@ public class Neo4jDriver implements DBDriver {
                         entitiesInvolved.put(node.id(), entity);
                     } else if (node.hasLabel("Pathway")) {
                         dataMap.put("id", String.valueOf(node.id()));
-                        dataMap.put("pathwayId", node.asMap().get("pathwayId").toString());
+                        dataMap.put(PATHWAY_ID_STRING, node.asMap().get(PATHWAY_ID_STRING).toString());
                         dataMap.put("name", node.asMap().get("pathwayCode").toString());
                         dataMap.put("term", node.asMap().get("topLevelTerm").toString());
 
@@ -384,6 +385,15 @@ public class Neo4jDriver implements DBDriver {
                         relationshipMap.put("action", relationship.type());
 
                         entity = new Relationship(relationship.id(), "drug_target", relationshipMap);
+                    } else if (relationship.hasType("PARTICIPATES_IN")) {
+                        Node target = (Node) entitiesInvolved.get(relationship.startNodeId());
+                        Node pathway = (Node) entitiesInvolved.get(relationship.endNodeId());
+                        relationshipMap.put("id", String.valueOf(relationship.id()));
+                        relationshipMap.put("source", target.getId().toString());
+                        relationshipMap.put("target", pathway.getId().toString());
+                        relationshipMap.put("arrow", "vee");
+                        relationshipMap.put("action", relationship.type());
+                        entity = new Relationship(relationship.id(), relationshipMap);
                     }
                     entitiesInvolved.put(relationship.id(), entity);
                 }
@@ -445,6 +455,7 @@ public class Neo4jDriver implements DBDriver {
                     cmdBuilder = cmdBuilder.forDrug(drugId);
                 }
                 String cmd = cmdBuilder.toCypher();
+                mLogger.info(cmd);
                 Result result = tx.run(cmd);
                 return getCytoscapeEntities(result);
             });

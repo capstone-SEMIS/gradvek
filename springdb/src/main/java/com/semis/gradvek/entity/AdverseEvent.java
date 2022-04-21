@@ -38,7 +38,7 @@ public class AdverseEvent extends NamedEntity {
 		mMeddraId = data.getString ("meddraCode", 0);
 	}
 
-	public String getMeddraCode () {
+	public String getMeddraId() {
 		return mMeddraId;
 	}
 
@@ -72,7 +72,7 @@ public class AdverseEvent extends NamedEntity {
 
 	@Override
 	public String getId () {
-		return (getMeddraCode ());
+		return (getMeddraId());
 	}
 
 }

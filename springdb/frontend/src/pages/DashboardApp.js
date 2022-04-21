@@ -100,11 +100,6 @@ export default class DashboardApp extends Component {
         })
     }
 
-    fetchGetTo() {
-        // TODO fix duplicate code fragments
-        // TODO add index on actionType
-    }
-
     render() {
         return (
             <Page title="Gradvek">

@@ -34,8 +34,6 @@ class CheckboxParent extends Component {
       });
     });
 
-    console.log("newArr", newArr);
-
     const url = "/api/datasets";
 
     axios
@@ -45,7 +43,6 @@ class CheckboxParent extends Component {
         }
       })
       .then(function(response) {
-        console.log(response);
         if (response.status === 200) {
           toast.success("Successfully Updated!");
         } else toast.error("Update FAILED!");
@@ -57,7 +54,6 @@ class CheckboxParent extends Component {
   };
 
   CreateCheckboxes = () => {
-    console.log("createCheckbox:", this.props.dataArray);
     return (
       <>
         {this.props.dataArray.map((descr, index) => (
