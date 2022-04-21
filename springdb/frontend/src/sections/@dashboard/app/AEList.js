@@ -5,24 +5,22 @@ import {useState} from "react";
 
 // ----------------------------------------------------------------------
 
-function DrugRow() {
+function DrugList({drugResults, filterHandler, target, actions, AE}) {
     return (
         <TableRow>
             <TableCell colSpan="3">
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>One</TableCell>
-                            <TableCell>Two</TableCell>
-                            <TableCell>Three</TableCell>
+                            <TableCell>Drug Name</TableCell>
+                            <TableCell>Drug ID</TableCell>
+                            <TableCell>Weight</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        <TableRow>
-                            <TableCell>1</TableCell>
-                            <TableCell>2</TableCell>
-                            <TableCell>3</TableCell>
-                        </TableRow>
+                        {drugResults.map(r =>
+                            <DrugRow key={r.drugId} drug={r} filterHandler={filterHandler} target={target} actions={actions} ae={AE}/>
+                        )}
                     </TableBody>
                 </Table>
             </TableCell>
@@ -30,12 +28,22 @@ function DrugRow() {
     );
 }
 
+function DrugRow({drug, filterHandler, target, actions, ae}) {
+    return (
+        <TableRow onClick={(e) => filterHandler(target, actions, ae.id, drug.drugId)}>
+            <TableCell> {drug.drugName} </TableCell>
+            <TableCell> {drug.drugId} </TableCell>
+            <TableCell> {drug.weight} </TableCell>
+        </TableRow>
+    );
+}
+
 function AeRow({target, actions, AE, filterHandler}) {
     const [expanded, setExpanded] = useState(false);
+    const [drugResults, setDrugResults] = useState([]);
 
     function handleExpansion() {
         if (!expanded) {
-
             let url = `/api/weight/${encodeURIComponent(target)}/${encodeURIComponent(AE.meddraCode)}`
             if (actions && actions.length) {
                 url = `${url}?actions=${actions.map(a => encodeURIComponent(a)).join(',')}`;
@@ -48,7 +56,7 @@ function AeRow({target, actions, AE, filterHandler}) {
                     throw new Error(r.statusText);
                 }
             }).then(body => {
-                console.log(JSON.stringify(body));
+                setDrugResults(body);
             }).catch((error) => {
                 console.error(error.name + ': ' + error.message);
             });
@@ -70,7 +78,7 @@ function AeRow({target, actions, AE, filterHandler}) {
                     {AE.llr}
                 </TableCell>
             </TableRow>
-            {expanded ? <DrugRow /> : null}
+            {expanded ? <DrugList drugResults={drugResults} filterHandler={filterHandler} target={target} actions={actions} AE={AE}/> : null}
         </>
     );
 }

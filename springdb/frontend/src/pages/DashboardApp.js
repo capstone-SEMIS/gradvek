@@ -31,12 +31,15 @@ export default class DashboardApp extends Component {
         this.refreshActions();
     }
 
-    refreshViz(target, actions = null, ae = null) {
+    refreshViz(target, actions = null, ae = null, drug = null) {
         this.setState({focusNode: {}});
 
         let url = `/api/ae/path/${encodeURIComponent(target)}`;
         if (ae !== null) {
             url = `${url}/${encodeURIComponent(ae)}`
+        }
+        if (drug !== null) {
+            url = `${url}/${encodeURIComponent(drug)}`
         }
         if (actions && actions.length) {
             url = `${url}?actions=${actions.map(a => encodeURIComponent(a)).join(',')}`;
