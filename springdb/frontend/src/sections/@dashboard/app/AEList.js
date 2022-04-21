@@ -5,24 +5,22 @@ import {useState} from "react";
 
 // ----------------------------------------------------------------------
 
-function DrugRow() {
+function DrugList({drugResults}) {
     return (
         <TableRow>
             <TableCell colSpan="3">
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>One</TableCell>
-                            <TableCell>Two</TableCell>
-                            <TableCell>Three</TableCell>
+                            <TableCell>Drug Name</TableCell>
+                            <TableCell>Drug ID</TableCell>
+                            <TableCell>Weight</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        <TableRow>
-                            <TableCell>1</TableCell>
-                            <TableCell>2</TableCell>
-                            <TableCell>3</TableCell>
-                        </TableRow>
+                        {drugResults.map(r =>
+                            <DrugRow key={r.id} drug={r}/>
+                        )}
                     </TableBody>
                 </Table>
             </TableCell>
@@ -30,17 +28,30 @@ function DrugRow() {
     );
 }
 
+function DrugRow({drug}) {
+    return (
+        <TableRow>
+            <TableCell> {drug.drugName} </TableCell>
+            <TableCell> {drug.drugId} </TableCell>
+            <TableCell> {drug.weight} </TableCell>
+        </TableRow>
+    );
+}
+
 function AeRow({target, AE, filterHandler}) {
     const [expanded, setExpanded] = useState(false);
+    const [drugResults, setDrugResults] = useState([]);
 
     function handleExpansion() {
         if (!expanded) {
             fetch(`/api/weight/${target}/${AE.meddraCode}`).then(r => {
                 if (r.ok) {
-                    console.log("success");
+                    return r.json();
                 } else {
                     throw new Error(r.statusText);
                 }
+            }).then(body => {
+                setDrugResults(body);
             }).catch((error) => {
                 console.error(error.name + ': ' + error.message);
             });
@@ -62,7 +73,7 @@ function AeRow({target, AE, filterHandler}) {
                     {AE.llr}
                 </TableCell>
             </TableRow>
-            {expanded ? <DrugRow /> : null}
+            {expanded ? <DrugList drugResults={drugResults}/> : null}
         </>
     );
 }
