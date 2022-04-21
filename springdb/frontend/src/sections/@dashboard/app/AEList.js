@@ -5,7 +5,7 @@ import {useState} from "react";
 
 // ----------------------------------------------------------------------
 
-function DrugList({drugResults}) {
+function DrugList({drugResults, filterHandler, target, actions, AE}) {
     return (
         <TableRow>
             <TableCell colSpan="3">
@@ -19,7 +19,7 @@ function DrugList({drugResults}) {
                     </TableHead>
                     <TableBody>
                         {drugResults.map(r =>
-                            <DrugRow key={r.id} drug={r}/>
+                            <DrugRow key={r.drugId} drug={r} filterHandler={filterHandler} target={target} actions={actions} ae={AE}/>
                         )}
                     </TableBody>
                 </Table>
@@ -28,9 +28,9 @@ function DrugList({drugResults}) {
     );
 }
 
-function DrugRow({drug}) {
+function DrugRow({drug, filterHandler, target, actions, ae}) {
     return (
-        <TableRow>
+        <TableRow onClick={(e) => filterHandler(target, actions, ae.id, drug.drugId)}>
             <TableCell> {drug.drugName} </TableCell>
             <TableCell> {drug.drugId} </TableCell>
             <TableCell> {drug.weight} </TableCell>
@@ -78,7 +78,7 @@ function AeRow({target, actions, AE, filterHandler}) {
                     {AE.llr}
                 </TableCell>
             </TableRow>
-            {expanded ? <DrugList drugResults={drugResults}/> : null}
+            {expanded ? <DrugList drugResults={drugResults} filterHandler={filterHandler} target={target} actions={actions} AE={AE}/> : null}
         </>
     );
 }

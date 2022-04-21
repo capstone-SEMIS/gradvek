@@ -71,6 +71,10 @@ public interface DBDriver {
 
 	List<CytoscapeEntity> getPathsTargetAe(String target, List<String> actions, String ae);
 
+	List<CytoscapeEntity> getPathsTargetAeDrug(String target, String ae, String drugId);
+
+	List<CytoscapeEntity> getPathsTargetAeDrug(String target, List<String> actions, String ae, String drugId);
+
 	List<Map> getWeightsByDrug(String target, String ae);
 
 	List<Map> getWeightsByDrug(String target, List<String> actions, String ae);

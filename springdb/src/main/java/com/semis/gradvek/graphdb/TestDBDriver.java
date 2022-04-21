@@ -162,6 +162,16 @@ public class TestDBDriver implements DBDriver {
 
 	@Override
 	public List<CytoscapeEntity> getPathsTargetAe(String target, List<String> actions, String ae) {
+		return new ArrayList<>();
+	}
+
+	@Override
+	public List<CytoscapeEntity> getPathsTargetAeDrug(String target, String ae, String drugId) {
+		return new ArrayList<>();
+	}
+
+	@Override
+	public List<CytoscapeEntity> getPathsTargetAeDrug(String target, List<String> actions, String ae, String drugId) {
 		return null;
 	}
 
