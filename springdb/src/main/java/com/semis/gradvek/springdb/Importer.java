@@ -53,7 +53,8 @@ public class Importer {
 
 	public void processAdditionalEntities() {
 		if (mAdditionalEntities.size() > 0) {
-			mDriver.add(new ArrayList<>(mAdditionalEntities.values()), true);
+			mDriver.add(new ArrayList<>(mAdditionalEntities.values()),
+					mAdditionalEntities.values().iterator().next().getType().canCombine());
 		}
 		mAdditionalEntities.clear();
 	}

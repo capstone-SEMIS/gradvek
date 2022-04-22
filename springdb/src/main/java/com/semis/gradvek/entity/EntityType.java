@@ -15,7 +15,8 @@ public enum EntityType implements Constants {
 	MechanismOfAction (MechanismOfAction.class, null),
 	Participates (Participates.class, null),
 	Involves (Involves.class, null),
-	Dataset (Dataset.class, "dataset");
+	Dataset (Dataset.class, "dataset"),
+	Action(Action.class, null);
 	
 	/**
 	 * The class of the corresponding entity (a subclass of Entity)
@@ -97,6 +98,7 @@ public enum EntityType implements Constants {
 			break;
 			
 			case MechanismOfAction:
+			case Action:
 				ret = "MATCH (:Drug)-[n]->(:Target) RETURN COUNT (n)";
 			break;
 			

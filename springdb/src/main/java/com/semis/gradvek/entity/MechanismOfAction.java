@@ -1,13 +1,12 @@
 package com.semis.gradvek.entity;
 
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.parquet.example.data.Group;
-
 import com.semis.gradvek.parquet.ParquetUtils;
 import com.semis.gradvek.springdb.Importer;
+import org.apache.parquet.example.data.Group;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The immutable class representing a connection between
@@ -72,6 +71,8 @@ public class MechanismOfAction extends Edges {
 				)
 			);
 		setDataset ("MechanismOfAction");
+
+		getFrom().forEach(from -> getTo().forEach(to -> importer.additionalEntity(new Action(from, to, getParams()))));
 	}
 
 	/**
@@ -102,5 +103,10 @@ public class MechanismOfAction extends Edges {
 	
 	public final EntityType getType () {
 		return EntityType.MechanismOfAction;
+	}
+
+	@Override
+	public boolean filter (Group data) {
+		return (false);
 	}
 }
