@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { PropTypes } from "prop-types";
-import Label from "../../../components/Label";
 
 class Checkbox extends Component {
   state = {
