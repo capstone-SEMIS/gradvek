@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.logging.Logger;
 
@@ -53,8 +54,9 @@ public class Importer {
 
 	public void processAdditionalEntities() {
 		if (mAdditionalEntities.size() > 0) {
-			mDriver.add(new ArrayList<>(mAdditionalEntities.values()),
-					mAdditionalEntities.values().iterator().next().getType().canCombine());
+			AtomicBoolean canCombine = new AtomicBoolean (true);
+			mAdditionalEntities.values ().forEach (e -> canCombine.set (canCombine.get () && e.getType ().canCombine ()));
+			mDriver.add(new ArrayList<>(mAdditionalEntities.values()), canCombine.get ());
 		}
 		mAdditionalEntities.clear();
 	}
