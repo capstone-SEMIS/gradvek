@@ -36,7 +36,7 @@ export default function DataMgmtPage() {
         <CsvImporter fetchData={fetchData} />
         <br />
         <br />
-        <Typography variant="h4" sx={{ mb: 2, fontSize: 10 }}>
+        <Typography variant="h4" sx={{ mb: 2 }}>
           Datasets from Backend (Include/Exclude):
         </Typography>
         <CheckboxParent dataArray={dataArray} />

@@ -1,8 +1,8 @@
 // ----------------------------------------------------------------------
 
-export default function Paper() {
+export default function Accordion() {
   return {
-    MuiPaper: {
+    MuiAccordion: {
       defaultProps: {
         elevation: 0
       },
@@ -10,7 +10,10 @@ export default function Paper() {
       styleOverrides: {
         root: {
           backgroundImage: "none",
-          border: "0px solid transparent"
+          border: "0px solid transparent",
+          "&:before": {
+            backgroundColor: "transparent"
+          }
         }
       }
     }

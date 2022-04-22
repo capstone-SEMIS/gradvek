@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { PropTypes } from "prop-types";
+import Label from "../../../components/Label";
 
 class Checkbox extends Component {
   state = {
@@ -22,14 +23,18 @@ class Checkbox extends Component {
 
     return (
       <div className="checkbox" style={{ marginBottom: "1rem" }}>
-        <label style={{ fontSize: "1.2rem" }}>
+        <label>
           <input
             type="checkbox"
             value={label}
             defaultChecked={isChecked}
             onChange={this.toggleCheckboxChange}
             dataset={this.props.dataset}
-            style={{ marginRight: ".5rem" }}
+            style={{
+              marginRight: ".5rem",
+              height: "1.35rem",
+              width: "1.35rem"
+            }}
           />
           {label}
         </label>
