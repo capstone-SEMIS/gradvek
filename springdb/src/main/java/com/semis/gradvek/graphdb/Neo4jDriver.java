@@ -409,20 +409,7 @@ public class Neo4jDriver implements DBDriver {
 
     @Override
     public List<CytoscapeEntity> getPathsTargetAe(String target, List<String> actions, String ae) {
-        try (Session session = mDriver.session()) {
-            return session.readTransaction(tx -> {
-                CommandBuilder cmdBuilder = new CommandBuilder().getPaths(target);
-                if (actions != null && !actions.isEmpty()) {
-                    cmdBuilder = cmdBuilder.forActionTypes(actions);
-                }
-                if (ae != null) {
-                    cmdBuilder = cmdBuilder.forAdverseEvent(ae);
-                }
-                String cmd = cmdBuilder.toCypher();
-                Result result = tx.run(cmd);
-                return getCytoscapeEntities(result);
-            });
-        }
+        return getPathsTargetAeDrug(target, actions, ae, null);
     }
 
     @Override
