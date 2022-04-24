@@ -9,6 +9,7 @@ import Backdrop from './Backdrop';
 import Typography from './Typography';
 import IconButton from './IconButton';
 import Autocomplete from './Autocomplete';
+import Accordion from './Accordion';
 
 // ----------------------------------------------------------------------
 
@@ -23,6 +24,7 @@ export default function ComponentsOverrides(theme) {
     Backdrop(theme),
     Typography(theme),
     IconButton(theme),
-    Autocomplete(theme)
+    Autocomplete(theme),
+    Accordion(theme)
   );
 }

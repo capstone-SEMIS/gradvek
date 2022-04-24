@@ -34,31 +34,31 @@ const typography = {
   h2: {
     fontWeight: 700,
     lineHeight: 64 / 48,
-    fontSize: pxToRem(32),
+    fontSize: pxToRem(34),
     ...responsiveFontSizes({ sm: 40, md: 44, lg: 48 })
   },
   h3: {
     fontWeight: 700,
     lineHeight: 1.5,
-    fontSize: pxToRem(24),
+    fontSize: pxToRem(28),
     ...responsiveFontSizes({ sm: 26, md: 30, lg: 32 })
   },
   h4: {
     fontWeight: 700,
     lineHeight: 1.5,
-    fontSize: pxToRem(20),
+    fontSize: pxToRem(24),
     ...responsiveFontSizes({ sm: 20, md: 24, lg: 24 })
   },
   h5: {
     fontWeight: 700,
     lineHeight: 1.5,
-    fontSize: pxToRem(18),
+    fontSize: pxToRem(22),
     ...responsiveFontSizes({ sm: 19, md: 20, lg: 20 })
   },
   h6: {
     fontWeight: 700,
     lineHeight: 28 / 18,
-    fontSize: pxToRem(17),
+    fontSize: pxToRem(20),
     ...responsiveFontSizes({ sm: 18, md: 18, lg: 18 })
   },
   subtitle1: {
@@ -73,11 +73,11 @@ const typography = {
   },
   body1: {
     lineHeight: 1.5,
-    fontSize: pxToRem(16)
+    fontSize: pxToRem(20)
   },
   body2: {
     lineHeight: 22 / 14,
-    fontSize: pxToRem(14)
+    fontSize: pxToRem(18)
   },
   caption: {
     lineHeight: 1.5,
