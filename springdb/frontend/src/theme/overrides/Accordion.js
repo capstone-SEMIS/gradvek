@@ -7,10 +7,10 @@ export default function Accordion() {
   
         styleOverrides: {
           root: {
-            backgroundImage: "none",
-            border: "0px solid transparent",
-            "&:before": {
-              backgroundColor: "transparent"
+            backgroundImage: 'none',
+            border: '0px solid transparent',
+            '&:before': {
+              backgroundColor: 'transparent'
             }
           }
         }

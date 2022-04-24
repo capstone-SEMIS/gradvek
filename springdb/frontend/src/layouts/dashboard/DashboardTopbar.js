@@ -17,7 +17,7 @@ export default function DashboardTopbar() {
 
             <Box>
                 <Button color='inherit' href='/dashboard/app'>
-                    <Iconify icon='ant-design:home-filled' width={22} height={22} sx={{mr: 1}}/>
+                    <Iconify icon='ant-design:search' width={22} height={22} sx={{mr: 1}}/>
                     <Typography variant="subtitle1" component="div" sx={{mr: 10}}>
                         Query
                     </Typography>
