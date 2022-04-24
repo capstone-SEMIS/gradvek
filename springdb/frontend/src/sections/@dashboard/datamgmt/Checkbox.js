@@ -30,7 +30,6 @@ class Checkbox extends Component {
             onChange={this.toggleCheckboxChange}
             dataset={this.props.dataset}
             style={{ marginRight: ".5rem" ,
-              marginRight: ".5rem",
               height: "1.35rem",
               width: "1.35rem"
           }}
