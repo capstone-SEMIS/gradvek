@@ -75,7 +75,7 @@ function AeRow({target, actions, AE, filterHandler}) {
                     {AE.name}
                 </TableCell>
                 <TableCell onClick={(e) => filterHandler(target, actions, AE.id)}>
-                    {AE.llr}
+                    {(AE.llr).toFixed(2)}
                 </TableCell>
             </TableRow>
             {expanded ? <DrugList drugResults={drugResults} filterHandler={filterHandler} target={target} actions={actions} AE={AE}/> : null}

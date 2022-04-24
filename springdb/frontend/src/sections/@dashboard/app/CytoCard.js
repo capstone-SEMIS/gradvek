@@ -15,7 +15,7 @@ const RootStyle = styled(Card)(({ theme }) => ({
 export default function CytoCard(props) {
     return (
         <RootStyle>
-            <CardHeader title="Graph visualisation" subheader="Results for search XYZ" />
+            <CardHeader title="Graph visualization" subheader="" />
             <Box sx={{ p: 3, pb: 1 }} dir="ltr">
                 <CytoCanvas {...props} />
             </Box>
