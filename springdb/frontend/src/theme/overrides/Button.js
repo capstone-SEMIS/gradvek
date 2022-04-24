@@ -6,7 +6,7 @@ export default function Button(theme) {
       styleOverrides: {
         root: {
           fontSize: theme.typography.pxToRem(16),
-          "&:hover": {
+          '&:hover': {
             boxShadow: 'none'
           }
         },
