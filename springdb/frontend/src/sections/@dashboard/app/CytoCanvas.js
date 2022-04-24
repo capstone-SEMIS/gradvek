@@ -76,11 +76,7 @@ export default class CytoCanvas extends Component {
         label: "data(name)",
         "text-valign": "center",
         "text-outline-color": "white",
-        // 'text-outline-opacity': '50%',
         "text-outline-width": "2px"
-        // 'text-background-padding' : '2px',
-        // 'text-border-width': '1px',
-        // 'text-border-color': 'white',
       }
     },
     {
@@ -106,7 +102,6 @@ export default class CytoCanvas extends Component {
         opacity: "1"
       }
     },
-
     {
       selector: "edge",
       style: {
@@ -119,13 +114,6 @@ export default class CytoCanvas extends Component {
         "text-rotation": "autorotate"
       }
     },
-
-    // {
-    //     selector: '.drug_target',
-    //     style: {
-    //         "label": "data(action)",
-    //     }
-    // },
     {
       selector: "*",
       style: {

@@ -1,5 +1,6 @@
 // material
 import {Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {useState} from "react";
 
@@ -67,9 +68,8 @@ function AeRow({target, actions, AE, filterHandler}) {
     return (
         <>
             <TableRow>
-                <TableCell>
-                    <ExpandMoreIcon onClick={handleExpansion}/>
-                    {/*<ExpandLessIcon />*/}
+                <TableCell onClick={handleExpansion} >
+                    {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </TableCell>
                 <TableCell onClick={(e) => filterHandler(target, actions, AE.id)}>
                     {AE.name}
