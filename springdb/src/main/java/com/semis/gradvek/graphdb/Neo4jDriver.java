@@ -48,7 +48,7 @@ public class Neo4jDriver implements DBDriver, Constants {
     }
     
     private final int getMaxCypherBatchSize () {
-    	int ret = Integer.parseInt (mEnv.getProperty ("neo4j.batchSize", "0"));
+    	int ret = Integer.parseInt (mEnv.getProperty ("neo4j.cypher.batch", "0"));
     	
     	return (ret > 0 ? ret : 10000);
     }
@@ -111,7 +111,7 @@ public class Neo4jDriver implements DBDriver, Constants {
     	List<String> cmds = entities.stream()
                 .map(e -> e.addCommands()) // each entity can have several commands
                 .flatMap(Collection::stream) // flatten them
-                .map (c -> c.replace ("$" + DB_VERSION_PARAM, dbVersion)) // unparameterize manually
+                .map (c -> c.replace ("$" + DB_VERSION_PARAM, "\'" + dbVersion + "\'")) // unparameterize manually
                 .collect(Collectors.toList());
     	
          // separate into batches if needed
