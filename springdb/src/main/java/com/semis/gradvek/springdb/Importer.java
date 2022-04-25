@@ -44,7 +44,7 @@ public class Importer {
 		logger.fine("Found " + numFound + " entities to import");
 		
 		if (numFound > 0) {
-			mDriver.add (toImport, type.canCombine (), type + "." + version);
+			mDriver.add (toImport, type.canCombine (), version + "." + type);
 		}
 		
 		return (numFound);
@@ -70,7 +70,7 @@ public class Importer {
 			mDriver.add(
 					new ArrayList<>(mAdditionalEntities.values()),
 					type.canCombine (),
-					type + "." + dbVersion
+					dbVersion + "." + type
 			);
 		}
 		mAdditionalEntities.clear();

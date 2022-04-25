@@ -266,8 +266,10 @@ public class ParquetUtils {
 		verifyCount (driver, addlType, addlImportedCount);
 		
 		// add the dataset(s); the references are already in the entities
-		driver.add (datasetFromType (type, version));
-		if (addlType != null) {
+		if (importedCount > 0) {
+			driver.add (datasetFromType (type, version));
+		}
+		if (addlImportedCount > 0) {
 			driver.add (datasetFromType (addlType, version));
 		}
 		
@@ -279,6 +281,6 @@ public class ParquetUtils {
 	
 	public final static Dataset datasetFromType (EntityType type, String dbVersion) {
 		OpenTargetsSource source = mEntityTypeToSource.get (type);
-		return new Dataset (type.toString () + "." + dbVersion, source.mDescription, source.mPath, System.currentTimeMillis ());
+		return new Dataset (dbVersion + "." + type.toString (), source.mDescription, source.mPath, System.currentTimeMillis ());
 	}
 }
