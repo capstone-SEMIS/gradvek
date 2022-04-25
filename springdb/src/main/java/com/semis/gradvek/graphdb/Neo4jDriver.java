@@ -107,12 +107,14 @@ public class Neo4jDriver implements DBDriver, Constants {
      * Performs the commands to add this set of entities to the database
      */
     @Override
-    public void add(List<Entity> entities, boolean canCombine, String dbVersion) {
+    public int add(List<Entity> entities, boolean canCombine, String dbVersion) {
     	List<String> cmds = entities.stream()
                 .map(e -> e.addCommands()) // each entity can have several commands
                 .flatMap(Collection::stream) // flatten them
                 .map (c -> c.replace ("$" + DB_VERSION_PARAM, "\'" + dbVersion + "\'")) // unparameterize manually
                 .collect(Collectors.toList());
+    	
+    	int numToCreate = cmds.size ();
     	
          // separate into batches if needed
         final Collection<List<String>> batches = chunk(cmds);
@@ -134,6 +136,8 @@ public class Neo4jDriver implements DBDriver, Constants {
                 });
             }
         }
+        
+        return (numToCreate);
     }
 
     /**

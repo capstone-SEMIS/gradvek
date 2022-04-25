@@ -35,8 +35,9 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
-	public void add (List<Entity> entities, boolean canCombine, String dbVersion) {
+	public int add (List<Entity> entities, boolean canCombine, String dbVersion) {
 		entities.forEach (e -> add (e));
+		return (entities.size ());
 	}
 
 	@Override
