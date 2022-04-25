@@ -5,6 +5,8 @@ import java.util.logging.Logger;
 
 import org.apache.parquet.example.data.Group;
 
+import com.semis.gradvek.springdb.Importer;
+
 /**
  * The factory class capable of creating entities representing OpenTarget data by type
  * through reflection 
@@ -22,9 +24,9 @@ public class EntityFactory {
 	 * @param parquet the Parquet data for this entity
 	 * @return The created instance of the specified type
 	 */
-	public static <T extends Entity> T fromParquet (Class<T> entityClass, Group parquet) {
+	public static <T extends Entity> T fromParquet (Class<T> entityClass,  Importer importer, Group parquet) {
 		try {
-			T ret = entityClass.getConstructor (Group.class).newInstance (parquet);
+			T ret = entityClass.getConstructor (Importer.class, Group.class).newInstance (importer, parquet);
 			if (ret.filter (parquet)) {
 				return (ret);
 			} else {

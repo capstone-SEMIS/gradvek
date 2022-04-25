@@ -6,16 +6,17 @@ package com.semis.gradvek.entity;
  *
  */
 public enum EntityType implements Constants {
-	AdverseEvent (AdverseEvent.class, "meddraCode"), 
-	Drug (Drug.class, "chembl_code"), 
-	Gene (Gene.class, "geneId"), 
-	Target (Target.class, "targetId"), 
-	Pathway (Pathway.class, "pathwayId"), 
+	AdverseEvent (AdverseEvent.class, ADVERSE_EVENT_ID_STRING), 
+	Drug (Drug.class, DRUG_ID_STRING), 
+	Gene (Gene.class, GENE_ID_STRING), 
+	Target (Target.class, TARGET_ID_STRING), 
+	Pathway (Pathway.class, PATHWAY_ID_STRING), 
 	AssociatedWith (AssociatedWith.class, null),
 	MechanismOfAction (MechanismOfAction.class, null),
 	Participates (Participates.class, null),
 	Involves (Involves.class, null),
-	Dataset (Dataset.class, "dataset");
+	Dataset (Dataset.class, "dataset"),
+	Action(Action.class, null);
 	
 	/**
 	 * The class of the corresponding entity (a subclass of Entity)
@@ -97,6 +98,7 @@ public enum EntityType implements Constants {
 			break;
 			
 			case MechanismOfAction:
+			case Action:
 				ret = "MATCH (:Drug)-[n]->(:Target) RETURN COUNT (n)";
 			break;
 			

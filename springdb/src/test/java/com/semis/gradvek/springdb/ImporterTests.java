@@ -12,6 +12,7 @@ import org.springframework.core.io.Resource;
 import com.semis.gradvek.entity.Entity;
 import com.semis.gradvek.entity.EntityType;
 import com.semis.gradvek.entity.Target;
+import com.semis.gradvek.graphdb.TestDBDriver;
 import com.semis.gradvek.parquet.Parquet;
 import com.semis.gradvek.parquet.ParquetUtils;
 
@@ -26,7 +27,7 @@ public class ImporterTests {
 	}
 	@Test
 	public void testImport () {
-		List<Entity> imported = Importer.readEntities (mParquet, EntityType.Target);
+		List<Entity> imported = new Importer (new TestDBDriver ()).readEntities (mParquet, EntityType.Target);
 		
 		Assertions.assertEquals (imported.size (), 316);
 		imported.forEach (e -> Assertions.assertTrue (e instanceof Target));

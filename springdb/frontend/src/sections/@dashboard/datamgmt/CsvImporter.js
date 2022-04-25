@@ -1,11 +1,12 @@
-import { styled } from "@mui/material/styles";
+import {styled} from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
-import { useState } from "react";
-import { Box, CircularProgress } from "@mui/material";
+import {useState} from "react";
+import {Box, CircularProgress} from "@mui/material";
 import CancelIcon from "@mui/icons-material/Cancel";
 import CheckIcon from "@mui/icons-material/Check";
 import HelpIcon from "@mui/icons-material/Help";
+import {EntityProperty} from "../../../utils/entityProperties";
 
 const CsvBox = styled(Box)({
   fontFamily: "monospace",
@@ -47,43 +48,43 @@ function Helper() {
     [
       "Node: AdverseEvent",
       "Import the adverse event somnolence with MedDRA code 10041349",
-      "node,meddraCode,adverseEventId",
+      "node," + EntityProperty.AdverseEventId + ",adverseEventId",
       "AdverseEvent,10041349,Somnolence"
     ],
     [
       "Node: Drug",
       "Import the drug acetaminophen with ChEMBL code CHEMBL112",
-      "node,chembl_code,drugId",
+      "node," + EntityProperty.DrugId + ",drugId",
       "Drug,CHEMBL112,Acetaminophen"
     ],
     [
       "Node: Target",
       "Import the target vanilloid receptor with symbol TRPV1 and Ensembl code ENSG00000196689",
-      "node,targetId,symbol,name",
+      "node," + EntityProperty.TargetId + ",symbol,name",
       "Target,ENSG00000196689,TRPV1,Vanilloid receptor"
     ],
     [
       "Node: Pathway",
       "Import the pathway TRP channels with Reactome identifier R-HSA-3295583 and top-level parent transport of small molecules",
-      "node,pathwayId,pathwayCode,topLevelTerm",
+      "node," + EntityProperty.PathwayId + ",pathwayCode,topLevelTerm",
       "Pathway,R-HSA-3295583,TRP channels,Transport of small molecules"
     ],
     [
       "Relationship: Associated With",
       "Import the relationship that Acetaminophen is associated with somnolence with a log likelihood ratio of 1023.49 and a critical value of 374.79",
-      "relationship,chembl_code,meddraCode,llr,critval",
+      "relationship," + EntityProperty.DrugId + "," + EntityProperty.AdverseEventId + ",llr,critval",
       "ASSOCIATED_WITH,CHEMBL112,10041349,1023.49,374.79"
     ],
     [
       "Relationship: Targets",
       "Import the relationship that acetaminophen targets TRPV1 as an opener",
-      "relationship,chembl_code,targetId,actionType",
+      "relationship," + EntityProperty.DrugId + "," + EntityProperty.TargetId + ",actionType",
       "TARGETS,CHEMBL112,ENSG00000196689,OPENER"
     ],
     [
       "Relationship: Participates",
       "Import the relationship that target TRPV1 participates in the TRP channels pathway",
-      "relationship,targetId,pathwayId",
+      "relationship," + EntityProperty.TargetId + "," + EntityProperty.PathwayId,
       "PARTICIPATES_IN,ENSG00000196689,R-HSA-3295583"
     ]
   ];

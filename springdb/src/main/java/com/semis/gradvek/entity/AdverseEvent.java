@@ -6,6 +6,8 @@ import java.util.List;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.parquet.example.data.Group;
 
+import com.semis.gradvek.springdb.Importer;
+
 /**
  * The immutable object representing an adverse effect from the OpenTargets
  * database
@@ -18,11 +20,11 @@ public class AdverseEvent extends NamedEntity {
 	 * The code of the adverse event according to Medical Dictionary for Regulatory
 	 * Activities (https://www.meddra.org/)
 	 */
-	private final String mMeddraCode;
+	private final String mMeddraId;
 	
 	public AdverseEvent (String name, String id, String code) {
 		super (name);
-		mMeddraCode = code;
+		mMeddraId = code;
 	}
 
 	/**
@@ -30,20 +32,20 @@ public class AdverseEvent extends NamedEntity {
 	 *
 	 * @param data the full Parquet entity for this event
 	 */
-	public AdverseEvent (Group data) {
+	public AdverseEvent (Importer importer, Group data) {
 		super (data.getString ("event", 0));
 		setDataset ("AdverseEvent");
-		mMeddraCode = data.getString ("meddraCode", 0);
+		mMeddraId = data.getString ("meddraCode", 0);
 	}
 
-	public String getMeddraCode () {
-		return mMeddraCode;
+	public String getMeddraId() {
+		return mMeddraId;
 	}
 
 	@Override
 	public final List<String> addCommands () {
 		return Collections.singletonList("CREATE (:AdverseEvent " 
-				+ " {" + "meddraCode:\'" + mMeddraCode + "\', "
+				+ " {" + ADVERSE_EVENT_ID_STRING + ":\'" + mMeddraId + "\', "
 				+ "dataset: \'" + getDataset () + "\', "
 				+ "adverseEventId:\'" + StringEscapeUtils.escapeEcmaScript (getName ()) + "\'"
 				+ "})");
@@ -56,7 +58,7 @@ public class AdverseEvent extends NamedEntity {
 	@Override
 	public boolean equals (Object otherObj) {
 		if (otherObj instanceof AdverseEvent) {
-			return ((AdverseEvent) otherObj).mMeddraCode.equals (mMeddraCode);
+			return ((AdverseEvent) otherObj).mMeddraId.equals (mMeddraId);
 		} else {
 			return (false);
 		}
@@ -64,13 +66,13 @@ public class AdverseEvent extends NamedEntity {
 	
 	@Override
 	public int hashCode () {
-		return (mMeddraCode.hashCode ());
+		return (mMeddraId.hashCode ());
 	}
 	
 
 	@Override
 	public String getId () {
-		return (getMeddraCode ());
+		return (getMeddraId());
 	}
 
 }

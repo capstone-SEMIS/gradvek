@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.parquet.example.data.Group;
 
 import com.semis.gradvek.parquet.ParquetUtils;
+import com.semis.gradvek.springdb.Importer;
 
 /**
  * The immutable class representing a connection between
@@ -45,7 +46,7 @@ message spark_schema {
 	 * 
 	 * @param data the full Parquet entity for this event
 	 */
-	public Participates (Group data) {
+	public Participates (Importer importer, Group data) {
 		super (
 				Collections.singletonList (data.getString ("id", 0)),
 				ParquetUtils.extractGroupList (data, "pathways").stream ()
@@ -67,8 +68,8 @@ message spark_schema {
 		String from = getFrom ().get (0);
 		getTo ().forEach (to -> {
 			String cmd = "MATCH (from:Target), (to:Pathway)\n"
-					+ "WHERE from.targetId=\'" + from + "\'\n"
-					+ "AND to.pathwayId=\'" + to + "\'\n"
+					+ "WHERE from." + TARGET_ID_STRING + "=\'" + from + "\'\n"
+					+ "AND to." + PATHWAY_ID_STRING + "=\'" + to + "\'\n"
 					+ "CREATE (from)-[:PARTICIPATES_IN"
 					+ " { dataset: \'" + getDataset () + "\' "
 					+ (jsonMap != null ? (", " + jsonMap) : "")

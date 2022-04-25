@@ -81,7 +81,7 @@ public class DBTests {
 		
 		// should be 2 of them
 		assertThat (ae.size ()).isEqualTo (2);
-		List<String> aeIds = List.of (ae.get (0).getMeddraCode (), ae.get (1).getMeddraCode ());
+		List<String> aeIds = List.of (ae.get (0).getMeddraId(), ae.get (1).getMeddraId());
 		// find one by id
 		assertThat (aeIds).contains ("10000804");
 		

@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.parquet.example.data.Group;
 
 import com.semis.gradvek.parquet.ParquetUtils;
+import com.semis.gradvek.springdb.Importer;
 
 /**
  * The immutable class representing a causal connection between a drug
@@ -25,7 +26,7 @@ public class AssociatedWith extends Edge {
 	 * 
 	 * @param data the full Parquet entity for this event
 	 */
-	public AssociatedWith (Group data) {
+	public AssociatedWith (Importer importer, Group data) {
 		super (data.getString ("chembl_id", 0), data.getString ("meddraCode", 0),
 				ParquetUtils.extractParams (data, "llr", "critval"/*, "count" is there, but irrelevant */));
 		setDataset ("AssociatedWith");
@@ -40,8 +41,8 @@ public class AssociatedWith extends Edge {
 
 		return Collections.singletonList(
 			"MATCH (from:Drug), (to:AdverseEvent)\n"
-			+ "WHERE from.chembl_code=\'" + getFrom () + "\'\n"
-			+ "AND to.meddraCode=\'" + getTo () + "\'\n"
+			+ "WHERE from." + DRUG_ID_STRING + "=\'" + getFrom () + "\'\n"
+			+ "AND to." + ADVERSE_EVENT_ID_STRING +"=\'" + getTo () + "\'\n"
 			+ "CREATE (from)-[:ASSOCIATED_WITH" 
 			+ " { dataset: \'" + getDataset () + "\' "
 			+ (jsonMap != null ? (", " + jsonMap) : "")

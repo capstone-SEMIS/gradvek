@@ -19,7 +19,7 @@ public class AdverseEventIntObj extends AdverseEvent {
 	}
 
 	public AdverseEventIntObj (AdverseEvent e, String llr) {
-		super (e.getName (), e.getId (), e.getMeddraCode ());
+		super (e.getName (), e.getId (), e.getMeddraId());
 		mLlr = Double.valueOf (llr);
 	}
 }

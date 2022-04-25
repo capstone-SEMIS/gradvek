@@ -31,8 +31,8 @@ public class Involves extends Edges {
 		String from = getFrom ().get (0);
 		getTo ().forEach (to -> {
 			String cmd = "MATCH (from:Target), (to:Gene)\n"
-					+ "WHERE from.targetId=\'" + from + "\'\n"
-					+ "AND to.geneId=\'" + to + "\'\n"
+					+ "WHERE from." + TARGET_ID_STRING + "=\'" + from + "\'\n"
+					+ "AND to." + GENE_ID_STRING + "=\'" + to + "\'\n"
 					+ "CREATE (from)-[:INVOLVES"
 					+ " { dataset: \'" + getDataset () + "\' "
 					+ (jsonMap != null ? (", " + jsonMap) : "")

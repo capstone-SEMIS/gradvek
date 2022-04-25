@@ -1,13 +1,26 @@
 package com.semis.gradvek.graphdb;
 
+import com.semis.gradvek.entity.Constants;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class CommandBuilderTest {
+class CommandBuilderTest implements Constants {
     final String filterTarget = " AND toUpper(nt.symbol) = 'JAK3'";
+    final String weightsPrefix = "MATCH (nd:Dataset {enabled: true}) WITH COLLECT(nd.dataset) AS enabledSets"
+            + " MATCH (nd:Drug)-[rt:TARGETS]-(nt:Target)"
+            + " WHERE nd.dataset IN enabledSets"
+            + " AND rt.dataset IN enabledSets"
+            + " AND nt.dataset IN enabledSets"
+            + filterTarget;
+    final String weightsInfix = " WITH enabledSets, COLLECT(nd) AS targetingDrugs"
+            + " MATCH (nae:AdverseEvent)-[raw:ASSOCIATED_WITH]-(nd:Drug)"
+            + " WHERE nae.dataset IN enabledSets"
+            + " AND raw.dataset IN enabledSets"
+            + " AND nd.dataset IN enabledSets"
+            + " AND nd in targetingDrugs";
     final String aePrefix = "MATCH (nd:Dataset {enabled: true}) WITH COLLECT(nd.dataset) AS enabledSets"
             + " MATCH path=(nae:AdverseEvent)-[raw:ASSOCIATED_WITH]-(nd:Drug)-[rt:TARGETS]-(nt:Target)"
             + " WHERE nae.dataset IN enabledSets"
@@ -22,9 +35,9 @@ class CommandBuilderTest {
             + " AND rpi.dataset IN enabledSets"
             + " AND np.dataset IN enabledSets"
             + filterTarget;
-    final String filterAe = " AND nae.meddraCode = '10042868'";
+    final String filterAe = " AND nae." + ADVERSE_EVENT_ID_STRING + " = '10042868'";
     final String filterActions = " AND rt.actionType IN ['OPENER', 'INHIBITOR']";
-    final String filterDrug = " AND nd.chembl_code = 'CHEMBL221959'";
+    final String filterDrug = " AND nd." + DRUG_ID_STRING + " = 'CHEMBL221959'";
     final String returnByAe = " RETURN nae, sum(toFloat(raw.llr))";
     final String returnByDrug = " RETURN nd, sum(toFloat(raw.llr))";
     final String returnPath = " RETURN path";
@@ -37,7 +50,8 @@ class CommandBuilderTest {
         String command = new CommandBuilder()
                 .getWeights("JAK3")
                 .toCypher();
-        String expected = aePrefix
+        String expected = weightsPrefix
+                + weightsInfix
                 + returnByAe
                 + orderByWeights;
         assertThat(command).isEqualTo(expected);
@@ -49,7 +63,8 @@ class CommandBuilderTest {
                 .getWeights("JAK3")
                 .forAdverseEvent("10042868")
                 .toCypher();
-        String expected = aePrefix
+        String expected = weightsPrefix
+                + weightsInfix
                 + filterAe
                 + returnByDrug
                 + orderByWeights;
@@ -62,8 +77,9 @@ class CommandBuilderTest {
                 .getWeights("JAK3")
                 .forActionTypes(List.of("OPENER", "INHIBITOR"))
                 .toCypher();
-        String expected = aePrefix
+        String expected = weightsPrefix
                 + filterActions
+                + weightsInfix
                 + returnByAe
                 + orderByWeights;
         assertThat(command).isEqualTo(expected);
@@ -76,9 +92,10 @@ class CommandBuilderTest {
                 .forAdverseEvent("10042868")
                 .forActionTypes(List.of("OPENER", "INHIBITOR"))
                 .toCypher();
-        String expected = aePrefix
-                + filterAe
+        String expected = weightsPrefix
                 + filterActions
+                + weightsInfix
+                + filterAe
                 + returnByDrug
                 + orderByWeights;
         assertThat(command).isEqualTo(expected);
@@ -90,7 +107,8 @@ class CommandBuilderTest {
                 .getWeights("JAK3")
                 .limit(3)
                 .toCypher();
-        String expected = aePrefix
+        String expected = weightsPrefix
+                + weightsInfix
                 + returnByAe
                 + orderByWeights
                 + limits;
@@ -104,7 +122,8 @@ class CommandBuilderTest {
                 .forAdverseEvent("10042868")
                 .limit(3)
                 .toCypher();
-        String expected = aePrefix
+        String expected = weightsPrefix
+                + weightsInfix
                 + filterAe
                 + returnByDrug
                 + orderByWeights
@@ -119,8 +138,9 @@ class CommandBuilderTest {
                 .forActionTypes(List.of("OPENER", "INHIBITOR"))
                 .limit(3)
                 .toCypher();
-        String expected = aePrefix
+        String expected = weightsPrefix
                 + filterActions
+                + weightsInfix
                 + returnByAe
                 + orderByWeights
                 + limits;
@@ -135,12 +155,47 @@ class CommandBuilderTest {
                 .forActionTypes(List.of("OPENER", "INHIBITOR"))
                 .limit(3)
                 .toCypher();
-        String expected = aePrefix
-                + filterAe
+        String expected = weightsPrefix
                 + filterActions
+                + weightsInfix
+                + filterAe
                 + returnByDrug
                 + orderByWeights
                 + limits;
+        assertThat(command).isEqualTo(expected);
+    }
+
+    @Test
+    void getWeightsFilterDrug() {
+        String command = new CommandBuilder()
+                .getWeights("JAK3")
+                .forDrug("CHEMBL221959")
+                .toCypher();
+        String expected = weightsPrefix
+                + filterDrug
+                + weightsInfix
+                + filterDrug
+                + returnByAe
+                + orderByWeights;
+        assertThat(command).isEqualTo(expected);
+    }
+
+    @Test
+    void getWeightsFilterAeActionDrug() {
+        String command = new CommandBuilder()
+                .getWeights("JAK3")
+                .forAdverseEvent("10042868")
+                .forActionTypes(List.of("OPENER", "INHIBITOR"))
+                .forDrug("CHEMBL221959")
+                .toCypher();
+        String expected = weightsPrefix
+                + filterDrug
+                + filterActions
+                + weightsInfix
+                + filterAe
+                + filterDrug
+                + returnByDrug
+                + orderByWeights;
         assertThat(command).isEqualTo(expected);
     }
 
@@ -274,36 +329,6 @@ class CommandBuilderTest {
                 + returnPath
                 + limits;
         assertThat(command).isEqualTo(expected);
-    }
-
-    @Test
-    void getWeightsFilterAeActionDrug() {
-        String command = new CommandBuilder()
-                .getWeights("JAK3")
-                .forAdverseEvent("10042868")
-                .forActionTypes(List.of("OPENER", "INHIBITOR"))
-                .forDrug("CHEMBL221959")
-                .toCypher();
-        String expected = aePrefix
-                + filterAe
-                + filterDrug
-                + filterActions
-                + returnByDrug
-                + orderByWeights;
-        assertThat(command).isEqualTo(expected);
-    }
-
-    @Test
-    void getWeightsFilterDrug() {
-        String command = new CommandBuilder()
-                .getWeights("JAK3")
-                .forDrug("CHEMBL221959")
-                .toCypher();
-        String expected = aePrefix
-                + filterDrug
-                + returnByAe
-                + orderByWeights;
-         assertThat(command).isEqualTo(expected);
     }
 
     @Test

@@ -1,12 +1,12 @@
 package com.semis.gradvek.entity;
 
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.semis.gradvek.parquet.ParquetUtils;
+import com.semis.gradvek.springdb.Importer;
 import org.apache.parquet.example.data.Group;
 
-import com.semis.gradvek.parquet.ParquetUtils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The immutable class representing a connection between
@@ -61,7 +61,7 @@ public class MechanismOfAction extends Edges {
 	 * 
 	 * @param data the full Parquet entity for this event
 	 */
-	public MechanismOfAction (Group data) {
+	public MechanismOfAction (Importer importer, Group data) {
 		super (
 				ParquetUtils.extractStringList (data, "chemblIds"),
 				ParquetUtils.extractStringList (data, "targets"),
@@ -71,6 +71,8 @@ public class MechanismOfAction extends Edges {
 				)
 			);
 		setDataset ("MechanismOfAction");
+
+		getFrom().forEach(from -> getTo().forEach(to -> importer.additionalEntity(new Action(from, to, getParams()))));
 	}
 
 	/**
@@ -84,8 +86,8 @@ public class MechanismOfAction extends Edges {
 		getFrom ().forEach (from -> {
 			getTo ().forEach (to -> {
 				String cmd = "MATCH (from:Drug), (to:Target)\n"
-						+ "WHERE from.chembl_code=\'" + from + "\'\n"
-						+ "AND to.targetId=\'" + to + "\'\n"
+						+ "WHERE from." + DRUG_ID_STRING + "=\'" + from + "\'\n"
+						+ "AND to." + TARGET_ID_STRING + "=\'" + to + "\'\n"
 						+ "CREATE (from)-[:TARGETS"
 						+ " { dataset: \'" + getDataset () + "\' "
 						+ (jsonMap != null ? (", " + jsonMap) : "")
@@ -101,5 +103,10 @@ public class MechanismOfAction extends Edges {
 	
 	public final EntityType getType () {
 		return EntityType.MechanismOfAction;
+	}
+
+	@Override
+	public boolean filter (Group data) {
+		return (false);
 	}
 }

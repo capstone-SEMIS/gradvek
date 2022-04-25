@@ -15,7 +15,7 @@ import com.google.gson.GsonBuilder;
  * @author ymachkasov
  *
  */
-public abstract class Entity {
+public abstract class Entity implements Constants {
 
 	private String mFromDataset = null;
 	
@@ -43,7 +43,7 @@ public abstract class Entity {
 	public boolean filter (Group data) {
 		return (true);
 	}
-
+	
 	public abstract EntityType getType ();
 
 	public static final Gson mGson = new GsonBuilder ()

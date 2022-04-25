@@ -14,7 +14,6 @@ export default function DataMgmtPage() {
     const url = "/api/datasets";
     const objectFromUrl = await fetch(url);
     const data = await objectFromUrl.json();
-    console.log("dataloader", data);
 
     setDataArray(data);
   };
