@@ -288,11 +288,12 @@ public class Neo4jDriver implements DBDriver, Constants {
       String upperCaseHint = hint.toUpperCase();
       try (Session session = mDriver.session()) {
           session.readTransaction(tx -> {
-              String cmd = "MATCH (nt:Target)"
+              String cmd = "MATCH (nt:Target)-[:TARGETS]-(:Drug)-[:ASSOCIATED_WITH]-(:AdverseEvent)"
                       + " WHERE toUpper(nt.name) CONTAINS '" + upperCaseHint + "'"
                       + " OR toUpper(nt.symbol) CONTAINS '" + upperCaseHint + "'"
                       + " OR toUpper(nt." + TARGET_ID_STRING + ") CONTAINS '" + upperCaseHint + "'"
-                      + " RETURN nt"
+                      + " RETURN DISTINCT nt"
+                      + " ORDER BY nt." + TARGET_ID_STRING
                       + " LIMIT 12";
               Result result = tx.run(cmd);
               while (result.hasNext()) {
