@@ -46,6 +46,12 @@ public class Neo4jDriver implements DBDriver, Constants {
     public String getUri() {
         return mUri;
     }
+    
+    private final int getMaxCypherBatchSize () {
+    	int ret = Integer.parseInt (mEnv.getProperty ("neo4j.batchSize", "0"));
+    	
+    	return (ret > 0 ? ret : 10000);
+    }
 
     /**
      * Map of singleton instances keyed by access URI
@@ -102,21 +108,19 @@ public class Neo4jDriver implements DBDriver, Constants {
      */
     @Override
     public void add(List<Entity> entities, boolean canCombine, String dbVersion) {
-    	Map<String,Object> params = new HashMap<>();
-    	params.put(DB_VERSION_PARAM, dbVersion);
-    	
     	List<String> cmds = entities.stream()
                 .map(e -> e.addCommands()) // each entity can have several commands
                 .flatMap(Collection::stream) // flatten them
+                .map (c -> c.replace ("$" + DB_VERSION_PARAM, dbVersion)) // unparameterize manually
                 .collect(Collectors.toList());
-
-        // separate into batches if needed
+    	
+         // separate into batches if needed
         final Collection<List<String>> batches = chunk(cmds);
 
         if (canCombine) {
             batches.forEach(b -> {
                 // We can get the entire batch in one long command and execute it in one tx
-                write(b.stream().collect(Collectors.joining("\n")), params);
+                write(b.stream().collect(Collectors.joining("\n")));
             });
         } else {
             // all commands need to be run individually, but no reason to open/close
@@ -124,7 +128,7 @@ public class Neo4jDriver implements DBDriver, Constants {
             try (final Session session = mDriver.session()) {
                 batches.forEach(b -> {
                     try (Transaction tx = session.beginTransaction()) {
-                        b.forEach(command -> tx.run(command, params));
+                        b.forEach(command -> tx.run(command));
                         tx.commit();
                     }
                 });
@@ -212,8 +216,10 @@ public class Neo4jDriver implements DBDriver, Constants {
     @Override
     public void unique(EntityType type) {
         String indexField = type.getIndexField();
+        
         if (indexField != null) {
-            mLogger.info("Uniquifying " + type + " on " + indexField);
+            int numNodes = count (type);
+            mLogger.info("Uniquifying " + numNodes + " " + type + " on " + indexField);
             try (Session session = mDriver.session()) {
                 session.writeTransaction(tx -> {
                     tx.run("MATCH (n:" + type + ")" + " WITH n." + indexField + " AS " + indexField
