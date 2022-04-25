@@ -38,7 +38,7 @@ public class Pathway extends NamedEntity {
 		super(data.getString ("pathway", 0));
 		mId = data.getString ("pathwayId", 0);
 		mTerm = data.getString ("topLevelTerm", 0);
-		setDataset ("Pathway");
+		setDataset ("$" + DB_VERSION_PARAM);
 	}	
 	
 	public Pathway (String name, String id, String term) {
@@ -58,7 +58,7 @@ public class Pathway extends NamedEntity {
 				+ " {" 
 				+ "pathwayCode:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
 				+ PATHWAY_ID_STRING + ":\'" + StringEscapeUtils.escapeEcmaScript (mId) + "\', "
-				+ "dataset: \'" + getDataset () + "\', "
+				+ getDatasetCommandString () + ", "
 				+ "topLevelTerm:\'" + StringEscapeUtils.escapeEcmaScript (mTerm) + "\'"
 				+ "})");
 

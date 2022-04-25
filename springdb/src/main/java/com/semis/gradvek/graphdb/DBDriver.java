@@ -22,7 +22,7 @@ public interface DBDriver {
 	 * Performs the command to add this list of entities to the database
 	 * @param entity
 	 */
-	void add (List<Entity> entities, boolean canCombine);
+	void add (List<Entity> entities, boolean canCombine, String dbVersion);
 
 	/**
 	 * Clears the database

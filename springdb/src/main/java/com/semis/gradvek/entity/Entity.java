@@ -70,5 +70,16 @@ public abstract class Entity implements Constants {
 	public String getId () {
 		return (null);
 	}
+	
+	public String getDatasetCommandString () {
+		if (mFromDataset == null) {
+			return ("");
+		}
+		
+		StringBuilder sb = new StringBuilder ("dataset: ");
+		String escape = mFromDataset.startsWith ("$") ? "" : "\'";
+		sb.append (escape).append (mFromDataset).append (escape);
+		return (sb.toString ());
+	}
 
 }

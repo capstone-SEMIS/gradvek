@@ -54,7 +54,7 @@ message spark_schema {
 					.collect (Collectors.toList ()),
 				null
 			);
-		setDataset ("Participates");
+		setDataset ("$" + DB_VERSION_PARAM);
 	}
 
 	/**
@@ -71,7 +71,8 @@ message spark_schema {
 					+ "WHERE from." + TARGET_ID_STRING + "=\'" + from + "\'\n"
 					+ "AND to." + PATHWAY_ID_STRING + "=\'" + to + "\'\n"
 					+ "CREATE (from)-[:PARTICIPATES_IN"
-					+ " { dataset: \'" + getDataset () + "\' "
+					+ " { " 
+					+ getDatasetCommandString ()
 					+ (jsonMap != null ? (", " + jsonMap) : "")
 					+ "} " 
 					+ "]->(to)";

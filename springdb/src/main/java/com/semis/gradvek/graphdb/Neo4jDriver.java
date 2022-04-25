@@ -101,8 +101,11 @@ public class Neo4jDriver implements DBDriver, Constants {
      * Performs the commands to add this set of entities to the database
      */
     @Override
-    public void add(List<Entity> entities, boolean canCombine) {
-        List<String> cmds = entities.stream()
+    public void add(List<Entity> entities, boolean canCombine, String dbVersion) {
+    	Map<String,Object> params = new HashMap<>();
+    	params.put(DB_VERSION_PARAM, dbVersion);
+    	
+    	List<String> cmds = entities.stream()
                 .map(e -> e.addCommands()) // each entity can have several commands
                 .flatMap(Collection::stream) // flatten them
                 .collect(Collectors.toList());
@@ -113,7 +116,7 @@ public class Neo4jDriver implements DBDriver, Constants {
         if (canCombine) {
             batches.forEach(b -> {
                 // We can get the entire batch in one long command and execute it in one tx
-                write(b.stream().collect(Collectors.joining("\n")));
+                write(b.stream().collect(Collectors.joining("\n")), params);
             });
         } else {
             // all commands need to be run individually, but no reason to open/close
@@ -121,7 +124,7 @@ public class Neo4jDriver implements DBDriver, Constants {
             try (final Session session = mDriver.session()) {
                 batches.forEach(b -> {
                     try (Transaction tx = session.beginTransaction()) {
-                        b.forEach(command -> tx.run(command));
+                        b.forEach(command -> tx.run(command, params));
                         tx.commit();
                     }
                 });
@@ -137,18 +140,22 @@ public class Neo4jDriver implements DBDriver, Constants {
         write("MATCH (n) DETACH DELETE n");
     }
 
+    private void write(String command) {
+    	write (command, Collections.emptyMap ());
+    }
+    
     /**
      * Executes the command in write mode
      *
      * @param command
      */
-    private void write(String command) {
+    private void write(String command, Map<String, Object> params) {
         mLogger.fine(command);
         if (command != null && !command.isEmpty()) {
             long startTime = System.currentTimeMillis();
             try (Session session = mDriver.session()) {
                 session.writeTransaction(tx -> {
-                    tx.run(command);
+                    tx.run(command, params);
                     return "";
                 });
             }

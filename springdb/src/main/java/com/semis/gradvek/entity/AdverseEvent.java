@@ -34,7 +34,7 @@ public class AdverseEvent extends NamedEntity {
 	 */
 	public AdverseEvent (Importer importer, Group data) {
 		super (data.getString ("event", 0));
-		setDataset ("AdverseEvent");
+		setDataset ("$" + DB_VERSION_PARAM);
 		mMeddraId = data.getString ("meddraCode", 0);
 	}
 
@@ -46,7 +46,7 @@ public class AdverseEvent extends NamedEntity {
 	public final List<String> addCommands () {
 		return Collections.singletonList("CREATE (:AdverseEvent " 
 				+ " {" + ADVERSE_EVENT_ID_STRING + ":\'" + mMeddraId + "\', "
-				+ "dataset: \'" + getDataset () + "\', "
+				+ getDatasetCommandString () + ", "
 				+ "adverseEventId:\'" + StringEscapeUtils.escapeEcmaScript (getName ()) + "\'"
 				+ "})");
 	}

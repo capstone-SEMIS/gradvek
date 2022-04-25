@@ -96,8 +96,6 @@ public class Controller {
 					mLogger.info ("Database contains " + alreadyThere + " entries of type " + typeString + ", skipping import");
 
 				}
-
-				mDriver.add (ParquetUtils.datasetFromType (type));
 			} catch (IOException iox) {
 			}
 		}
@@ -202,6 +200,7 @@ public class Controller {
 	@ResponseBody
 	public ResponseEntity<Void> initType (@PathVariable (value = "type") final String typeString) throws IOException {
 		EntityType type = EntityType.valueOf (typeString);
+		mDriver.index(type);
 		ParquetUtils.initEntities (mEnv, mDriver, type);
 		mDriver.unique (type);
 		return new ResponseEntity<Void> (HttpStatus.OK);
@@ -253,7 +252,7 @@ public class Controller {
 		demoEntities.forEach (e -> e.setDataset ("demo"));
 		demoEntities.add (demoDataset);
 
-		mDriver.add (demoEntities, false);
+		mDriver.add (demoEntities, false, "");
 		return new ResponseEntity<Void> (HttpStatus.OK);
 	}
 

@@ -70,9 +70,10 @@ public class MechanismOfAction extends Edges {
 						"actionType", data.getString ("actionType", 0)
 				)
 			);
-		setDataset ("MechanismOfAction");
+		setDataset ("$" + DB_VERSION_PARAM);
 
-		getFrom().forEach(from -> getTo().forEach(to -> importer.additionalEntity(new Action(from, to, getParams()))));
+		Map<String, String> params = getParams ();
+		getFrom().forEach(from -> getTo().forEach(to -> importer.additionalEntity(new Action(from, to, params))));
 	}
 
 	/**
@@ -89,7 +90,8 @@ public class MechanismOfAction extends Edges {
 						+ "WHERE from." + DRUG_ID_STRING + "=\'" + from + "\'\n"
 						+ "AND to." + TARGET_ID_STRING + "=\'" + to + "\'\n"
 						+ "CREATE (from)-[:TARGETS"
-						+ " { dataset: \'" + getDataset () + "\' "
+						+ " { " 
+						+ getDatasetCommandString ()
 						+ (jsonMap != null ? (", " + jsonMap) : "")
 						+ "} " 
 						+ "]->(to)";

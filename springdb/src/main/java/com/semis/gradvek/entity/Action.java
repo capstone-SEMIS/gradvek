@@ -9,7 +9,7 @@ public class Action extends Edge {
 
     public Action(String from, String to, Map<String, String> params) {
         super(from, to, params);
-        setDataset("MechanismOfAction");
+		setDataset ("$" + DB_VERSION_PARAM);
     }
 
     @Override
@@ -19,7 +19,8 @@ public class Action extends Edge {
                 + "WHERE from." + DRUG_ID_STRING + "='" + getFrom() + "' "
                 + "AND to." + TARGET_ID_STRING + "='" + getTo() + "' "
                 + "CREATE (from)-[:TARGETS "
-                + "{ dataset: '" + getDataset() + "' "
+                + "{ " 
+                + getDatasetCommandString ()
                 + (jsonMap != null ? (", " + jsonMap) : "")
                 + "} "
                 + "]->(to)";

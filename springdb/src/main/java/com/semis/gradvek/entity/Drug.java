@@ -91,7 +91,7 @@ message spark_schema {
 	public Drug(Importer importer, Group data) {
 		super(data.getString ("name", 0));
 		mChemblId = data.getString ("id", 0);
-		setDataset ("Drug");
+		setDataset ("$" + DB_VERSION_PARAM);
 	}
 
 	public String getChemblCode () {
@@ -101,7 +101,7 @@ message spark_schema {
 	@Override
 	public final List<String> addCommands () {
 		return Collections.singletonList("CREATE (:Drug" + " {" + "drugId:\'" + StringEscapeUtils.escapeEcmaScript (getName ()) + "\', "
-				+ "dataset: \'" + getDataset () + "\', "
+				+ getDatasetCommandString () + ", "
 				+ DRUG_ID_STRING + ":\'" + StringEscapeUtils.escapeEcmaScript (mChemblId) + "\'})");
 	}
 	

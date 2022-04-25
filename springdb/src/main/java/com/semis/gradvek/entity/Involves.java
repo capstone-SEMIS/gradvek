@@ -17,7 +17,7 @@ public class Involves extends Edges {
 
 	public Involves (List<String> from, List<String> to, Map<String, String> params) {
 		super (from, to, params);
-		setDataset ("Involves");
+		setDataset ("$" + DB_VERSION_PARAM);
 	}
 
 	/**
@@ -34,7 +34,8 @@ public class Involves extends Edges {
 					+ "WHERE from." + TARGET_ID_STRING + "=\'" + from + "\'\n"
 					+ "AND to." + GENE_ID_STRING + "=\'" + to + "\'\n"
 					+ "CREATE (from)-[:INVOLVES"
-					+ " { dataset: \'" + getDataset () + "\' "
+					+ " { " 
+					+ getDatasetCommandString ()
 					+ (jsonMap != null ? (", " + jsonMap) : "")
 					+ "} " 
 					+ "]->(to)";
