@@ -56,7 +56,7 @@ class CsvTests implements Constants {
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line CREATE (:hello { dataset: 'test_hello' }) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line CREATE (:hello { dataset: 'test.hello' }) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 
@@ -71,7 +71,7 @@ class CsvTests implements Constants {
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line CREATE (:hello { dataset: 'test_hello', firstProp: line[1] }) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line CREATE (:hello { dataset: 'test.hello', firstProp: line[1] }) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 
@@ -86,7 +86,7 @@ class CsvTests implements Constants {
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line CREATE (:hello { dataset: 'test_hello', firstProp: line[1], secondProp: line[2] }) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line CREATE (:hello { dataset: 'test.hello', firstProp: line[1], secondProp: line[2] }) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 
@@ -144,7 +144,7 @@ class CsvTests implements Constants {
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Drug {" + DRUG_ID_STRING + ": line[1]}), (toNode:Gene {geneId: line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello' }]->(toNode) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Drug {" + DRUG_ID_STRING + ": line[1]}), (toNode:Gene {geneId: line[2]}) CREATE (fromNode)-[:hello { dataset: 'test.hello' }]->(toNode) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 
@@ -159,7 +159,7 @@ class CsvTests implements Constants {
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Target {" + TARGET_ID_STRING + ": line[1]}), (toNode:Pathway {" + PATHWAY_ID_STRING + ": line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello', firstProp: line[3] }]->(toNode) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:Target {" + TARGET_ID_STRING + ": line[1]}), (toNode:Pathway {" + PATHWAY_ID_STRING + ": line[2]}) CREATE (fromNode)-[:hello { dataset: 'test.hello', firstProp: line[3] }]->(toNode) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 
@@ -174,7 +174,7 @@ class CsvTests implements Constants {
         CsvFile csv = csvService.get(csvService.put(csvTest).get(0));
 
         String command = Neo4jDriver.loadCsvCommand("https://example.com", csv);
-        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:AdverseEvent {" + ADVERSE_EVENT_ID_STRING + ": line[1]}), (toNode:AdverseEvent {" + ADVERSE_EVENT_ID_STRING + ": line[2]}) CREATE (fromNode)-[:hello { dataset: 'test_hello', firstProp: line[3], secondProp: line[4] }]->(toNode) } IN TRANSACTIONS";
+        String expected = "LOAD CSV FROM 'https://example.com' AS line CALL { WITH line MATCH (fromNode:AdverseEvent {" + ADVERSE_EVENT_ID_STRING + ": line[1]}), (toNode:AdverseEvent {" + ADVERSE_EVENT_ID_STRING + ": line[2]}) CREATE (fromNode)-[:hello { dataset: 'test.hello', firstProp: line[3], secondProp: line[4] }]->(toNode) } IN TRANSACTIONS";
         assertThat(command).isEqualTo(expected);
     }
 
@@ -197,7 +197,7 @@ class CsvTests implements Constants {
         assertThat(postResponse.getBody()).isNotNull();
         assertThat(postResponse.getBody().size()).isEqualTo(1);
         String fileId = postResponse.getBody().keySet().iterator().next();
-        assertThat(postResponse.getBody()).containsValue("test_hello");
+        assertThat(postResponse.getBody()).containsValue("test.hello");
 
         ResponseEntity<InputStreamResource> getResponse = controller.csvGet(fileId);
         assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -231,7 +231,7 @@ class CsvTests implements Constants {
 
         String contents = headers + cols;
         String name = "test";
-        String filename = name + "_" + col1;
+        String filename = name + "." + col1;
         CsvTestFile original = new CsvTestFile(name, contents);
 
         CsvService csvService = CsvService.getInstance();
@@ -294,8 +294,8 @@ class CsvTests implements Constants {
 
         String contents = headers + row1cols + row2cols;
         String name = "test";
-        String filename1 = name + "_" + row1col1;
-        String filename2 = name + "_" + row2col1;
+        String filename1 = name + "." + row1col1;
+        String filename2 = name + "." + row2col1;
         CsvTestFile original = new CsvTestFile(name, contents);
 
         CsvService csvService = CsvService.getInstance();
