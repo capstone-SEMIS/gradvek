@@ -84,7 +84,7 @@ export default function SearchControl({onResultsChange, actions}) {
                     }
                     sx={{color: 'text.disabled', marginTop: '3em', marginBottom: '1em'}}
                     renderInput={(params) =>
-                        <TextField {...params} label="Target" sx={{width: '36em'}} autoFocus/>
+                        <TextField {...params} label="Target" sx={{width: '100%'}} autoFocus/>
                     }
                     onInputChange={debouncedSuggest}
                 />
