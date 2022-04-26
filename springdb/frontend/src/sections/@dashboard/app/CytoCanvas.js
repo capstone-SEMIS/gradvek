@@ -1,10 +1,15 @@
 import cytoscape from "cytoscape";
-import avsdf from "cytoscape-avsdf";
 
-import { Component } from "react";
+import {Component} from "react";
 
 // ----------------------------------------------------------------------
-cytoscape.use(avsdf);
+
+// https://jfly.uni-koeln.de/color/
+const pathwayColor = "rgb(204, 121, 167)"; // orange
+const targetColor = "rgb(0, 0, 0)"; // black
+const drugColor = "rgb(0, 114, 178)";  // blue
+const adverseEventColor = "rgb(213, 84, 0)"; // vermilion
+
 export default class CytoCanvas extends Component {
   constructor(props) {
     super(props);
@@ -61,8 +66,12 @@ export default class CytoCanvas extends Component {
       this.state.cytoInstance
         .elements(this.props.nodeFilter)
         .style("display", "element");
-      // lay all elements out in a circle
-      this.state.cytoInstance.layout({ name: "avsdf" }).run();
+      // lay all elements out hierarchically from pathway on left to adverse event on right
+      this.state.cytoInstance.layout({
+        name: "breadthfirst",
+        roots: '.pathway',
+        transform: (node, position) => { return {x: position.y, y: position.x}}
+      }).run();
     }
   }
 
@@ -82,36 +91,62 @@ export default class CytoCanvas extends Component {
     {
       selector: ".pathway",
       style: {
-        "background-color": "#78a1bb",
-        "background-opacity": "0.15"
+        "background-color": pathwayColor,
+        "color": pathwayColor
       }
     },
     {
       selector: ".target",
       style: {
-        "background-color": "#78a1bb",
-        color: "#78a1bb",
-        opacity: "1"
+        "background-color": targetColor,
+        "color": targetColor
       }
     },
     {
       selector: ".drug",
       style: {
-        "background-color": "lightcoral",
-        color: "lightcoral",
-        opacity: "1"
+        "background-color": drugColor,
+        "color": drugColor
+      }
+    },
+    {
+      selector: ".adverse-event",
+      style: {
+        "background-color": adverseEventColor,
+        "color": adverseEventColor
       }
     },
     {
       selector: "edge",
       style: {
         width: 3,
-        "line-color": "#ccc",
-        "target-arrow-color": "#ccc",
         "target-arrow-shape": "triangle",
         "curve-style": "bezier",
-        label: "data(action)",
-        "text-rotation": "autorotate"
+      }
+    },
+    {
+      selector: "edge[action = 'ASSOCIATED WITH']",
+      style: {
+        "label": "data(llr)",
+        "color": adverseEventColor,
+        "line-color": adverseEventColor,
+        "target-arrow-color": adverseEventColor
+      }
+    },
+    {
+      selector: "edge[action = 'TARGETS']",
+      style: {
+        "label": "data(actionType)",
+        "color": drugColor,
+        "line-color": drugColor,
+        "target-arrow-color": drugColor
+      }
+    },
+    {
+      selector: "edge[action = 'PARTICIPATES_IN']",
+      style: {
+        "line-color": pathwayColor,
+        "target-arrow-color": pathwayColor
       }
     },
     {
