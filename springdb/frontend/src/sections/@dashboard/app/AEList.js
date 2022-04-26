@@ -35,7 +35,7 @@ function DrugRow({drug, filterHandler, target, actions, ae}) {
         <TableRow onClick={(e) => filterHandler(target, actions, ae.id, drug.drugId)}>
             <TableCell> {drug.drugName} </TableCell>
             <TableCell> {drug.drugId} </TableCell>
-            <TableCell> {drug.weight} </TableCell>
+            <TableCell> {(drug.weight).toFixed(2)} </TableCell>
         </TableRow>
     );
 }
