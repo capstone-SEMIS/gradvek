@@ -38,24 +38,42 @@ public class Importer {
 		return (toImport);
 	}
 	
-	public void importParquet (Parquet parquet, EntityType type) {
+	public int importParquet (Parquet parquet, EntityType type, String version) {
 		final List<Entity> toImport = readEntities (parquet, type);
-		logger.fine("Found " + toImport.size() + " entities to import");
+		int numFound = toImport.size();
+		logger.fine("Found " + numFound + " entities to import");
 		
-		if (toImport.size () > 0) {
-			mDriver.add (toImport, type.canCombine ());
+		if (numFound > 0) {
+			numFound = mDriver.add (toImport, type.canCombine (), version + "." + type);
 		}
+		
+		return (numFound);
 	}
 	
 	public final void additionalEntity (Entity entity) {
 		mAdditionalEntities.put (entity.getId (), entity);
 	}
 
-	public void processAdditionalEntities() {
+	public final EntityType getAdditionalEntityType () {
+		// assumed here that these are all of the same type; otherwise need to traverse
 		if (mAdditionalEntities.size() > 0) {
-			mDriver.add(new ArrayList<>(mAdditionalEntities.values()),
-					mAdditionalEntities.values().iterator().next().getType().canCombine());
+			return (mAdditionalEntities.values().iterator().next().getType());
+		}
+		
+		return (null);
+	}
+	
+	public int processAdditionalEntities(String dbVersion) {
+		int numAdditional = mAdditionalEntities.size();
+		EntityType type = getAdditionalEntityType();
+		if (numAdditional > 0) {
+			mDriver.add(
+					new ArrayList<>(mAdditionalEntities.values()),
+					type.canCombine (),
+					dbVersion + "." + type
+			);
 		}
 		mAdditionalEntities.clear();
+		return (numAdditional);
 	}
 }

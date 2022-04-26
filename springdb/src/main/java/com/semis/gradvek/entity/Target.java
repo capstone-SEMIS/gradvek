@@ -297,7 +297,7 @@ message spark_schema {
 		super(data.getString ("approvedName", 0));
 		mSymbol = data.getString ("approvedSymbol", 0);
 		mEnsembleId = data.getString ("id", 0);
-		setDataset ("Target");
+		setDataset ("$" + DB_VERSION_PARAM);
 		
 		List<Group> pathways = ParquetUtils.extractGroupList (data, "pathways");
 		pathways.forEach (p -> importer.additionalEntity (new Pathway (importer, p)));
@@ -314,7 +314,7 @@ message spark_schema {
 		ret.add ("CREATE (:Target" 
 				+ " {" + "name:\'" + StringEscapeUtils.escapeEcmaScript (super.toString ()) + "\', "
 				+ TARGET_ID_STRING + ":\'" + StringEscapeUtils.escapeEcmaScript (mEnsembleId) + "\', "
-				+ "dataset: \'" + getDataset () + "\', "
+				+ getDatasetCommandString () + ", "
 				+ "symbol:\'" + StringEscapeUtils.escapeEcmaScript (mSymbol) + "\'"
 				+ "})");
 

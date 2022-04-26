@@ -46,6 +46,12 @@ public class Neo4jDriver implements DBDriver, Constants {
     public String getUri() {
         return mUri;
     }
+    
+    private final int getMaxCypherBatchSize () {
+    	int ret = Integer.parseInt (mEnv.getProperty ("neo4j.cypher.batch", "0"));
+    	
+    	return (ret > 0 ? ret : 10000);
+    }
 
     /**
      * Map of singleton instances keyed by access URI
@@ -101,13 +107,16 @@ public class Neo4jDriver implements DBDriver, Constants {
      * Performs the commands to add this set of entities to the database
      */
     @Override
-    public void add(List<Entity> entities, boolean canCombine) {
-        List<String> cmds = entities.stream()
+    public int add(List<Entity> entities, boolean canCombine, String dbVersion) {
+    	List<String> cmds = entities.stream()
                 .map(e -> e.addCommands()) // each entity can have several commands
                 .flatMap(Collection::stream) // flatten them
+                .map (c -> c.replace ("$" + DB_VERSION_PARAM, "\'" + dbVersion + "\'")) // unparameterize manually
                 .collect(Collectors.toList());
-
-        // separate into batches if needed
+    	
+    	int numToCreate = cmds.size ();
+    	
+         // separate into batches if needed
         final Collection<List<String>> batches = chunk(cmds);
 
         if (canCombine) {
@@ -127,6 +136,8 @@ public class Neo4jDriver implements DBDriver, Constants {
                 });
             }
         }
+        
+        return (numToCreate);
     }
 
     /**
@@ -137,18 +148,22 @@ public class Neo4jDriver implements DBDriver, Constants {
         write("MATCH (n) DETACH DELETE n");
     }
 
+    private void write(String command) {
+    	write (command, Collections.emptyMap ());
+    }
+    
     /**
      * Executes the command in write mode
      *
      * @param command
      */
-    private void write(String command) {
+    private void write(String command, Map<String, Object> params) {
         mLogger.fine(command);
         if (command != null && !command.isEmpty()) {
             long startTime = System.currentTimeMillis();
             try (Session session = mDriver.session()) {
                 session.writeTransaction(tx -> {
-                    tx.run(command);
+                    tx.run(command, params);
                     return "";
                 });
             }
@@ -205,8 +220,10 @@ public class Neo4jDriver implements DBDriver, Constants {
     @Override
     public void unique(EntityType type) {
         String indexField = type.getIndexField();
+        
         if (indexField != null) {
-            mLogger.info("Uniquifying " + type + " on " + indexField);
+            int numNodes = count (type);
+            mLogger.info("Uniquifying " + numNodes + " " + type + " on " + indexField);
             try (Session session = mDriver.session()) {
                 session.writeTransaction(tx -> {
                     tx.run("MATCH (n:" + type + ")" + " WITH n." + indexField + " AS " + indexField

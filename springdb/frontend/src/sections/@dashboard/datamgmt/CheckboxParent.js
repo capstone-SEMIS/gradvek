@@ -58,7 +58,7 @@ class CheckboxParent extends Component {
       <>
         {this.props.dataArray.map((descr, index) => (
           <Checkbox
-            label={descr.description}
+            label={descr.dataset}
             handleCheckboxChange={this.toggleCheckbox}
             key={index}
             enabled={descr.enabled}
