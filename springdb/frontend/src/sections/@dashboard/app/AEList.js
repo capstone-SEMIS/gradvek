@@ -2,8 +2,9 @@
 import {Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import {useState} from "react";
+import React, {useState} from "react";
 import {Id} from "../../../utils/entityProperties";
+
 
 // ----------------------------------------------------------------------
 
@@ -84,7 +85,7 @@ function AeRow({target, actions, AE, filterHandler}) {
     );
 }
 
-export default function AEList({target, actions, tableResults, filterHandler}) {
+export default function AEList({target, actions, tableResults, filterHandler, displayAE_Weights}) {
     return (
         <Card>
             <TableContainer>
@@ -94,12 +95,17 @@ export default function AEList({target, actions, tableResults, filterHandler}) {
                             <TableCell>
                                 {/*Empty*/}
                             </TableCell>
+                            {displayAE_Weights ?
+                            <React.Fragment>
                             <TableCell>
                                 Adverse Event
                             </TableCell>
                             <TableCell>
                                 Weight
                             </TableCell>
+                            </React.Fragment>
+                            : null
+                            }
                         </TableRow>
                     </TableHead>
                     <TableBody>
