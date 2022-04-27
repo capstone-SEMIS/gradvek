@@ -31,38 +31,38 @@ On start-up of the program, it will prompt to enter the Software key, which is t
 When Neo4j Desktop launches, a screen like this will appear with the default example Movie database
 
 
-1. Click on **New** button and select **Create** project
+1. Click on **New** button and select **Create** project<br/>
 ![Step 1](./images/Step1.png)
 
-2. Next screen shows Project
+2. Next screen shows Project<br/>
 ![Step 2](./images/Step2.png)
 
-3. Change Project to Gradvek
-![Step 3](./images/Step3.png)
+3. Change Project to Gradvek<br/>
 
-4. Click on Add button and select Local DBMS
+
+4. Click on Add button and select Local DBMS<br/>
 ![Step 4](./images/Step4.png)
 
-5. Set password to **gradvek** and click on **Create** button
+5. Set password to **gradvek** and click on **Create** button<br/>
 
-6. Hover over Graph DBMS and click on Start
+6. Hover over Graph DBMS and click on Start<br/>
 ![Step 6](./images/Step6.png)
 
-7. Neo4j database finishes starting up.
+7. Neo4j database finishes starting up.<br/>
 ![Step 7](./images/Step7.png)
 
-8. Hover over Graph DBMS and click on the three dots and select Settings
+8. Hover over Graph DBMS and click on the three dots and select Settings<br/>
 
-9. Search for “non-local” line and uncomment it
+9. Search for “non-local” line and uncomment it<br/>
 ![Step 9](./images/Step9.png)
 
-10. Uncommented and click on **Apply** button
+10. Uncommented and click on **Apply** button<br/>
 ![Step 10](./images/Step10.png)
 
-11. Click on **Restart Now** button 
+11. Click on **Restart Now** button <br/>
 ![Step 11](./images/Step11.png)
 
-12. The database should be in Active status after the restarts.
+12. The database should be in Active status after the restarts.<br/>
 ![Step 12](./images/Step12.png)
 
 ### Docker Installation
