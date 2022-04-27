@@ -109,21 +109,36 @@ export default class CytoCanvas extends Component {
         nodeDimensionsIncludeLabels: true
       }).run();
 
-      // Center each layer based on whichever is the widest
+      // Get each layer's coordinates
       const bbOptions = {includeLabels: false}
       const pathwayBox = this.state.cytoInstance.elements(".pathway").boundingBox(bbOptions);
       const targetBox = this.state.cytoInstance.elements(".target").boundingBox(bbOptions);
       const drugBox = this.state.cytoInstance.elements(".drug").boundingBox(bbOptions);
       const aeBox = this.state.cytoInstance.elements(".adverse-event").boundingBox(bbOptions);
+
+      // Center each layer based on whichever is the widest
       const pathwayX = pathwayBox.x1 + pathwayBox.x2;
       const targetX = targetBox.x1 + targetBox.x2;
       const drugX = drugBox.x1 + drugBox.x2;
       const aeX = aeBox.x1 + aeBox.x2;
       const maxX = Math.max(pathwayX, targetX, drugX, aeX);
-      this.state.cytoInstance.nodes(".pathway").shift({x: (maxX - pathwayX) / 2, y: 0})
-      this.state.cytoInstance.nodes(".target").shift({x: (maxX - targetX) / 2, y: 0})
-      this.state.cytoInstance.nodes(".drug").shift({x: (maxX - drugX) / 2, y: 0})
-      this.state.cytoInstance.nodes(".adverse-event").shift({x: (maxX - aeX) / 2, y: 0})
+
+      // Normalize vertical spacing
+      const spacePT = targetBox.y1 - pathwayBox.y2;
+      const spaceTD = drugBox.y1 - targetBox.y2;
+      const spaceDAE = aeBox.y1 - drugBox.y2;
+      const maxY = Math.max(spacePT, spaceTD, spaceDAE);
+      console.log(spacePT + ", " + spaceTD + ", " + spaceDAE + ", " + maxY);
+      const targetVShift = maxY - spacePT;
+      const drugVShift = targetVShift + maxY - spaceTD;
+      const aeVShift = drugVShift + maxY - spaceDAE;
+
+      // Make the appropriate shifts
+      this.state.cytoInstance.nodes(".pathway").shift({x: (maxX - pathwayX) / 2, y: 0});
+      this.state.cytoInstance.nodes(".target").shift({x: (maxX - targetX) / 2, y: targetVShift});
+      this.state.cytoInstance.nodes(".drug").shift({x: (maxX - drugX) / 2, y: drugVShift});
+      this.state.cytoInstance.nodes(".adverse-event").shift({x: (maxX - aeX) / 2, y: aeVShift});
+
 
       // This doesn't move the nodes but does reset the zoom to include the full graph
       this.state.cytoInstance.layout({name: "preset"}).run();
