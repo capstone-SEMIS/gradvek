@@ -5,10 +5,16 @@ import {Component} from "react";
 // ----------------------------------------------------------------------
 
 // https://jfly.uni-koeln.de/color/
-const pathwayColor = "rgb(204, 121, 167)"; // orange
-const targetColor = "rgb(0, 0, 0)"; // black
-const drugColor = "rgb(0, 114, 178)";  // blue
-const adverseEventColor = "rgb(213, 84, 0)"; // vermilion
+// const pathwayColor = "rgb(204, 121, 167)"; // orange
+// const targetColor = "rgb(0, 0, 0)"; // black
+// const drugColor = "rgb(0, 114, 178)";  // blue
+// const adverseEventColor = "rgb(213, 84, 0)"; // vermilion
+
+// https://davidmathlogic.com/colorblind
+const pathwayColor = "#D81B60";
+const targetColor = "#FFC107";
+const drugColor = "#1E88E5";
+const adverseEventColor = "#004D40";
 
 export default class CytoCanvas extends Component {
   constructor(props) {
@@ -31,7 +37,8 @@ export default class CytoCanvas extends Component {
     // and hook that canvas up to this element's div
     let cytoInstance = cytoscape({
       container: this.el,
-      style: this.initialStyles
+      style: this.initialStyles,
+      wheelSensitivity: 0.3
     });
 
     this.setState({
@@ -66,12 +73,60 @@ export default class CytoCanvas extends Component {
       this.state.cytoInstance
         .elements(this.props.nodeFilter)
         .style("display", "element");
-      // lay all elements out hierarchically from pathway on left to adverse event on right
-      this.state.cytoInstance.layout({
-        name: "breadthfirst",
-        roots: '.pathway',
-        transform: (node, position) => { return {x: position.y, y: position.x}}
+
+      // lay out elements hierarchically
+
+      // Increasing these will try to squish things closer together
+      const screenHeightDivisor = 4;
+      const screenWidthDivisor = 4;
+
+      // Put each type of node in a grid on one layer of the viz
+      this.state.cytoInstance.elements(".pathway").layout({
+        name: "grid",
+        boundingBox: {x1: 0, y1: 0,
+          w: this.el.offsetWidth / screenWidthDivisor, h: this.el.offsetHeight / screenHeightDivisor},
+        nodeDimensionsIncludeLabels: true
       }).run();
+
+      this.state.cytoInstance.elements(".target").layout({
+        name: "grid",
+        boundingBox: {x1: 0, y1: this.el.offsetHeight * 1 / screenHeightDivisor,
+          w: this.el.offsetWidth / screenWidthDivisor, h: this.el.offsetHeight / screenHeightDivisor},
+        nodeDimensionsIncludeLabels: true
+      }).run();
+
+      this.state.cytoInstance.elements(".drug").layout({
+        name: "grid",
+        boundingBox: {x1: 0, y1: this.el.offsetHeight * 2 / screenHeightDivisor,
+          w: this.el.offsetWidth / screenWidthDivisor, h: this.el.offsetHeight / screenHeightDivisor},
+        nodeDimensionsIncludeLabels: true
+      }).run();
+
+      this.state.cytoInstance.elements(".adverse-event").layout({
+        name: "grid",
+        boundingBox: {x1: 0, y1: this.el.offsetHeight * 3 / screenHeightDivisor,
+          w: this.el.offsetWidth / screenWidthDivisor, h: this.el.offsetHeight / screenHeightDivisor},
+        nodeDimensionsIncludeLabels: true
+      }).run();
+
+      // Center each layer based on whichever is the widest
+      const bbOptions = {includeLabels: false}
+      const pathwayBox = this.state.cytoInstance.elements(".pathway").boundingBox(bbOptions);
+      const targetBox = this.state.cytoInstance.elements(".target").boundingBox(bbOptions);
+      const drugBox = this.state.cytoInstance.elements(".drug").boundingBox(bbOptions);
+      const aeBox = this.state.cytoInstance.elements(".adverse-event").boundingBox(bbOptions);
+      const pathwayX = pathwayBox.x1 + pathwayBox.x2;
+      const targetX = targetBox.x1 + targetBox.x2;
+      const drugX = drugBox.x1 + drugBox.x2;
+      const aeX = aeBox.x1 + aeBox.x2;
+      const maxX = Math.max(pathwayX, targetX, drugX, aeX);
+      this.state.cytoInstance.nodes(".pathway").shift({x: (maxX - pathwayX) / 2, y: 0})
+      this.state.cytoInstance.nodes(".target").shift({x: (maxX - targetX) / 2, y: 0})
+      this.state.cytoInstance.nodes(".drug").shift({x: (maxX - drugX) / 2, y: 0})
+      this.state.cytoInstance.nodes(".adverse-event").shift({x: (maxX - aeX) / 2, y: 0})
+
+      // This doesn't move the nodes but does reset the zoom to include the full graph
+      this.state.cytoInstance.layout({name: "preset"}).run();
     }
   }
 
@@ -80,40 +135,34 @@ export default class CytoCanvas extends Component {
     {
       selector: "node",
       style: {
-        "background-color": "#8b786d",
-        color: "#8b786d",
-        label: "data(name)",
-        "text-valign": "center",
-        "text-outline-color": "white",
-        "text-outline-width": "2px"
+        "label": "data(name)",
       }
     },
     {
       selector: ".pathway",
       style: {
         "background-color": pathwayColor,
-        "color": pathwayColor
+        "shape": "triangle"
       }
     },
     {
       selector: ".target",
       style: {
         "background-color": targetColor,
-        "color": targetColor
       }
     },
     {
       selector: ".drug",
       style: {
         "background-color": drugColor,
-        "color": drugColor
+        "shape": "rectangle"
       }
     },
     {
       selector: ".adverse-event",
       style: {
         "background-color": adverseEventColor,
-        "color": adverseEventColor
+        "shape": "diamond"
       }
     },
     {
@@ -128,7 +177,6 @@ export default class CytoCanvas extends Component {
       selector: "edge[action = 'ASSOCIATED WITH']",
       style: {
         "label": "data(llr)",
-        "color": adverseEventColor,
         "line-color": adverseEventColor,
         "target-arrow-color": adverseEventColor
       }
@@ -137,7 +185,6 @@ export default class CytoCanvas extends Component {
       selector: "edge[action = 'TARGETS']",
       style: {
         "label": "data(actionType)",
-        "color": drugColor,
         "line-color": drugColor,
         "target-arrow-color": drugColor
       }
@@ -152,7 +199,13 @@ export default class CytoCanvas extends Component {
     {
       selector: "*",
       style: {
-        display: "none"
+        "display": "none",
+        "text-outline-color": "white",
+        "text-outline-width": "2px",
+        "text-valign": "bottom",
+        "text-halign": "center",
+        "color": "black",
+        "min-zoomed-font-size": "10",
       }
     }
   ];
