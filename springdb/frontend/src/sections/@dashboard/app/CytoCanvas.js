@@ -128,7 +128,6 @@ export default class CytoCanvas extends Component {
       const spaceTD = drugBox.y1 - targetBox.y2;
       const spaceDAE = aeBox.y1 - drugBox.y2;
       const maxY = Math.max(spacePT, spaceTD, spaceDAE);
-      console.log(spacePT + ", " + spaceTD + ", " + spaceDAE + ", " + maxY);
       const targetVShift = maxY - spacePT;
       const drugVShift = targetVShift + maxY - spaceTD;
       const aeVShift = drugVShift + maxY - spaceDAE;
