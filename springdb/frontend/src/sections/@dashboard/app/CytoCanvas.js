@@ -25,7 +25,7 @@ export default class CytoCanvas extends Component {
   render() {
     return (
       <div
-        id="cyto_canvas"
+        id={this.props.id}
         style={this.canvasStyle}
         ref={el => (this.el = el)}
       />
@@ -57,22 +57,29 @@ export default class CytoCanvas extends Component {
     this.state.cytoInstance.remove("*");
     this.state.cytoInstance.add(this.props.graphNodes);
 
+    // if (this.props.id.includes('legend')) {
+    //   this.state.cytoInstance.layout({
+    //     name: "null",
+    //     // nodeDimensionsIncludeLabels: true
+    //   }).run();
+    // } else {
+
     if ("AE" in this.props.focusNode) {
       let nodeToFocus = this.state.cytoInstance.elements(
-        `node#${this.props.focusNode.AE}`
+          `node#${this.props.focusNode.AE}`
       );
       let neighbouringNodes = nodeToFocus.closedNeighborhood();
 
       // show neighbouring elements only
       neighbouringNodes.style("display", "element");
-      neighbouringNodes.layout({ name: "breadthfirst" }).run();
+      neighbouringNodes.layout({name: "breadthfirst"}).run();
       // neighbouringNodes.layout({name:"circle"}).run();
       this.state.cytoInstance.fit(neighbouringNodes);
     } else {
       // no focusNode, so show all nodes
       this.state.cytoInstance
-        .elements(this.props.nodeFilter)
-        .style("display", "element");
+          .elements(this.props.nodeFilter)
+          .style("display", "element");
 
       // lay out elements hierarchically
 
@@ -83,29 +90,37 @@ export default class CytoCanvas extends Component {
       // Put each type of node in a grid on one layer of the viz
       this.state.cytoInstance.elements(".pathway").layout({
         name: "grid",
-        boundingBox: {x1: 0, y1: 0,
-          w: this.el.offsetWidth / screenWidthDivisor, h: this.el.offsetHeight / screenHeightDivisor},
+        boundingBox: {
+          x1: 0, y1: 0,
+          w: this.el.offsetWidth / screenWidthDivisor, h: this.el.offsetHeight / screenHeightDivisor
+        },
         nodeDimensionsIncludeLabels: true
       }).run();
 
       this.state.cytoInstance.elements(".target").layout({
         name: "grid",
-        boundingBox: {x1: 0, y1: this.el.offsetHeight * 1 / screenHeightDivisor,
-          w: this.el.offsetWidth / screenWidthDivisor, h: this.el.offsetHeight / screenHeightDivisor},
+        boundingBox: {
+          x1: 0, y1: this.el.offsetHeight * 1 / screenHeightDivisor,
+          w: this.el.offsetWidth / screenWidthDivisor, h: this.el.offsetHeight / screenHeightDivisor
+        },
         nodeDimensionsIncludeLabels: true
       }).run();
 
       this.state.cytoInstance.elements(".drug").layout({
         name: "grid",
-        boundingBox: {x1: 0, y1: this.el.offsetHeight * 2 / screenHeightDivisor,
-          w: this.el.offsetWidth / screenWidthDivisor, h: this.el.offsetHeight / screenHeightDivisor},
+        boundingBox: {
+          x1: 0, y1: this.el.offsetHeight * 2 / screenHeightDivisor,
+          w: this.el.offsetWidth / screenWidthDivisor, h: this.el.offsetHeight / screenHeightDivisor
+        },
         nodeDimensionsIncludeLabels: true
       }).run();
 
       this.state.cytoInstance.elements(".adverse-event").layout({
         name: "grid",
-        boundingBox: {x1: 0, y1: this.el.offsetHeight * 3 / screenHeightDivisor,
-          w: this.el.offsetWidth / screenWidthDivisor, h: this.el.offsetHeight / screenHeightDivisor},
+        boundingBox: {
+          x1: 0, y1: this.el.offsetHeight * 3 / screenHeightDivisor,
+          w: this.el.offsetWidth / screenWidthDivisor, h: this.el.offsetHeight / screenHeightDivisor
+        },
         nodeDimensionsIncludeLabels: true
       }).run();
 
@@ -146,6 +161,7 @@ export default class CytoCanvas extends Component {
       // This doesn't move the nodes but does reset the zoom to include the full graph
       this.state.cytoInstance.layout({name: "preset"}).run();
     }
+    // }
   }
 
   initialStyles = [
@@ -230,6 +246,6 @@ export default class CytoCanvas extends Component {
 
   canvasStyle = {
     width: "100%",
-    minHeight: "300px"
+    // minHeight: "300px"
   };
 }

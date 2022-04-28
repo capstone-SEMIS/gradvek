@@ -115,8 +115,14 @@ export default class DashboardApp extends Component {
                                 tableResults={this.state.tableResults} filterHandler={this.refreshViz}/>
                     </Grid>
                     <Grid item xs={12} md={8} position='sticky' top={0} alignSelf='flex-start'>
+                        <CytoCard graphNodes={[
+                            {'id': 1, 'group': 'nodes', 'data': {'name': 'pathway'}, 'classes': 'pathway'},
+                            {'id': 2, 'group': 'nodes', 'data': {'name': 'drug'}, 'classes': 'drug'},
+                            {'id': 3, 'group': 'nodes', 'data': {'name': 'target'}, 'classes': 'target'},
+                            {'id': 4, 'group': 'nodes', 'data': {'name': 'adverse event'}, 'classes': 'adverse-event'},
+                        ]} nodeFilter='*' focusNode={{}} id='cyto_legend'/>
                         <CytoCard graphNodes={this.state.resultNodes} nodeFilter={this.state.nodeFilter}
-                                  focusNode={this.state.focusNode}/>
+                                  focusNode={this.state.focusNode} id='cyto_canvas'/>
                     </Grid>
                 </Grid>
             </Page>

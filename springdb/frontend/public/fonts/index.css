@@ -1,6 +1,11 @@
 #cyto_canvas {
     height: 80vh;
 }
+
+#cyto_legend {
+    height: 13em;
+}
+
 #cyto_canvas > div > canvas {
     left: 0px;
 }
