@@ -122,6 +122,10 @@ export default class CytoCanvas extends Component {
       const drugX = drugBox.x1 + drugBox.x2;
       const aeX = aeBox.x1 + aeBox.x2;
       const maxX = Math.max(pathwayX, targetX, drugX, aeX);
+      const pathwayHShift = (maxX - pathwayX) / 2;
+      const targetHShift = (maxX - targetX) / 2;
+      const drugHShift = (maxX - drugX) / 2;
+      const aeHShift = (maxX - aeX) / 2;
 
       // Normalize vertical spacing
       const spacePT = targetBox.y1 - pathwayBox.y2;
@@ -133,10 +137,10 @@ export default class CytoCanvas extends Component {
       const aeVShift = drugVShift + maxY - spaceDAE;
 
       // Make the appropriate shifts
-      this.state.cytoInstance.nodes(".pathway").shift({x: (maxX - pathwayX) / 2, y: 0});
-      this.state.cytoInstance.nodes(".target").shift({x: (maxX - targetX) / 2, y: targetVShift});
-      this.state.cytoInstance.nodes(".drug").shift({x: (maxX - drugX) / 2, y: drugVShift});
-      this.state.cytoInstance.nodes(".adverse-event").shift({x: (maxX - aeX) / 2, y: aeVShift});
+      this.state.cytoInstance.nodes(".pathway").shift({x: pathwayHShift, y: 0});
+      this.state.cytoInstance.nodes(".target").shift({x: targetHShift, y: targetVShift});
+      this.state.cytoInstance.nodes(".drug").shift({x: drugHShift, y: drugVShift});
+      this.state.cytoInstance.nodes(".adverse-event").shift({x: aeHShift, y: aeVShift});
 
 
       // This doesn't move the nodes but does reset the zoom to include the full graph
@@ -188,7 +192,7 @@ export default class CytoCanvas extends Component {
       }
     },
     {
-      selector: "edge[action = 'ASSOCIATED WITH']",
+      selector: ".associated-with",
       style: {
         "label": "data(llr)",
         "line-color": adverseEventColor,
@@ -196,7 +200,7 @@ export default class CytoCanvas extends Component {
       }
     },
     {
-      selector: "edge[action = 'TARGETS']",
+      selector: ".targets",
       style: {
         "label": "data(actionType)",
         "line-color": drugColor,
@@ -204,7 +208,7 @@ export default class CytoCanvas extends Component {
       }
     },
     {
-      selector: "edge[action = 'PARTICIPATES_IN']",
+      selector: ".participates-in",
       style: {
         "line-color": pathwayColor,
         "target-arrow-color": pathwayColor
