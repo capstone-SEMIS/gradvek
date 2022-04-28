@@ -52,6 +52,11 @@ export default class DashboardApp extends Component {
                 throw new Error(response.statusText);
             }
         }).then(body => {
+            body.forEach(o => {
+                if (o.hasOwnProperty("data") && o["data"].hasOwnProperty("llr")) {
+                    o["data"]["llr"] = Number(o["data"]["llr"]).toFixed(2);
+                }
+            })
             this.setState({resultNodes: body})
         }).catch(error => {
             console.error(`${error.name}: ${error.message}`);
@@ -104,12 +109,12 @@ export default class DashboardApp extends Component {
         return (
             <Page title="Gradvek">
                 <Grid container spacing={3}>
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={12} md={4}>
                         <SearchControl onResultsChange={this.refreshResults} actions={this.state.availableActions}/>
                         <AEList target={this.state.target} actions={this.state.selectedActions}
                                 tableResults={this.state.tableResults} filterHandler={this.refreshViz}/>
                     </Grid>
-                    <Grid item xs={12} md={6} position='sticky' top={0} alignSelf='flex-start'>
+                    <Grid item xs={12} md={8} position='sticky' top={0} alignSelf='flex-start'>
                         <CytoCard graphNodes={this.state.resultNodes} nodeFilter={this.state.nodeFilter}
                                   focusNode={this.state.focusNode}/>
                     </Grid>
