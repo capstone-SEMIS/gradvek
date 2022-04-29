@@ -239,11 +239,6 @@ public class Neo4jDriver implements DBDriver, Constants {
     }
 
     @Override
-    public List<AdverseEventIntObj> getAEByTarget(String target) {
-        return getAEByTarget(target, null);
-    }
-
-    @Override
     public List<AdverseEventIntObj> getAEByTarget(String target, List<String> actions) {
         try (Session session = mDriver.session()) {
             return session.readTransaction(tx -> {
@@ -271,13 +266,8 @@ public class Neo4jDriver implements DBDriver, Constants {
     }
 
     @Override
-    public List<Map> getWeightsByDrug(String target, String ae) {
-        return getWeightsByDrug(target, null, ae);
-    }
-
-    @Override
-    public List<Map> getWeightsByDrug(String target, List<String> actions, String ae) {
-        List<Map> weights = new ArrayList<>();
+    public List<Map<String, Object>> getWeightsByDrug(String target, List<String> actions, String ae) {
+        List<Map<String, Object>> weights = new ArrayList<>();
         try (Session session = mDriver.session()) {
             session.readTransaction(tx -> {
                 CommandBuilder cmdBuilder = new CommandBuilder().getWeights(target).forAdverseEvent(ae);
@@ -301,8 +291,8 @@ public class Neo4jDriver implements DBDriver, Constants {
     }
 
     @Override
-  public List<Map> getTargetSuggestions(String hint) {
-      List<Map> suggestions = new ArrayList<>();
+  public List<Map<String, String>> getTargetSuggestions(String hint) {
+      List<Map<String, String>> suggestions = new ArrayList<>();
       String upperCaseHint = hint.toUpperCase();
       try (Session session = mDriver.session()) {
           session.readTransaction(tx -> {
@@ -390,31 +380,6 @@ public class Neo4jDriver implements DBDriver, Constants {
     }
 
     @Override
-    public List<CytoscapeEntity> getAEPathByTarget(String target) {
-        return getPathsTargetAe(target, null, null);
-    }
-
-    @Override
-    public List<CytoscapeEntity> getAEPathByTarget(String target, List<String> actions) {
-        return getPathsTargetAe(target, actions, null);
-    }
-
-    @Override
-    public List<CytoscapeEntity> getPathsTargetAe(String target, String ae) {
-        return getPathsTargetAe(target, null, ae);
-    }
-
-    @Override
-    public List<CytoscapeEntity> getPathsTargetAe(String target, List<String> actions, String ae) {
-        return getPathsTargetAeDrug(target, actions, ae, null);
-    }
-
-    @Override
-    public List<CytoscapeEntity> getPathsTargetAeDrug(String target, String ae, String drugId) {
-        return getPathsTargetAeDrug(target, null, ae, drugId);
-    }
-
-    @Override
     public List<CytoscapeEntity> getPathsTargetAeDrug(String target, List<String> actions, String ae, String drugId) {
         try (Session session = mDriver.session()) {
             return session.readTransaction(tx -> {
@@ -436,13 +401,8 @@ public class Neo4jDriver implements DBDriver, Constants {
     }
 
     @Override
-    public List<Map> getActions() {
-        return getActions(null);
-    }
-
-    @Override
-    public List<Map> getActions(String target) {
-        List<Map> actions = new ArrayList<>();
+    public List<Map<String, Object>> getActions(String target) {
+        List<Map<String, Object>> actions = new ArrayList<>();
 
         String cmdFilter;
         if (target == null) {

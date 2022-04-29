@@ -99,7 +99,7 @@ public class TestDBDriver implements DBDriver {
 	}
 	
 	@Override
-	public List<AdverseEventIntObj> getAEByTarget (String target) {
+	public List<AdverseEventIntObj> getAEByTarget (String target, List<String> actions) {
 		final List<AdverseEventIntObj> ret = new ArrayList<> ();
 		
 		// retrieve all drug-AE associations
@@ -141,33 +141,7 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
-	public List<Map> getTargetSuggestions(String hint) {
-		return new ArrayList<>();
-	}
-
-	@Override
-	public List<CytoscapeEntity> getAEPathByTarget(String target) {
-		final List<CytoscapeEntity> ret = new ArrayList<> ();
-		return ret; // TODO Yan
-	}
-
-	@Override
-	public List<CytoscapeEntity> getAEPathByTarget(String target, List<String> actions) {
-		return new ArrayList<>();
-	}
-
-	@Override
-	public List<CytoscapeEntity> getPathsTargetAe(String target, String ae) {
-		return new ArrayList<>();
-	}
-
-	@Override
-	public List<CytoscapeEntity> getPathsTargetAe(String target, List<String> actions, String ae) {
-		return new ArrayList<>();
-	}
-
-	@Override
-	public List<CytoscapeEntity> getPathsTargetAeDrug(String target, String ae, String drugId) {
+	public List<Map<String, String>> getTargetSuggestions(String hint) {
 		return new ArrayList<>();
 	}
 
@@ -177,17 +151,7 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
-	public List<Map> getActions() {
-		return new ArrayList<>();
-	}
-
-	@Override
-	public List<Map> getActions(String target) {
-		return new ArrayList<>();
-	}
-
-	@Override
-	public List<AdverseEventIntObj> getAEByTarget(String target, List<String> actions) {
+	public List<Map<String, Object>> getActions(String target) {
 		return new ArrayList<>();
 	}
 
@@ -213,12 +177,7 @@ public class TestDBDriver implements DBDriver {
 	}
 
 	@Override
-	public List<Map> getWeightsByDrug(String target, String ae) {
-		return new ArrayList<>();
-	}
-
-	@Override
-	public List<Map> getWeightsByDrug(String target, List<String> actions, String ae) {
+	public List<Map<String, Object>> getWeightsByDrug(String target, List<String> actions, String ae) {
 		return new ArrayList<>();
 	}
 }
