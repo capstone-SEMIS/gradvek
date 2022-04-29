@@ -38,7 +38,9 @@ export default class CytoCanvas extends Component {
     let cytoInstance = cytoscape({
       container: this.el,
       style: this.initialStyles,
-      wheelSensitivity: 0.3
+      wheelSensitivity: 0.3,
+      maxZoom: 3,
+      minZoom: 0.01
     });
 
     this.setState({
