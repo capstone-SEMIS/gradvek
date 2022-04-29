@@ -44,6 +44,13 @@ class CommandBuilderTest implements Constants {
     final String union = " UNION";
     final String orderByWeights = " ORDER BY sum(toFloat(raw.llr)) desc";
     final String limits = " LIMIT 3";
+    final String includeSoloTarget = " UNION MATCH (nd:Dataset {enabled: true}) WITH COLLECT(nd.dataset) AS enabledSets"
+            + " MATCH path=(nt:Target) WHERE nt.dataset IN enabledSets AND toUpper(nt.symbol) = 'JAK3' RETURN path";
+    final String drugPrefix = " UNION MATCH (nd:Dataset {enabled: true})"
+            + " WITH COLLECT(nd.dataset) AS enabledSets"
+            + " MATCH path=(nd:Drug)-[rt:TARGETS]-(nt:Target)"
+            + " WHERE nd.dataset IN enabledSets AND rt.dataset IN enabledSets AND nt.dataset IN enabledSets"
+            + filterTarget;
 
     @Test
     void getWeightsByAe() {
@@ -208,7 +215,10 @@ class CommandBuilderTest implements Constants {
                 + returnPath
                 + union
                 + pathwayPrefix
-                + returnPath;
+                + returnPath
+                + drugPrefix
+                + returnPath
+                + includeSoloTarget;
         assertThat(command).isEqualTo(expected);
     }
 
@@ -223,7 +233,8 @@ class CommandBuilderTest implements Constants {
                 + returnPath
                 + union
                 + pathwayPrefix
-                + returnPath;
+                + returnPath
+                + includeSoloTarget;
         assertThat(command).isEqualTo(expected);
     }
 
@@ -238,7 +249,11 @@ class CommandBuilderTest implements Constants {
                 + returnPath
                 + union
                 + pathwayPrefix
-                + returnPath;
+                + returnPath
+                + drugPrefix
+                + filterActions
+                + returnPath
+                + includeSoloTarget;
         assertThat(command).isEqualTo(expected);
     }
 
@@ -255,7 +270,8 @@ class CommandBuilderTest implements Constants {
                 + returnPath
                 + union
                 + pathwayPrefix
-                + returnPath;
+                + returnPath
+                + includeSoloTarget;
         assertThat(command).isEqualTo(expected);
     }
 
@@ -271,6 +287,11 @@ class CommandBuilderTest implements Constants {
                 + union
                 + pathwayPrefix
                 + returnPath
+                + limits
+                + drugPrefix
+                + returnPath
+                + limits
+                + includeSoloTarget
                 + limits;
         assertThat(command).isEqualTo(expected);
     }
@@ -289,6 +310,8 @@ class CommandBuilderTest implements Constants {
                 + union
                 + pathwayPrefix
                 + returnPath
+                + limits
+                + includeSoloTarget
                 + limits;
         assertThat(command).isEqualTo(expected);
     }
@@ -307,6 +330,12 @@ class CommandBuilderTest implements Constants {
                 + union
                 + pathwayPrefix
                 + returnPath
+                + limits
+                + drugPrefix
+                + filterActions
+                + returnPath
+                + limits
+                + includeSoloTarget
                 + limits;
         assertThat(command).isEqualTo(expected);
     }
@@ -327,6 +356,8 @@ class CommandBuilderTest implements Constants {
                 + union
                 + pathwayPrefix
                 + returnPath
+                + limits
+                + includeSoloTarget
                 + limits;
         assertThat(command).isEqualTo(expected);
     }
@@ -349,6 +380,8 @@ class CommandBuilderTest implements Constants {
                 + union
                 + pathwayPrefix
                 + returnPath
+                + limits
+                + includeSoloTarget
                 + limits;
         assertThat(command).isEqualTo(expected);
     }
@@ -366,7 +399,8 @@ class CommandBuilderTest implements Constants {
                 + returnPath
                 + union
                 + pathwayPrefix
-                + returnPath;
+                + returnPath
+                + includeSoloTarget;
         assertThat(command).isEqualTo(expected);
     }
 }
