@@ -2,7 +2,6 @@
 import { styled } from '@mui/material/styles';
 import { Card, CardHeader, Box } from '@mui/material';
 
-import CytoCanvas from './CytoCanvas';
 import CytoLegendCanvas from "./CytoLegendCanvas";
 
 const RootStyle = styled(Card)(({ theme }) => ({
