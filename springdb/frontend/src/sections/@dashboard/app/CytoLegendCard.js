@@ -6,11 +6,7 @@ import CytoCanvas from './CytoCanvas';
 import CytoLegendCanvas from "./CytoLegendCanvas";
 
 const RootStyle = styled(Card)(({ theme }) => ({
-    // boxShadow: 'none',
-    // textAlign: 'center',
-    // padding: theme.spacing(5, 0),
-    // color: theme.palette.primary.darker,
-    // backgroundColor: theme.palette.primary.lighter,
+
 }));
 
 export default function CytoLegendCard(props) {

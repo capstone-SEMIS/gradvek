@@ -57,13 +57,6 @@ export default class CytoCanvas extends Component {
     this.state.cytoInstance.remove("*");
     this.state.cytoInstance.add(this.props.graphNodes);
 
-    // if (this.props.id.includes('legend')) {
-    //   this.state.cytoInstance.layout({
-    //     name: "null",
-    //     // nodeDimensionsIncludeLabels: true
-    //   }).run();
-    // } else {
-
     if ("AE" in this.props.focusNode) {
       let nodeToFocus = this.state.cytoInstance.elements(
           `node#${this.props.focusNode.AE}`
@@ -161,7 +154,6 @@ export default class CytoCanvas extends Component {
       // This doesn't move the nodes but does reset the zoom to include the full graph
       this.state.cytoInstance.layout({name: "preset"}).run();
     }
-    // }
   }
 
   initialStyles = [
