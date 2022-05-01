@@ -1,7 +1,5 @@
 package com.semis.gradvek.springdb;
 
-import com.google.gson.JsonObject;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -23,6 +21,11 @@ import com.semis.gradvek.graphdb.DBDriver;
 import com.semis.gradvek.graphdb.Neo4jDriver;
 import com.semis.gradvek.graphdb.TestDBDriver;
 import com.semis.gradvek.parquet.ParquetUtils;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -103,12 +106,12 @@ public class Controller {
 
 	/**
 	 * Initialization; invoked when the application has completed startup
-	 * @param event
+	 * @param event indicates that the application has initialized
 	 */
 	@EventListener
 	public void onApplicationReadyEvent (ApplicationReadyEvent event) {
 		if ("inmem".equals (mEnv.getProperty ("db.type"))) {
-			// This is the test environment - load the in-memory db driver and init demo data
+			// This is the test environment - load the in-memory db driver and initialize with demo data
 			mDriver = new TestDBDriver();
 			initDemo ();
 			return;
@@ -132,19 +135,13 @@ public class Controller {
 
 	}
 
-	/**
-	 * Uploading a single entity in JSON format from the body of the request
-	 * @param entityJson
-	 * @return
-	 */
-	@PostMapping ("/upload")
-	@ResponseBody
-	public ResponseEntity<Void> upload (@RequestBody JsonNode entityJson) {
-		mLogger.info (entityJson.toString ());
-		// TODO
-		return new ResponseEntity<Void> (HttpStatus.CREATED);
-	}
-
+	@Operation(summary = "Upload one or more entities in a comma-separated file")
+	@ApiResponses(value = {
+			@ApiResponse(
+					responseCode = "200",
+					description = "Operation completed successfully"
+			)
+	})
     @PostMapping(value = "/csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Map<String, String>> csvPost(@RequestParam MultipartFile file, @RequestParam String baseUrl, HttpServletRequest request) {
 		return csvPostProcess(file, baseUrl, request.getRequestURI());
@@ -168,6 +165,10 @@ public class Controller {
 		return ResponseEntity.ok(body);
 	}
 
+	@Operation(summary = "Return the content of a previously uploaded comma-separated file")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
+	})
     @GetMapping(value = "/csv/{fileId}", produces = "text/csv")
     public ResponseEntity<InputStreamResource> csvGet(@PathVariable(value = "fileId") String fileId) {
         CsvFile file = CsvService.getInstance().get(fileId);
@@ -184,6 +185,10 @@ public class Controller {
 	 * Clean out the entire database
 	 * @return
 	 */
+	@Operation(summary = "Clear out the database")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
+	})
 	@PostMapping ("/clear")
 	@ResponseBody
 	public ResponseEntity<Void> clear () {
@@ -196,6 +201,10 @@ public class Controller {
 	 * Initialize the database with the entities or relationships of the specified type
 	 * @return
 	 */
+	@Operation(summary = "Initialize entities or relationships of the specified type from the OpenTargets store")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
+	})
 	@PostMapping ("/init/{type}")
 	@ResponseBody
 	public ResponseEntity<Void> initType (@PathVariable (value = "type") final String typeString) throws IOException {
@@ -210,6 +219,10 @@ public class Controller {
 	 * Initialize the database with the demo nodes and relationships
 	 * @return
 	 */
+	@Operation(summary = "Initialize the database with demo data")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
+	})
 	@PostMapping ("/init/demo")
 	@ResponseBody
 	public ResponseEntity<Void> initDemo () {
@@ -261,6 +274,10 @@ public class Controller {
 	 * @param id
 	 * @return
 	 */
+	@Operation(summary = "Add a single gene entity to the database")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
+	})
 	@PostMapping ("/gene/{id}")
 	public ResponseEntity<Void> gene (@PathVariable (value = "id") final String id) {
 		mLogger.info ("Init");
@@ -271,6 +288,10 @@ public class Controller {
 	/**
 	 * List of all loaded databases
 	 */
+	@Operation(summary = "Return an array of all known datasets (both active and inactive)")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
+	})
 	@GetMapping ("/datasets")
 	@ResponseBody
 	public ResponseEntity<String> datasets () {
@@ -282,6 +303,10 @@ public class Controller {
 
 	}
 	
+	@Operation(summary = "Modify the active status of one or more datasets")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
+	})
 	@PostMapping ("/datasets")
 	public ResponseEntity<Void>  enableDatasets (@RequestBody Map<String, String>[] datasets) {
 		for (Map<String, String> dataset: datasets) {
@@ -290,83 +315,39 @@ public class Controller {
 		return new ResponseEntity<Void> (HttpStatus.OK);		
 	}
 
+	@Operation(summary = "Return an array of adverse events associated with a specific target, optionally filtered by action")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
+	})
 	@GetMapping("/weight/{target}")
 	public ResponseEntity<List<AdverseEventIntObj>> getAdverseEvent(@PathVariable(value = "target") final String target,
 																	@RequestParam Optional<List<String>> actions) {
-		List<AdverseEventIntObj> adverseEvents;
-		if (actions.isPresent()) {
-			adverseEvents = mDriver.getAEByTarget(target, actions.get());
-		} else {
-			adverseEvents = mDriver.getAEByTarget(target);
-		}
+		List<AdverseEventIntObj> adverseEvents = mDriver.getAEByTarget(target, actions.isPresent() ? actions.get() : null);
 		return ResponseEntity.ok(adverseEvents);
 	}
 
+	@Operation(summary = "Return an array of weights of adverse events associated with a specific target, optionally filtered by action")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
+	})
 	@GetMapping("/weight/{target}/{ae}")
-	public ResponseEntity<List<Map>> getWeightsTargetAe(
+	public ResponseEntity<List<Map<String, Object>>> getWeightsTargetAe(
 			@PathVariable(value = "target") final String target,
 			@PathVariable(value = "ae") final String ae, @RequestParam Optional<List<String>> actions) {
-		List<Map> results;
-		if (actions.isPresent()) {
-			results = mDriver.getWeightsByDrug(target, actions.get(), ae);
-		} else {
-			results = mDriver.getWeightsByDrug(target, ae);
-		}
-
+		List<Map<String, Object>> results = mDriver.getWeightsByDrug(target, actions.isPresent() ? actions.get() : null, ae);
 		return ResponseEntity.ok(results);
 	}
 
-	@GetMapping("/ae/path/{target}")
-	@ResponseBody
-	public ResponseEntity<String> getAdverseEventPath(@PathVariable(value = "target") final String target,
-													  @RequestParam Optional<List<String>> actions) {
-		List<CytoscapeEntity> entities;
-		if (actions.isPresent()) {
-			entities = mDriver.getAEPathByTarget(target, actions.get());
-		} else {
-			entities = mDriver.getAEPathByTarget(target);
-		}
-
-		try {
-			String json = new ObjectMapper().writeValueAsString(entities);
-			return ResponseEntity.ok(json);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-			return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	@GetMapping("/ae/path/{target}/{ae}")
-	public ResponseEntity<String> getPathsTargetAe(@PathVariable(value = "target") final String target,
-												   @PathVariable(value = "ae") final String ae,
-												   @RequestParam Optional<List<String>> actions) {
-		List<CytoscapeEntity> entities;
-		if (actions.isPresent()) {
-			entities = mDriver.getPathsTargetAe(target, actions.get(), ae);
-		} else {
-			entities = mDriver.getPathsTargetAe(target, ae);
-		}
-
-		try {
-			String json = new ObjectMapper().writeValueAsString(entities);
-			return ResponseEntity.ok(json);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-			return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	@GetMapping("/ae/path/{target}/{ae}/{drugId}")
+	@Operation(summary = "Return an array of Cytoscape entities representing paths from a target to one or all adverse events associated with it, optionally filtered by drug and action")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
+	})
+	@GetMapping(value = {"/ae/path/{target}", "/ae/path/{target}/{ae}", "/ae/path/{target}/{ae}/{drugId}"})
 	public ResponseEntity<String> getPathsTargetAeDrug(@PathVariable(value = "target") final String target,
-												   @PathVariable(value = "ae") final String ae,
-												   @PathVariable(value = "drugId") final String drugId,
+												   @PathVariable(value = "ae", required = false) final String ae,
+												   @PathVariable(value = "drugId", required = false) final String drugId,
 												   @RequestParam Optional<List<String>> actions) {
-		List<CytoscapeEntity> entities;
-		if (actions.isPresent()) {
-			entities = mDriver.getPathsTargetAeDrug(target, actions.get(), ae, drugId);
-		} else {
-			entities = mDriver.getPathsTargetAeDrug(target, ae, drugId);
-		}
+		List<CytoscapeEntity> entities = mDriver.getPathsTargetAeDrug(target, actions.isPresent() ? actions.get() : null, ae, drugId);
 
 		try {
 			String json = new ObjectMapper().writeValueAsString(entities);
@@ -377,6 +358,10 @@ public class Controller {
 		}
 	}
 
+	@Operation(summary = "Return an array of Cytoscape entities representing paths from a target to one or all adverse events associated with it, optionally filtered by drug and action")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
+	})
 	@GetMapping("count/{type}")
 	@ResponseBody
 	public ResponseEntity<Integer> count (@PathVariable (value = "type") final String typeString) throws IOException {
@@ -390,26 +375,32 @@ public class Controller {
 	 * Health check
 	 * @return
 	 */
+	@Operation(summary = "Health check")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Application is alive")
+	})
 	@GetMapping ("/info")
 	public String home () {
 		return "Hello Gradvek";
 	}
 
+	@Operation(summary = "Return an array of suggested entities in response to a hint (beginning of the name)")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
+	})
 	@GetMapping("suggest/{hint}")
-	public ResponseEntity<List<Map>> getTargetSuggestions(@PathVariable(value="hint") final String hint) {
-		List<Map> suggestions = mDriver.getTargetSuggestions(hint);
+	public ResponseEntity<List<Map<String, String>>> getTargetSuggestions(@PathVariable(value="hint") final String hint) {
+		List<Map<String, String>> suggestions = mDriver.getTargetSuggestions(hint);
 		return ResponseEntity.ok(suggestions);
 	}
 
-	@GetMapping("actions")
-	public ResponseEntity<List<Map>> getActions() {
-		List<Map> actions = mDriver.getActions();
-		return ResponseEntity.ok(actions);
-	}
-
-	@GetMapping("actions/{target}")
-	public ResponseEntity<List<Map>> getActions(@PathVariable(value="target") final String target) {
-		List<Map> actions = mDriver.getActions(target);
+	@Operation(summary = "Return an array of actions for the specified target (or all actions in the database)")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
+	})	
+	@GetMapping(value = {"actions", "actions/{target}"})
+	public ResponseEntity<List<Map<String, Object>>> getActions(@PathVariable(required = false) final String target) {
+		List<Map<String, Object>> actions = mDriver.getActions(target);
 		return ResponseEntity.ok(actions);
 	}
 }

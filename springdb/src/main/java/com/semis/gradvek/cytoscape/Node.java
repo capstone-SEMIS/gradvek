@@ -1,9 +1,37 @@
 package com.semis.gradvek.cytoscape;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import static com.semis.gradvek.entity.Constants.*;
+
 public class Node extends CytoscapeEntity {
+
+    public static final Map<String, List<Pair<String, String>>> propertyMap = Map.of(
+            "AdverseEvent", List.of(
+                    Pair.of(ADVERSE_EVENT_ID_STRING, ADVERSE_EVENT_ID_STRING),
+                    Pair.of("name", "adverseEventId"),
+                    Pair.of("adverseEventId", "adverseEventId")
+            ),
+            "Drug", List.of(
+                    Pair.of(DRUG_ID_STRING, DRUG_ID_STRING),
+                    Pair.of("name", "drugId"),
+                    Pair.of("drugId", "drugId")
+            ),
+            "Target", List.of(
+                    Pair.of(TARGET_ID_STRING, TARGET_ID_STRING),
+                    Pair.of("name", "symbol"),
+                    Pair.of("symbol", "symbol")
+            ),
+            "Pathway", List.of(
+                    Pair.of(PATHWAY_ID_STRING, PATHWAY_ID_STRING),
+                    Pair.of("name", "pathwayCode"),
+                    Pair.of("term", "topLevelTerm")
+            )
+    );
 
     String group = "nodes";
 //    ArrayList<String> classes = new ArrayList<>();

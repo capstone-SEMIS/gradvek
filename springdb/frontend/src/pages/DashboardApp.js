@@ -7,6 +7,7 @@ import Page from '../components/Page';
 import CytoCard from '../sections/@dashboard/app/CytoCard';
 import AEList from '../sections/@dashboard/app/AEList';
 import SearchControl from "../sections/@dashboard/app/SearchControl";
+import CytoLegendCard from "../sections/@dashboard/app/CytoLegendCard";
 
 // ----------------------------------------------------------------------
 
@@ -53,6 +54,11 @@ export default class DashboardApp extends Component {
                 throw new Error(response.statusText);
             }
         }).then(body => {
+            body.forEach(o => {
+                if (o.hasOwnProperty("data") && o["data"].hasOwnProperty("llr")) {
+                    o["data"]["llr"] = Number(o["data"]["llr"]).toFixed(2);
+                }
+            })
             this.setState({resultNodes: body})
         }).catch(error => {
             console.error(`${error.name}: ${error.message}`);
@@ -123,9 +129,15 @@ export default class DashboardApp extends Component {
                                 displayAE_Weights={this.state.displayAE_Weights}
                                 />
                     </Grid>
-                    <Grid item xs={12} md={6} position='sticky' top={0} alignSelf='flex-start'>
+                    <Grid item xs={12} md={8} position='sticky' top={0} alignSelf='flex-start'>
+                        <CytoLegendCard graphNodes={[
+                            {'id': 1, 'group': 'nodes', 'data': {'name': 'Pathway'}, 'classes': 'pathway'},
+                            {'id': 2, 'group': 'nodes', 'data': {'name': 'Drug'}, 'classes': 'drug'},
+                            {'id': 3, 'group': 'nodes', 'data': {'name': 'Target'}, 'classes': 'target'},
+                            {'id': 4, 'group': 'nodes', 'data': {'name': 'Adverse Event'}, 'classes': 'adverse-event'},
+                        ]} title="Legend" id='cyto_legend'/>
                         <CytoCard graphNodes={this.state.resultNodes} nodeFilter={this.state.nodeFilter}
-                                  focusNode={this.state.focusNode}/>
+                                  focusNode={this.state.focusNode} title="" id='cyto_canvas'/>
                     </Grid>
                 </Grid>
             </Page>

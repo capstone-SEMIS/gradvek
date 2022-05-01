@@ -23,6 +23,8 @@ import java.util.Locale;
  */
 public class CommandBuilder implements Constants {
 
+    // private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+
     private String target = null;
     private String adverseEvent = null;
     private List<String> actionTypes = null;
@@ -155,17 +157,29 @@ public class CommandBuilder implements Constants {
 
     private String toCypherPaths() {
         StringBuilder command = new StringBuilder();
-        StringBuilder pathway = new StringBuilder();    // build this in parallel to include after UNION
+
+        // build these in parallel to include after UNION
+        StringBuilder pathway = new StringBuilder();    // just the path from target to pathway
+        StringBuilder drug = new StringBuilder();       // just the path from target to drug
+        StringBuilder target = new StringBuilder();     // just the target
 
         // Find active datasets
         appendEnabledDatasets(command);
         appendEnabledDatasets(pathway);
+        appendEnabledDatasets(drug);
+        appendEnabledDatasets(target);
 
         // Don't include pathways here, otherwise there may be multiple matching paths for each ASSOCIATED_WITH
         command.append(" MATCH path=(nae:AdverseEvent)-[raw:ASSOCIATED_WITH]-(nd:Drug)-[rt:TARGETS]-(nt:Target)");
 
         // Get pathways here
         pathway.append(" MATCH path=(nt:Target)-[rpi:PARTICIPATES_IN]-(np:Pathway)");
+
+        // Include drugs even if there are no adverse events
+        drug.append(" MATCH path=(nd:Drug)-[rt:TARGETS]-(nt:Target)");
+
+        // Include the target even if nothing else matches
+        target.append(" MATCH path=(nt:Target)");
 
         // Limit to active datasets
         command.append(" WHERE nae.dataset IN enabledSets")
@@ -176,32 +190,53 @@ public class CommandBuilder implements Constants {
         pathway.append(" WHERE nt.dataset IN enabledSets")
                 .append(" AND rpi.dataset IN enabledSets")
                 .append(" AND np.dataset IN enabledSets");
+        drug.append(" WHERE nd.dataset IN enabledSets")
+                .append(" AND rt.dataset IN enabledSets")
+                .append(" AND nt.dataset IN enabledSets");
+        target.append(" WHERE nt.dataset IN enabledSets");
 
         // Limit to target
         appendTargetLimit(command);
         appendTargetLimit(pathway);
+        appendTargetLimit(drug);
+        appendTargetLimit(target);
 
         // Limit to adverse event
         appendAdverseEventLimit(command);
 
         // Limit to drug
         appendDrugLimit(command);
+        appendDrugLimit(drug);
 
         // Limit to action types
         appendActionLimit(command);
+        appendActionLimit(drug);
 
         // List all paths
         String returnPath = " RETURN path";
         command.append(returnPath);
         pathway.append(returnPath);
+        drug.append(returnPath);
+        target.append(returnPath);
 
         appendCountLimit(command);
         appendCountLimit(pathway);
+        appendCountLimit(drug);
+        appendCountLimit(target);
 
         // There may or may not be a pathway linked to the target, if you need the full path, segment it into
         // full path = path from the adverse event to the target + path from target to pathway
         command.append(" UNION ").append(pathway);
 
+        // If no adverse event is specified, also include paths that terminate in drugs
+        if (adverseEvent == null) {
+            command.append(" UNION ").append(drug);
+        }
+
+        // Finally, always include at least the target
+        command.append(" UNION ").append(target);
+
+        // logger.info(command.toString());
         return command.toString();
     }
 }

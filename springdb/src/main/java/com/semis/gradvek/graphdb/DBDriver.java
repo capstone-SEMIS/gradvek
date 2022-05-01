@@ -59,29 +59,13 @@ public interface DBDriver {
 
 	public String getUri();
 
-	List<AdverseEventIntObj> getAEByTarget(String target);
-
 	List<AdverseEventIntObj> getAEByTarget(String target, List<String> actions);
-
-	List<CytoscapeEntity> getAEPathByTarget(String target);
-
-	List<CytoscapeEntity> getAEPathByTarget(String target, List<String> actions);
-
-	List<CytoscapeEntity> getPathsTargetAe(String target, String ae);
-
-	List<CytoscapeEntity> getPathsTargetAe(String target, List<String> actions, String ae);
-
-	List<CytoscapeEntity> getPathsTargetAeDrug(String target, String ae, String drugId);
 
 	List<CytoscapeEntity> getPathsTargetAeDrug(String target, List<String> actions, String ae, String drugId);
 
-	List<Map> getWeightsByDrug(String target, String ae);
+	List<Map<String, Object>> getWeightsByDrug(String target, List<String> actions, String ae);
 
-	List<Map> getWeightsByDrug(String target, List<String> actions, String ae);
+	List<Map<String, String>> getTargetSuggestions(String hint);
 
-	List<Map> getTargetSuggestions(String hint);
-
-    List<Map> getActions();
-
-	List<Map> getActions(String target);
+	List<Map<String, Object>> getActions(String target);
 }
