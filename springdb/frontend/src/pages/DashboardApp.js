@@ -21,7 +21,8 @@ export default class DashboardApp extends Component {
             "target": "",
             "tableResults": [],
             "availableActions": [],
-            "selectedActions": []
+            "selectedActions": [],
+            "displayAE_Weights": false
         };
         this.refreshResults = this.refreshResults.bind(this);
         this.refreshViz = this.refreshViz.bind(this);
@@ -67,6 +68,7 @@ export default class DashboardApp extends Component {
     refreshResults(target, actions) {
         this.setState({target: target});
         this.setState({selectedActions: actions});
+        
 
         let url = `/api/weight/${encodeURIComponent(target)}`
         if (actions && actions.length) {
@@ -77,10 +79,18 @@ export default class DashboardApp extends Component {
             if (response.ok) {
                 return response.json();
             } else {
-                throw new Error(response.statusText);
+                this.setState({displayAE_Weights: false});
+                throw new Error(response.statusText); 
             }
         }).then(body => {
             this.setState({tableResults: body});
+            console.log("body",body);
+            if(body.length > 0) {
+                this.setState({displayAE_Weights: true});
+            } else {
+                this.setState({displayAE_Weights: false}); 
+            }
+            
         }).catch(error => {
             console.error(`${error.name}: ${error.message}`);
         });
@@ -110,10 +120,14 @@ export default class DashboardApp extends Component {
         return (
             <Page title="Gradvek">
                 <Grid container spacing={3}>
-                    <Grid item xs={12} md={4}>
-                        <SearchControl onResultsChange={this.refreshResults} actions={this.state.availableActions}/>
+                    <Grid item xs={12} md={6}>
+                        <SearchControl onResultsChange={this.refreshResults} actions={this.state.availableActions}
+                       displayAE_Weights={this.state.displayAE_Weights}
+                        />
                         <AEList target={this.state.target} actions={this.state.selectedActions}
-                                tableResults={this.state.tableResults} filterHandler={this.refreshViz}/>
+                                tableResults={this.state.tableResults} filterHandler={this.refreshViz}
+                                displayAE_Weights={this.state.displayAE_Weights}
+                                />
                     </Grid>
                     <Grid item xs={12} md={8} position='sticky' top={0} alignSelf='flex-start'>
                         <CytoLegendCard graphNodes={[
