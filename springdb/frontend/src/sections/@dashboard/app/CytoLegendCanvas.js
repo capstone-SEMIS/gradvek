@@ -122,6 +122,7 @@ export default class CytoLegendCanvas extends Component {
 
   canvasStyle = {
     width: "100%",
-    maxHeight: "75px"
+    maxHeight: "75px",
+    height: "4em"
   };
 }

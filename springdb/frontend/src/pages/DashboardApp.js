@@ -120,7 +120,7 @@ export default class DashboardApp extends Component {
         return (
             <Page title="Gradvek">
                 <Grid container spacing={3}>
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={12} md={4}>
                         <SearchControl onResultsChange={this.refreshResults} actions={this.state.availableActions}
                        displayAE_Weights={this.state.displayAE_Weights}
                         />

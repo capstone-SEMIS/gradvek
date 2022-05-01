@@ -240,6 +240,6 @@ export default class CytoCanvas extends Component {
 
   canvasStyle = {
     width: "100%",
-    // minHeight: "300px"
+    height: "75vh"
   };
 }
