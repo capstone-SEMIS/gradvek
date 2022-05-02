@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 public class CsvService {
     private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+    private static final String UTF8_BOM = "\uFEFF";
     private static CsvService instance;
     private final List<CsvFile> files;
 
@@ -63,7 +64,11 @@ public class CsvService {
                 columns = currentLine;
 
                 // The first column heading is the data type
+                // Handle legacy BOM: https://www.rgagnon.com/javadetails/java-handle-utf8-file-with-bom.html
                 datatype = currentLine[0];
+                if (datatype.startsWith(UTF8_BOM)) {
+                    datatype = datatype.substring(1);
+                }
 
             } else {
 
