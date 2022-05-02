@@ -54,6 +54,7 @@ import static com.semis.gradvek.entity.EntityType.*;
  *
  * @author ymachkasov, ychen
  */
+@CrossOrigin
 @RestController
 public class Controller {
 	private static final Logger mLogger = Logger.getLogger (Controller.class.getName ());
@@ -201,17 +202,21 @@ public class Controller {
 	 * Initialize the database with the entities or relationships of the specified type
 	 * @return
 	 */
-	@Operation(summary = "Initialize entities or relationships of the specified type from the OpenTargets store")
+	@Operation(summary = "Initialize entities (all or of the specified type) from the OpenTargets store")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
 	})
-	@PostMapping ("/init/{type}")
+	@PostMapping (value={"/init", "/init/{type}"})
 	@ResponseBody
-	public ResponseEntity<Void> initType (@PathVariable (value = "type") final String typeString) throws IOException {
-		EntityType type = EntityType.valueOf (typeString);
-		mDriver.index(type);
-		ParquetUtils.initEntities (mEnv, mDriver, type);
-		mDriver.unique (type);
+	public ResponseEntity<Void> initType (@PathVariable (value = "type", required = false) final String typeString) throws IOException {
+		if (typeString == null) {
+			initFromOpenTarget ();
+		} else {
+			EntityType type = EntityType.valueOf (typeString);
+			mDriver.index(type);
+			ParquetUtils.initEntities (mEnv, mDriver, type);
+			mDriver.unique (type);
+		}
 		return new ResponseEntity<Void> (HttpStatus.OK);
 	}
 	
@@ -394,11 +399,21 @@ public class Controller {
 		return ResponseEntity.ok(suggestions);
 	}
 
-	@Operation(summary = "Return an array of actions for the specified target (or all actions in the database)")
+	@Operation(summary = "Return an array of all actions in the database")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
 	})	
-	@GetMapping(value = {"actions", "actions/{target}"})
+	@GetMapping("actions")
+	public ResponseEntity<List<Map<String, Object>>> getActions() {
+		List<Map<String, Object>> actions = mDriver.getActions(null);
+		return ResponseEntity.ok(actions);
+	}
+
+	@Operation(summary = "Return an array of actions for the specified target")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Operation completed successfully")
+	})	
+	@GetMapping("actions/{target}")
 	public ResponseEntity<List<Map<String, Object>>> getActions(@PathVariable(required = false) final String target) {
 		List<Map<String, Object>> actions = mDriver.getActions(target);
 		return ResponseEntity.ok(actions);
