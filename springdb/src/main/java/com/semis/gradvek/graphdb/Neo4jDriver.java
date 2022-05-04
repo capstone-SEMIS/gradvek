@@ -256,6 +256,7 @@ public class Neo4jDriver implements DBDriver, Constants {
                     String id = adverseEvent.get(ADVERSE_EVENT_ID_STRING).asString();
                     double llr = record.get(1).asDouble();
                     AdverseEventIntObj ae = new AdverseEventIntObj(name, name, id);
+                    ae.setDataset (adverseEvent.get("dataset").asString());
                     ae.setLlr(llr);
 
                     finalMap.add(ae);
