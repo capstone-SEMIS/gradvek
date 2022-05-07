@@ -79,6 +79,7 @@ public class CommandBuilder implements Constants {
 
     private void appendTargetLimit(StringBuilder command) {
         command.append(" AND toUpper(nt.symbol) = '").append(target.toUpperCase(Locale.ROOT)).append("'");
+        // command.append(" AND nt.symbol = '").append(target.toUpperCase(Locale.ROOT)).append("'");
     }
 
     private void appendAdverseEventLimit(StringBuilder command) {

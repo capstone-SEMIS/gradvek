@@ -15,6 +15,7 @@ export default function DataMgmtPage() {
     const objectFromUrl = await fetch(url);
     const data = await objectFromUrl.json();
 
+    data.sort((a, b) => (a.dataset > b.dataset) ? 1 : ((b.dataset > a.dataset) ? -1 : 0));
     setDataArray(data);
   };
 
