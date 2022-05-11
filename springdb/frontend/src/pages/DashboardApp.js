@@ -1,5 +1,5 @@
 // material
-import {Grid} from '@mui/material';
+import {Box} from '@mui/material';
 import {Component} from 'react';
 // components
 import Page from '../components/Page';
@@ -118,28 +118,26 @@ export default class DashboardApp extends Component {
 
     render() {
         return (
-            <Page title="Gradvek">
-                <Grid container spacing={3}>
-                    <Grid item xs={12} md={4}>
-                        <SearchControl onResultsChange={this.refreshResults} actions={this.state.availableActions}
-                       displayAE_Weights={this.state.displayAE_Weights}
-                        />
-                        <AEList target={this.state.target} actions={this.state.selectedActions}
-                                tableResults={this.state.tableResults} filterHandler={this.refreshViz}
-                                displayAE_Weights={this.state.displayAE_Weights}
-                                />
-                    </Grid>
-                    <Grid item xs={12} md={8} position='sticky' top={0} alignSelf='flex-start'>
-                        <CytoLegendCard graphNodes={[
-                            {'id': 1, 'group': 'nodes', 'data': {'name': 'Pathway'}, 'classes': 'pathway'},
-                            {'id': 2, 'group': 'nodes', 'data': {'name': 'Drug'}, 'classes': 'drug'},
-                            {'id': 3, 'group': 'nodes', 'data': {'name': 'Target'}, 'classes': 'target'},
-                            {'id': 4, 'group': 'nodes', 'data': {'name': 'Adverse Event'}, 'classes': 'adverse-event'},
-                        ]} title="Legend" id='cyto_legend'/>
-                        <CytoCard graphNodes={this.state.resultNodes} nodeFilter={this.state.nodeFilter}
-                                  focusNode={this.state.focusNode} title="" id='cyto_canvas'/>
-                    </Grid>
-                </Grid>
+            <Page title="Gradvek" sx={{columns: 2, columnGap: '1rem', display: 'flex'}}>
+                <Box minWidth='min-content' width='33%'>
+                    <SearchControl onResultsChange={this.refreshResults} actions={this.state.availableActions}
+                                   displayAE_Weights={this.state.displayAE_Weights}
+                    />
+                    <AEList target={this.state.target} actions={this.state.selectedActions}
+                            tableResults={this.state.tableResults} filterHandler={this.refreshViz}
+                            displayAE_Weights={this.state.displayAE_Weights}
+                    />
+                </Box>
+                <Box position='sticky' top={0} alignSelf='flex-start' width='67vw'>
+                    <CytoLegendCard graphNodes={[
+                        {'id': 1, 'group': 'nodes', 'data': {'name': 'Pathway'}, 'classes': 'pathway'},
+                        {'id': 2, 'group': 'nodes', 'data': {'name': 'Drug'}, 'classes': 'drug'},
+                        {'id': 3, 'group': 'nodes', 'data': {'name': 'Target'}, 'classes': 'target'},
+                        {'id': 4, 'group': 'nodes', 'data': {'name': 'Adverse Event'}, 'classes': 'adverse-event'},
+                    ]} title="Legend" id='cyto_legend'/>
+                    <CytoCard graphNodes={this.state.resultNodes} nodeFilter={this.state.nodeFilter}
+                              focusNode={this.state.focusNode} title="" id='cyto_canvas'/>
+                </Box>
             </Page>
         );
     }
