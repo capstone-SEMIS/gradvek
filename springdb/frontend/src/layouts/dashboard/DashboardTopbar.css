@@ -1,5 +1,5 @@
 .dashboard-topbar-background {
-    background-image: url("./../../../../../images/TopBanner-new.png");
+    background-image: url("TopBanner-new.png");
     background-size: cover;
     width: "100%"
 }
