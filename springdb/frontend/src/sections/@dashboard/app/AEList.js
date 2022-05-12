@@ -4,20 +4,29 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import React, {useState} from "react";
 import {Id} from "../../../utils/entityProperties";
-
+import {styled} from "@mui/material/styles";
 
 // ----------------------------------------------------------------------
+
+const denseCellPadding = '0.81rem';
+
+const DenseCell = styled(TableCell)(() => ({
+    paddingTop: denseCellPadding,
+    paddingBottom: denseCellPadding,
+    paddingLeft: denseCellPadding,
+    paddingRight: denseCellPadding
+}));
 
 function DrugList({drugResults, filterHandler, target, actions, AE}) {
     return (
         <TableRow>
-            <TableCell colSpan="3">
+            <DenseCell colSpan="3">
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>Drug Name</TableCell>
-                            <TableCell>Drug ID</TableCell>
-                            <TableCell>Weight</TableCell>
+                            <DenseCell>Drug Name</DenseCell>
+                            <DenseCell>Drug ID</DenseCell>
+                            <DenseCell>Weight</DenseCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -26,7 +35,7 @@ function DrugList({drugResults, filterHandler, target, actions, AE}) {
                         )}
                     </TableBody>
                 </Table>
-            </TableCell>
+            </DenseCell>
         </TableRow>
     );
 }
@@ -34,9 +43,9 @@ function DrugList({drugResults, filterHandler, target, actions, AE}) {
 function DrugRow({drug, filterHandler, target, actions, ae}) {
     return (
         <TableRow onClick={(e) => filterHandler(target, actions, ae.id, drug.drugId)}>
-            <TableCell> {drug.drugName} </TableCell>
-            <TableCell> {drug.drugId} </TableCell>
-            <TableCell> {(drug.weight).toFixed(2)} </TableCell>
+            <DenseCell> {drug.drugName} </DenseCell>
+            <DenseCell> {drug.drugId} </DenseCell>
+            <DenseCell> {(drug.weight).toFixed(2)} </DenseCell>
         </TableRow>
     );
 }
@@ -70,15 +79,15 @@ function AeRow({target, actions, AE, filterHandler}) {
     return (
         <>
             <TableRow>
-                <TableCell onClick={handleExpansion} >
+                <DenseCell onClick={handleExpansion} >
                     {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                </TableCell>
-                <TableCell onClick={(e) => filterHandler(target, actions, AE.id)}>
+                </DenseCell>
+                <DenseCell onClick={(e) => filterHandler(target, actions, AE.id)}>
                     {AE.name}
-                </TableCell>
-                <TableCell onClick={(e) => filterHandler(target, actions, AE.id)}>
+                </DenseCell>
+                <DenseCell onClick={(e) => filterHandler(target, actions, AE.id)}>
                     {(AE.llr).toFixed(2)}
-                </TableCell>
+                </DenseCell>
             </TableRow>
             {expanded ? <DrugList drugResults={drugResults} filterHandler={filterHandler} target={target} actions={actions} AE={AE}/> : null}
         </>
@@ -87,22 +96,22 @@ function AeRow({target, actions, AE, filterHandler}) {
 
 export default function AEList({target, actions, tableResults, filterHandler, displayAE_Weights}) {
     return (
-        <Card>
-            <TableContainer>
+        <Card sx={{overflow: 'visible'}}>
+            <TableContainer sx={{overflow: 'visible', overflowWrap: 'normal'}}>
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>
+                            <DenseCell>
                                 {/*Empty*/}
-                            </TableCell>
+                            </DenseCell>
                             {displayAE_Weights ?
                             <React.Fragment>
-                            <TableCell>
+                            <DenseCell>
                                 Adverse Event
-                            </TableCell>
-                            <TableCell>
+                            </DenseCell>
+                            <DenseCell>
                                 Weight
-                            </TableCell>
+                            </DenseCell>
                             </React.Fragment>
                             : null
                             }

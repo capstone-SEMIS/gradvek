@@ -1,6 +1,6 @@
 // material
-import {Grid} from '@mui/material';
-import {Component} from 'react';
+import {Box} from '@mui/material';
+import {Component, createRef} from 'react';
 // components
 import Page from '../components/Page';
 
@@ -24,6 +24,7 @@ export default class DashboardApp extends Component {
             "selectedActions": [],
             "displayAE_Weights": false
         };
+        this.graphBox = createRef();
         this.refreshResults = this.refreshResults.bind(this);
         this.refreshViz = this.refreshViz.bind(this);
         this.refreshActions = this.refreshActions.bind(this);
@@ -84,7 +85,7 @@ export default class DashboardApp extends Component {
             }
         }).then(body => {
             this.setState({tableResults: body});
-            console.log("body",body);
+            // console.log("body",body);
             if(body.length > 0) {
                 this.setState({displayAE_Weights: true});
             } else {
@@ -119,27 +120,26 @@ export default class DashboardApp extends Component {
     render() {
         return (
             <Page title="Gradvek">
-                <Grid container spacing={3}>
-                    <Grid item xs={12} md={4}>
+                <Box display='grid' gridTemplateColumns='30em 1fr' gap={2}>
+                    <Box>
                         <SearchControl onResultsChange={this.refreshResults} actions={this.state.availableActions}
-                       displayAE_Weights={this.state.displayAE_Weights}
-                        />
+                                       displayAE_Weights={this.state.displayAE_Weights}/>
                         <AEList target={this.state.target} actions={this.state.selectedActions}
                                 tableResults={this.state.tableResults} filterHandler={this.refreshViz}
-                                displayAE_Weights={this.state.displayAE_Weights}
-                                />
-                    </Grid>
-                    <Grid item xs={12} md={8} position='sticky' top={0} alignSelf='flex-start'>
+                                displayAE_Weights={this.state.displayAE_Weights}/>
+                    </Box>
+                    <Box id='hello' overflow='hidden' ref={this.graphBox} position='sticky' top={0} alignSelf='flex-start'>
                         <CytoLegendCard graphNodes={[
                             {'id': 1, 'group': 'nodes', 'data': {'name': 'Pathway'}, 'classes': 'pathway'},
                             {'id': 2, 'group': 'nodes', 'data': {'name': 'Drug'}, 'classes': 'drug'},
                             {'id': 3, 'group': 'nodes', 'data': {'name': 'Target'}, 'classes': 'target'},
                             {'id': 4, 'group': 'nodes', 'data': {'name': 'Adverse Event'}, 'classes': 'adverse-event'},
-                        ]} title="Legend" id='cyto_legend'/>
+                        ]} title="Legend" id='cyto_legend' width={`${this.graphBox.current?.offsetWidth}px` ?? '100%'}/>
                         <CytoCard graphNodes={this.state.resultNodes} nodeFilter={this.state.nodeFilter}
-                                  focusNode={this.state.focusNode} title="" id='cyto_canvas'/>
-                    </Grid>
-                </Grid>
+                                  focusNode={this.state.focusNode} title="" id='cyto_canvas'
+                                  width={`${this.graphBox.current?.offsetWidth}px` ?? '100%'}/>
+                    </Box>
+                </Box>
             </Page>
         );
     }
