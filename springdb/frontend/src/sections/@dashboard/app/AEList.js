@@ -100,11 +100,11 @@ export default function AEList({target, actions, tableResults, filterHandler, di
             <TableContainer sx={{overflow: 'visible', overflowWrap: 'normal'}}>
                 <Table>
                     <TableHead>
+                        {displayAE_Weights ?
                         <TableRow>
                             <DenseCell>
                                 {/*Empty*/}
                             </DenseCell>
-                            {displayAE_Weights ?
                             <React.Fragment>
                             <DenseCell>
                                 Adverse Event
@@ -113,9 +113,9 @@ export default function AEList({target, actions, tableResults, filterHandler, di
                                 Weight
                             </DenseCell>
                             </React.Fragment>
-                            : null
-                            }
                         </TableRow>
+                            : null
+                        }
                     </TableHead>
                     <TableBody>
                         {tableResults.map(r =>
