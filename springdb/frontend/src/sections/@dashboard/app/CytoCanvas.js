@@ -239,7 +239,7 @@ export default class CytoCanvas extends Component {
   ];
 
   canvasStyle = {
-    width: "100%",
+    width: this.props.width,
     height: "75vh"
   };
 }
