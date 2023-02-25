@@ -64,6 +64,8 @@ jobs:
     if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
     needs: test
     runs-on: ubuntu-latest
+    env:
+      DOCKER_TARGET_PLATFORM: linux/arm64/v8 
     steps:
       - uses: actions/checkout@v2
 
