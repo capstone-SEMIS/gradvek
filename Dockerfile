@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 eclipse-temurin:11
+FROM --platform=linux/amd64 eclipse-temurin:11 AS build
 ARG JAR_FILE=springdb/target/*.jar
 ARG FRONT_END=springdb/frontend
 ARG NODE_NPM=springdb/target/node
