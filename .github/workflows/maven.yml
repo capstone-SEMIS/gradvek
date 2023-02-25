@@ -114,6 +114,7 @@ jobs:
     if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
     needs: build
     runs-on: ubuntu-latest
+    environment: secrets
     steps:
       - uses: actions/checkout@v2
 
