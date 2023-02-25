@@ -1,4 +1,4 @@
-FROM eclipse-temurin:11 --platform=linux/amd64
+FROM --platform=linux/amd64 eclipse-temurin:11
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
