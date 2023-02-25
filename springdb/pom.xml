@@ -17,7 +17,7 @@
 		<java.version>11</java.version>
 		<jackson.version>2.13.1</jackson.version>
 		<parquet.api.version>1.12.0</parquet.api.version>
-		<hadoop.version>3.3.2</hadoop.version>
+		<hadoop.version>3.3.4</hadoop.version>
 		<springdoc.version>1.6.8</springdoc.version>
 	</properties>
 	<dependencies>
