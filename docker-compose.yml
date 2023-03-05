@@ -15,7 +15,6 @@ services:
       NEO4J_dbms_security_auth__minimum__password__length: 7
 
   gradvek:
-    platform: linux/x86_64
     image: sheelyn/ns_gradvek_test
     ports:
       - "3000:3000"
