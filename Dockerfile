@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17
+FROM eclipse-temurin:11
 ARG JAR_FILE=springdb/target/*.jar
 ARG FRONT_END=springdb/frontend
 ARG NODE_NPM=springdb/target/node
