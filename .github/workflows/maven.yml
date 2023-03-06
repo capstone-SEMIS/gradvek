@@ -13,8 +13,7 @@ on:
 
   push:
    branches: 
-    - 'master'
-    - 'NSheely_GitActions'
+    - '**'
   pull_request:
    branches:
     - 'master'
@@ -62,7 +61,7 @@ jobs:
         mvn surefire:test
 
   build:
-#   if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
+    if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -112,7 +111,7 @@ jobs:
           path: nodenpm.tar.gz
 
   publish:
-#   if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
+    if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
     needs: build
     runs-on: ubuntu-latest
     environment: ns_dockerhub
