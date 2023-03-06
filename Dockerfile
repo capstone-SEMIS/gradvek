@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17
 ARG JAR_FILE=springdb/target/*.jar
 ARG FRONT_END=springdb/frontend
 ARG NODE_NPM=springdb/target/node
