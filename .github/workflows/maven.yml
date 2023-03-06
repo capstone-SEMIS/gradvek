@@ -8,8 +8,8 @@ on:
     inputs:
       NON_MASTER_DEPLOY:
         description: 'Deploy even if this is not on the master branch'
-        required: false
-        default: 'FALSE'
+        required: true
+        default: 'TRUE'
 
   push:
    branches: 
