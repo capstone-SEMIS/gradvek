@@ -9,7 +9,7 @@ on:
       NON_MASTER_DEPLOY:
         description: 'Deploy even if this is not on the master branch'
         required: false
-        default: 'TRUE'
+        default: 'FALSE'
 
   push:
    branches: 
@@ -62,7 +62,7 @@ jobs:
         mvn surefire:test
 
   build:
-    if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
+#   if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -112,7 +112,7 @@ jobs:
           path: nodenpm.tar.gz
 
   publish:
-    if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
+#   if: ${{ github.ref == 'refs/heads/master' || github.event.inputs.NON_MASTER_DEPLOY == 'TRUE' }}
     needs: build
     runs-on: ubuntu-latest
     environment: ns_dockerhub
