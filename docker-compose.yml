@@ -11,9 +11,10 @@ services:
       - "7687:7687"
     environment:
       NEO4J_AUTH: neo4j/gradvek
+      NEO4J_dbms_security_auth__minimum__password__length: 7
 
   gradvek:
-    image: gradvek/app
+    image: sheelyn/ns_gradvek_test
     ports:
       - "3000:3000"
       - "8080:8080"
