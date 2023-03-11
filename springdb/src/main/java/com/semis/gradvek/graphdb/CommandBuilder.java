@@ -32,6 +32,8 @@ public class CommandBuilder implements Constants {
     private int count = 0;
     private String drug = null;
 
+    private String mousePhenotype = null;
+
     private enum Goal {WEIGHTS, PATHS}
 
     public CommandBuilder getWeights(String target) {
@@ -63,6 +65,11 @@ public class CommandBuilder implements Constants {
 
     public CommandBuilder limit(int count) {
         this.count = count;
+        return this;
+    }
+
+    public CommandBuilder forMousePhenotype(String mousePhenotype) {
+        this.mousePhenotype = mousePhenotype;
         return this;
     }
 
@@ -108,6 +115,9 @@ public class CommandBuilder implements Constants {
         }
     }
 
+    private void appendMousePhenotypeLimit(StringBuilder command){
+    }
+
     private void appendCountLimit(StringBuilder command) {
         if (count > 0) {
             command.append(" LIMIT ").append(count);
@@ -128,6 +138,7 @@ public class CommandBuilder implements Constants {
         appendTargetLimit(command);
         appendDrugLimit(command);
         appendActionLimit(command);
+        appendMousePhenotypeLimit(command);
 
         // Forward enabledSets and targetingDrugs to next MATCH clause
         command.append(" WITH enabledSets, COLLECT(nd) AS targetingDrugs");

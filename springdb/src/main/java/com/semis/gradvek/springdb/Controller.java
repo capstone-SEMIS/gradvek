@@ -79,7 +79,8 @@ public class Controller {
 				AdverseEvent,
 				AssociatedWith,
 				MechanismOfAction,
-				Participates
+				Participates,
+				MousePhenotype
 		};
 
 		// Create indexes up front for fast merging
@@ -91,13 +92,15 @@ public class Controller {
 			try {
 				String typeString = type.toString ();
 				int alreadyThere = mDriver.count (type);
+
 				if (alreadyThere <= 0) {
+
 					mLogger.info ("Importing " + typeString + " data");
 					ParquetUtils.initEntities (mEnv, mDriver, type);
 					mDriver.unique (type);
 					mLogger.info ("Imported " +  mDriver.count (type) + " entities of type " + typeString);
 				} else {
-					mLogger.info ("Database contains " + alreadyThere + " entries of type " + typeString + ", skipping import");
+					mLogger.info ("Database contain.s " + alreadyThere + " entries of type " + typeString + ", skipping import");
 
 				}
 			} catch (IOException iox) {

@@ -30,6 +30,11 @@ public class Node extends CytoscapeEntity {
                     Pair.of(PATHWAY_ID_STRING, PATHWAY_ID_STRING),
                     Pair.of("name", "pathwayCode"),
                     Pair.of("term", "topLevelTerm")
+            ),
+            "MousePhenotype", List.of(
+                    Pair.of(MOUSE_PHENOTYPE_ID, MOUSE_PHENOTYPE_ID),
+                    Pair.of("name", "label"),
+                    Pair.of("mousePhenotypeId", "mousePhenotypeId")
             )
     );
 

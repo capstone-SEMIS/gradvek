@@ -8,4 +8,7 @@ public interface Constants {
 	public final String PATHWAY_ID_STRING = "pathwayId";
 	
 	public final String DB_VERSION_PARAM = "version";
+
+	//"mousePhenotypeId is a placeholder for now.
+	public final String MOUSE_PHENOTYPE_ID = "mousePhenotypeId";
 }

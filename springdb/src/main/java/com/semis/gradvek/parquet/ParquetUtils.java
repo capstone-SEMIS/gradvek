@@ -50,8 +50,9 @@ public class ParquetUtils {
 			EntityType.Action, new OpenTargetsSource ("", "OpenTargets data on drug association with actions on targets"), // gets created with mechanisms
 			EntityType.AssociatedWith, new OpenTargetsSource ("fda/significantAdverseDrugReactions", "FAERS data on association of adverse events with drug molecules"),
 			EntityType.Pathway, new OpenTargetsSource ("", "OpenTargets annotations for pathways"), // gets created with targets
-			EntityType.Participates, new OpenTargetsSource ("targets", "OpenTargets data on participation of drug targets in pathways")
-	);
+			EntityType.Participates, new OpenTargetsSource ("targets", "OpenTargets data on participation of drug targets in pathways"),
+			EntityType.MousePhenotype, new OpenTargetsSource ("mousePhenotypes", "OpenTargets data for mousePhenotypes")
+			);
 
 	/**
 	 * Collects all fields with the specified keys from the supplied data into a map
@@ -212,6 +213,7 @@ public class ParquetUtils {
 				
 		try {
 			ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver ();
+			mLogger.warning (path);
 			resources = resourcePatternResolver.getResources (path + "/*.parquet");
 		} catch (FileNotFoundException fnfx) {
 			mLogger.warning ("No files for type " + type + " found in local environment");

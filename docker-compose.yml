@@ -14,7 +14,7 @@ services:
       NEO4J_dbms_security_auth__minimum__password__length: 7
 
   gradvek:
-    image: sheelyn/ns_gradvek_test
+    image: gradvek/springdb-docker
     ports:
       - "3000:3000"
       - "8080:8080"

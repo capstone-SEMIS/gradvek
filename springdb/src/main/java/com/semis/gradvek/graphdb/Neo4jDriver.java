@@ -187,8 +187,11 @@ public class Neo4jDriver implements DBDriver, Constants {
     public int count(EntityType type) {
         mLogger.info("Counting " + type);
         try (Session session = mDriver.session()) {
+
             return session.readTransaction(tx -> {
+
                 Result result = tx.run(EntityType.toCountString(type));
+
                 return (result.next().get(0).asInt());
             });
         }

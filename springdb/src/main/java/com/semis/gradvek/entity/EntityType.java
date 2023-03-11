@@ -6,18 +6,20 @@ package com.semis.gradvek.entity;
  *
  */
 public enum EntityType implements Constants {
-	AdverseEvent (AdverseEvent.class, ADVERSE_EVENT_ID_STRING), 
-	Drug (Drug.class, DRUG_ID_STRING), 
-	Gene (Gene.class, GENE_ID_STRING), 
-	Target (Target.class, TARGET_ID_STRING), 
-	Pathway (Pathway.class, PATHWAY_ID_STRING), 
-	AssociatedWith (AssociatedWith.class, null),
-	MechanismOfAction (MechanismOfAction.class, null),
-	Participates (Participates.class, null),
-	Involves (Involves.class, null),
-	Dataset (Dataset.class, "dataset"),
-	Action(Action.class, null);
-	
+	AdverseEvent(AdverseEvent.class, ADVERSE_EVENT_ID_STRING),
+	Drug(Drug.class, DRUG_ID_STRING),
+	Gene(Gene.class, GENE_ID_STRING),
+	Target(Target.class, TARGET_ID_STRING),
+	Pathway(Pathway.class, PATHWAY_ID_STRING),
+	AssociatedWith(AssociatedWith.class, null),
+	MechanismOfAction(MechanismOfAction.class, null),
+	Participates(Participates.class, null),
+	Involves(Involves.class, null),
+	Dataset(Dataset.class, "dataset"),
+	Action(Action.class, null),
+	MousePhenotype(MousePhenotype.class, MOUSE_PHENOTYPE_ID);
+
+
 	/**
 	 * The class of the corresponding entity (a subclass of Entity)
 	 */
@@ -88,6 +90,7 @@ public enum EntityType implements Constants {
 			case Drug:
 			case Gene:
 			case Target:
+			case MousePhenotype:
 			case Pathway:
 			case Dataset:
 				ret = "MATCH (n:" + type.toString () + ") RETURN COUNT (n)";
@@ -108,6 +111,7 @@ public enum EntityType implements Constants {
 			
 			case Participates:
 				ret = "MATCH (:Target)-[n]->(:Pathway) RETURN COUNT (n)";
+
 			break;
 		}
 		
