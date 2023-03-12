@@ -100,7 +100,7 @@ public class Controller {
 					mDriver.unique (type);
 					mLogger.info ("Imported " +  mDriver.count (type) + " entities of type " + typeString);
 				} else {
-					mLogger.info ("Database contain.s " + alreadyThere + " entries of type " + typeString + ", skipping import");
+					mLogger.info ("Database contains " + alreadyThere + " entries of type " + typeString + ", skipping import");
 
 				}
 			} catch (IOException iox) {
@@ -136,6 +136,7 @@ public class Controller {
 			mLogger.warning ("Could not connect to neo4j database - will use inmem db");
 			mDriver = new TestDBDriver ();
 		}
+
 
 	}
 
