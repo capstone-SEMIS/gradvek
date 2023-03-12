@@ -33,10 +33,10 @@ public class EntityFactory {
 				return (null);
 			}
 		} catch (NoSuchMethodException | IllegalAccessException | InstantiationException cx) {
-			mLogger.fine ("Couldn't create entity of type " + entityClass.getName () + " - no accessible constructor from Parquet");
+			mLogger.info ("Couldn't create entity of type " + entityClass.getName () + " - no accessible constructor from Parquet");
 			return null;
 		} catch (InvocationTargetException itx) {
-			mLogger.fine ("Couldn't create entity of type " + entityClass.getName () + " - cause " +
+			mLogger.info ("Couldn't create entity of type " + entityClass.getName () + " - cause " +
 					itx.getCause ());
 			return (null);
 		}

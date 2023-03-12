@@ -21,8 +21,8 @@ public class MousePhenotype extends NamedEntity {
     }
 
     public MousePhenotype(Importer importer, Group data) {
-        super(data.getString ("label", 0));
-        mMousePhenotypeId = data.getString ("id", 0);
+        super(data.getString ("modelPhenotypeLabel", 0));
+        mMousePhenotypeId = data.getString ("modelPhenotypeId", 0);
         setDataset ("$" + DB_VERSION_PARAM);
     }
 

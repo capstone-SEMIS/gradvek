@@ -40,7 +40,7 @@ public class Importer {
 	public int importParquet (Parquet parquet, EntityType type, String version) {
 		final List<Entity> toImport = readEntities (parquet, type);
 		int numFound = toImport.size();
-		logger.fine("Found " + numFound + " entities to import");
+		logger.info("Found " + numFound + " entities to import");
 		
 		if (numFound > 0) {
 			numFound = mDriver.add (toImport, type.canCombine (), version + "." + type);
